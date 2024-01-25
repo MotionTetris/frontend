@@ -1,13 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-interface RoomStatus {
-  showStatusMessage: boolean;
-  statusMessage: string;
-}
-
-interface RoomStatusState {
-  [roomId: string]: RoomStatus;
-}
+import { RoomStatusState } from '../../app/store';
 
 const initialState: RoomStatusState = {};
 

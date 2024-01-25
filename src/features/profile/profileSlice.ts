@@ -1,10 +1,6 @@
 // src/features/profile/profileSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-interface ProfileState {
-  photo: string;
-  nickname: string;
-}
+import { ProfileState } from '../../app/store';
 
 const initialState: ProfileState = {
   photo: '',

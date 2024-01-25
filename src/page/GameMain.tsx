@@ -8,6 +8,7 @@ import HeaderComponent from '../components/HeaderComponent';
 import RoomCardComponent from '../components/RoomCardComponent';
 import RoomModal from '../Modal/RoomModal';
 import { RoomGrid, Pagination, GameMainContainer , PaginationButton } from '../Styled';
+import { useNavigate } from 'react-router-dom';
 
 
 const GameMain = () => {
@@ -15,13 +16,18 @@ const GameMain = () => {
   const { rooms, currentPage, isModalOpen, selectedRoom } = useSelector((state: RootState) => state.game);
   const activePath = '/gamemain';
   const roomsPerPage = 6; // 한 페이지당 방 개수
-
+  const navigate = useNavigate();
+  
   useEffect(() => {
     dispatch(fetchRooms(currentPage));
   }, [dispatch, currentPage]);
 
   const handleRoomClick = (roomData: RoomData) => {
     dispatch(openModal(roomData));
+  };
+
+  const handleRoomEnter = (roomData: RoomData) => {
+    navigate(`/rooms/${roomData.id}`);
   };
 
   const handleCloseModal = () => {
@@ -54,7 +60,7 @@ const currentRooms = rooms.slice((currentPage - 1) * roomsPerPage, currentPage *
         ))}
       </RoomGrid>
       {isModalOpen && selectedRoom && (
-        <RoomModal roomData={selectedRoom} onClose={handleCloseModal} />
+        <RoomModal roomData={selectedRoom} onClose={handleCloseModal} onRoomClick={handleRoomEnter}/>
       )}
         <Pagination>
         < PaginationButton direction="left" onClick={goToPreviousPage} disabled={currentPage === 1} />

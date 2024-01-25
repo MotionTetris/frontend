@@ -1,18 +1,7 @@
 // src/features/ranking/rankingSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { RankingState,RankingItem } from '../../app/store';
 
-interface RankingState {
-  rankings: RankingItem[];
-  totalPages: number;
-  currentPage: number;
-}
-
-// RankingItem 인터페이스 정의
-interface RankingItem {
-  profilePic: string;
-  username: string;
-  score: number;
-}
 
 const initialState: RankingState = {
   rankings: [],

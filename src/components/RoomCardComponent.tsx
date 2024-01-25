@@ -34,6 +34,7 @@ const RoomCardComponent: React.FC<RoomCardComponentProps> = ({ roomData, onRoomC
   };
 
   return (
+    
     <RoomContainer onClick={handleClick}>
       <RoomBackground className="room-background" style={{ backgroundImage: `url(${roomData.backgroundUrl})` }} status={roomData.status} />
       <RoomTitleContainer>

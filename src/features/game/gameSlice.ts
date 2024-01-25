@@ -1,23 +1,8 @@
 // src/features/game/gameSlice.ts
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { RoomData, GameState } from '../../app/store';
 
-interface RoomData {
-  title: string;
-  status: string;
-  creatorProfilePic: string;
-  creatorNickname: string;
-  currentCount: number;
-  maxCount: number;
-  backgroundUrl: string;
-}
-
-interface GameState {
-  rooms: RoomData[];
-  currentPage: number;
-  isModalOpen: boolean;
-  selectedRoom: RoomData | null;
-}
 
 const initialState: GameState = {
   rooms: [],

@@ -8,6 +8,161 @@ interface StyledLinkProps {
   image: string; // 이미지 URL을 위한 속성 추가
 }
 
+
+// GameRoomModal
+
+export const RoomModalBackground = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+`;
+
+export const RoomModalContainer = styled.div`
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 50%;
+  max-width: 600px;
+`;
+
+export const RoomModalTitle = styled.h2``;
+
+export const RoomModalContent = styled.p``;
+
+export const RoomModalActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+`;
+
+export const RoomModalButton = styled.button`
+  padding: 10px 20px;
+  margin-left: 10px;
+`;
+
+
+// Signup
+
+
+export const SignupModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const SignupModalContainer = styled.div`
+  width: 90%;
+  max-width: 600px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.2);
+`;
+
+export const SignupCloseButton = styled.button`
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  float: right;
+`;
+
+export const SignupInput = styled.input`
+  width: 450px; // 입력란의 너비를 늘립니다.
+  max-width: 600px;
+  padding: 10px; // 입력란 안쪽의 여백을 추가합니다.
+  box-sizing: border-box;
+  margin: 10px 0;
+`;
+
+export const SignupButton = styled.button`
+  display: block; // 버튼을 블록 요소로 만듭니다.
+  margin: 0 auto; // 버튼을 수평 방향으로 중앙 정렬합니다.
+`;
+
+export const SignupForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  align-items: center; // 수직 방향으로 중앙 정렬
+`;
+
+export const SignupErrorMessage = styled.div`
+  color: red;
+`;
+
+
+// HomePage
+
+export const HomepageTitle = styled.h1`
+  color: white;
+`;
+
+export const HomepageInputString = styled.label `
+  color: white;
+`;
+
+export const HomepageInputField = styled.input`
+  padding: 10px 20px;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+`;
+
+export const HomepageContainer = styled.div`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 25%;
+  background-color: rgba(0,0, 0, 0.5);
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const HomepageInnerContainer = styled.div`
+  width: 80%;
+`;
+
+export const HomepageButton = styled.button`
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  margin: 10px 0;
+`;
+
+export const HomepageLoginButton = styled(HomepageButton)`
+  background-color: #007bff;
+`;
+
+export const HomepageGuestLoginButton = styled(HomepageButton)`
+  background-color: #6c757d;
+`;
+
+export const HomepageSignupButton = styled(HomepageButton)`
+  background-color: #28a745;
+`;
+
+
 // SidebarComponent
 
 export const Sidebar = styled.aside`

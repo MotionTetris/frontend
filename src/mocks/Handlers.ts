@@ -3,6 +3,30 @@ import { http, HttpResponse } from 'msw';
 const rankingsPerPage = 10; // 페이지 당 표시할 랭킹의 수
 
 export const handlers = [
+
+  http.post('/api/login', async ({ request }) => {
+    const requestBody = await request.json();
+    console.log('Received login request:', requestBody);
+  
+    // 실제로는 DB에서 조회하고, 결과를 반환하겠지만 여기선 그냥 로그로 출력합니다.
+    console.log('Login information retrieved from the database:', requestBody);
+  
+    // 정상적으로 처리되었음을 알리는 응답을 반환합니다.
+    return HttpResponse.json(requestBody);
+  }),
+  
+  http.post('/api/signup', async ({ request }) => {
+    const requestBody = await request.json();
+    console.log('Received signup request:', requestBody);
+  
+    // 실제로는 DB에 저장하고, 결과를 반환하겠지만 여기선 그냥 로그로 출력합니다.
+    console.log('Signup information saved to the database:', requestBody);
+  
+    // 정상적으로 처리되었음을 알리는 응답을 반환합니다.
+    return HttpResponse.json(requestBody);
+  }),
+
+
   http.get('/api/profile', () => {
     return HttpResponse.json({
       photo: 'src/assets/ProfilePhoto.png',
@@ -54,6 +78,7 @@ export const handlers = [
 }),
 http.get('/api/room-data', () => {
   const roomsData = Array.from({ length: 9 }).map(() => ({
+    id: Math.random().toString(36).substring(2, 15),
     // 랜덤한 방 제목 생성 (10글자 이내)
     title: Math.random().toString(36).substring(2, 12),
     // '대기 중', '준비 중', '게임 중' 중 랜덤하게 선택
