@@ -1,25 +1,37 @@
-// HeaderComponent.tsx
-import { Header, LogoContainer, Logo, LogoTitle, ProfileNickName, ProfilePhoto, ProfileContainer,StyledLinkContainer, StyledLink } from '../Styled.tsx';
-import { useEffect, useState } from 'react';
+// src/components/HeaderComponent.tsx
 
-// prop 타입을 위한 인터페이스 정의
-interface SidebarComponentProps {
-  activePath: string; // activePath prop 타입 지정
-}
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setProfile } from '../features/profile/profileSlice';
+import { RootState,SidebarComponentProps } from '../app/store';
+import { Header, LogoContainer, Logo, LogoTitle, ProfileNickName, ProfilePhoto, ProfileContainer, StyledLinkContainer, StyledLink } from '../Styled.tsx';
 
-const HeaderComponent : React.FC<SidebarComponentProps> = ({ activePath }) => {
-  const [profile, setProfile] = useState({ photo: '', nickname: '' });
+
+const HeaderComponent: React.FC<SidebarComponentProps> = ({ activePath }) => {
+  const dispatch = useDispatch();
+  const profile = useSelector((state: RootState) => state.profile);
 
   useEffect(() => {
-    fetch('/api/profile')
-      .then((response) => response.json())
-      .then((data) => {
-        setProfile(data);
-      })
-      .catch((error) => {
-        console.error('Client: Error fetching /api/profile', error);
-      });
-  }, []);
+    const fetchProfile = () => {
+      if (!profile.photo && !profile.nickname) { // 프로필 정보가 비어있는 경우에만 요청
+        fetch('/api/profile')
+          .then((response) => response.json())
+          .then((data) => {
+            dispatch(setProfile(data));
+          })
+          .catch((error) => {
+            console.error('Client: Error fetching /api/profile', error);
+          });
+      }
+    };
+
+    fetchProfile(); // 컴포넌트 마운트 시 프로필 정보 가져오기
+
+    const interval = setInterval(fetchProfile, 600000); // 10분마다 프로필 정보 업데이트
+
+    return () => clearInterval(interval); // 컴포넌트 언마운트 시 인터벌 클리어
+  }, [dispatch, profile.photo, profile.nickname]); // 의존성 배열에 프로필 정보 추가
+
   return (
     <Header>
       <LogoContainer>
@@ -39,4 +51,4 @@ const HeaderComponent : React.FC<SidebarComponentProps> = ({ activePath }) => {
   );
 };
 
-export default HeaderComponent;
+export default React.memo(HeaderComponent);

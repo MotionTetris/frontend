@@ -4,17 +4,17 @@ const rankingsPerPage = 10; // 페이지 당 표시할 랭킹의 수
 
 export const handlers = [
   http.get('/api/profile', () => {
-    const mockResponse = {
+    return HttpResponse.json({
       photo: 'src/assets/ProfilePhoto.png',
       nickname: 'Kim5606'
-    };
-    return HttpResponse.json(mockResponse);
+    });
   }),
 
  // 랭킹 데이터를 조회하는 post 요청 처리
  http.post('/api/rankings', async ({ request }) => {
   // request.body를 사용하여 요청 본문에서 현재 페이지 번호를 가져옵니다.
   const requestBody = await request.json();
+  console.log('Received request body:', requestBody); // 요청 본문 로깅
   const currentPage = typeof requestBody === 'object' && requestBody !== null && 'page' in requestBody
     ? parseInt(requestBody.page, 10)
     : 1;
@@ -44,6 +44,7 @@ export const handlers = [
 
   // 총 페이지 수를 계산합니다.
   const totalPages = Math.ceil(mockRankings.length / rankingsPerPage);
+  console.log('Total pages:', totalPages); // 총 페이지 수 로깅
 
   // 비동기 방식으로 응답을 반환합니다.
   return HttpResponse.json({

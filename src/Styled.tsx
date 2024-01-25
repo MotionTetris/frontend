@@ -231,6 +231,32 @@ export const SlideNumber = styled.div`
 
 // RankingComponent
 
+export const RankButton = styled.button<{ direction: 'left' | 'right' }>`
+  position: fixed; // 페이지 이동에도 위치 고정
+  top: 50%;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  background-size: contain;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  transition: transform 0.3s ease-in-out;
+  ${({ direction }) => direction === 'left' && `
+    left: 1vw;
+    background-image: url('src/assets/ArrowLeft.png'); // 왼쪽 화살표 이미지
+  `}
+
+  ${({ direction }) => direction === 'right' && `
+    right:1vw ;
+    background-image: url('src/assets/ArrowRight.png'); // 오른쪽 화살표 이미지
+  `}
+  
+  &:hover {
+    transform: scale(1.2); // hover 시 이미지 확대
+  }
+`;
+
 export const RankingSection = styled.div`
   display: flex;
   position:relative;
@@ -477,13 +503,8 @@ export const RoomCreateNickname = styled.div`
 `;
 
 export const GameMainContainer = styled.div`
-  overflow: hidden; // 랭킹이 많아지면 스크롤
-
-  // Chrome, Safari
-  ::-webkit-scrollbar {
-    display: none;
-  }
-
+  position:relative;
+  bottom:5vh;
 
 `;
 
@@ -510,21 +531,49 @@ export const RoomGrid = styled.div`
   margin: auto; // 그리드를 세로 방향으로 중앙 정렬
 `;
 
+// 스타일 컴포넌트 파일 (예: src/Styled.tsx)
+
+
+export const PaginationButton = styled.button<{ direction: 'left' | 'right' }>`
+  position: fixed; // 페이지 이동에도 위치 고정
+  top: 50%;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  background-size: contain;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  transition: transform 0.3s ease-in-out;
+  ${({ direction }) => direction === 'left' && `
+    left: 20vw;
+    background-image: url('src/assets/ArrowLeft.png'); // 왼쪽 화살표 이미지
+  `}
+
+  ${({ direction }) => direction === 'right' && `
+    right:20vw ;
+    background-image: url('src/assets/ArrowRight.png'); // 오른쪽 화살표 이미지
+  `}
+  
+  &:hover {
+    transform: scale(1.2); // hover 시 이미지 확대
+  }
+`;
+
 export const Pagination = styled.div`
   display: flex;
-  position:relative;
-  left:65vw;
-  bottom:105vh;
-  button {
-    margin: 0 10px;
-    padding: 5px 10px;
-    background-color: #f0f0f0;
-    border: 1px solid #dcdcdc;
-    cursor: pointer;
-    &:hover {
-      background-color: #e0e0e0;
-    }
-  }
+  align-items: center;
+  justify-content: center;
+
+`;
+
+
+
+export const PageInfo = styled.span`
+position:relative;
+right: 1vw;
+top: 2.5vh;
+  font-size: 24px;
 `;
 
 // 애니메이션 정의
