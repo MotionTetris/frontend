@@ -7,9 +7,24 @@ export const GlobalStyles = createGlobalStyle`
     src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@1.0/ChosunBg.woff") format("woff");
     font-weight: normal;
     font-style: normal;
+    // font-family: 'ChosunBg', sans-serif;
   }
 
-  body {
+  @font-face {
+    font-family: 'JalnanGothic';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_231029@1.1/JalnanGothic.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    //  font-family: 'JalnanGothic', sans-serif;
+  }
+
+  @font-face{
+    font-family:'DNFBitBitv2';
+    font-style:normal;
+    font-weight:400;
+    src:url('//cdn.df.nexon.com/img/common/font/DNFBitBitv2.otf')format('opentype')
+  }
+    body {
     font-family: "ChosunBg", sans-serif;
   }
 `;

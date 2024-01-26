@@ -1,9 +1,9 @@
 import ReactDOM from 'react-dom/client'
-import App from './App'  // App 컴포넌트를 임포트합니다.
+import App from './App'
 import { Provider } from 'react-redux';
-import { store } from './app/store'; // store를 올바르게 import 했는지 확인
+import { store } from './app/store';
+import React from 'react';
 
-// MSW를 임포트합니다.
 if (process.env.NODE_ENV === 'development') {
   import('./mocks/Browser').then(({ worker }) => {
     worker.start();
@@ -11,9 +11,9 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-
-  <Provider store={store}>
-  <App />
-</Provider>
-
+  <React.StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </React.StrictMode>
 )

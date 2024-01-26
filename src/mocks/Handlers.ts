@@ -44,7 +44,7 @@ export const handlers = [
     : 1;
 
   // 100개의 랭킹 데이터를 생성합니다.
-  let mockRankings = [];
+  const mockRankings = [];
   for (let i = 0; i < 100; i++) {
     const profilePicNumber = Math.floor(Math.random() * 3) + 1; // 1, 2, 3 중 하나의 숫자
     const profilePic = `src/assets/Profile${profilePicNumber}.png`;
