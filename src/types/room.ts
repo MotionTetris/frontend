@@ -15,14 +15,14 @@ export interface RoomStatus {
   };
 
   export const RoomStatuses = {
-    READY: 'Ready',
-    START: 'Start',
-    WAIT: 'Wait',
+    READY: 'READY',
+    START: 'START',
+    WAIT: 'WAIT',
   } as const;
 
   export const LockStatuses = {
-    LOCK: 'Lock',
-    UNLOCK: 'UnLock',
+    LOCK: 'LOCK',
+    UNLOCK: 'UNLOCK',
   } as const;
 
   export const CreatorStatuses = {
@@ -37,8 +37,8 @@ export interface RoomStatus {
   } as const;
   
   export const Role = {
-    CREATOR: 'creator',
-    PLAYER:'player'
+    CREATOR: 'CREATOR',
+    PLAYER:'PLAYER'
   }
   export interface RoomData {
     role: keyof typeof Role;

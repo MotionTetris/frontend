@@ -9,7 +9,6 @@ import GameLobby from './pages/Lobby/GameLobby';
 import GameDashBoard from './pages/DashBoard/GameDashBoard';
 import GameRoom from './pages/Room/GameRoom';
 import HomePage from './pages/Homepage/HomePage';
-
 import { GlobalStyles } from './GloabalStyles';
 
 interface RequireAuthProps {

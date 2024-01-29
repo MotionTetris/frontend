@@ -1,6 +1,6 @@
 // RoomCardComponent.tsx
 import styled, { keyframes }  from 'styled-components';
-export const RoomBackground = styled.div<{ status: string }>`
+export const RoomBackground = styled.div<{  status: 'READY' | 'START' | 'WAIT'}>`
   position: absolute;
   width: 100%;
   height: 100%;
@@ -9,8 +9,8 @@ export const RoomBackground = styled.div<{ status: string }>`
   background-position: center;
   border-radius: 50px;
   filter: ${({ status }) => 
-    status === '대기 중' ? 'grayscale(0%)' : 
-    status === '준비 중' ? 'grayscale(80%)' : 'grayscale(100%)'};
+    status === 'WAIT' ? 'grayscale(0%)' : 
+    status === 'READY' ? 'grayscale(80%)' : 'grayscale(100%)'};
     transition: filter 0.3s ease;
     &.room-background {
     }  
@@ -63,7 +63,7 @@ export const RoomTitle = styled.h3`
   margin-bottom: 10px;
 `;
 
-export const RoomStatus = styled.div<{ status: string }>`
+export const RoomStatus = styled.div<{  status: 'READY' | 'START' | 'WAIT'}>`
   display: inline-block;
   position: relative;
   top:1.8vh;
@@ -75,11 +75,11 @@ export const RoomStatus = styled.div<{ status: string }>`
   margin-bottom: 10px;
   background-color: ${({ status }) => {
     switch (status) {
-      case '대기 중':
+      case 'WAIT':
         return '#f0f0f0';
-      case '준비 중':
+      case 'READY':
         return '#fffacd';
-      case '게임 중':
+      case 'START':
         return '#add8e6';
       default:
         return 'transparent';
@@ -127,7 +127,6 @@ export const RoomCount = styled.div`
   border-radius: 50px;
 `;
 
-// 애니메이션 정의
 export const slideUp = keyframes`
   from {
     transform: translateY(20px);
@@ -139,7 +138,6 @@ export const slideUp = keyframes`
   }
 `;
 
-// 애니메이션 정의
 export const slideDown = keyframes`
   from {
     transform: translateY(0);
@@ -151,7 +149,7 @@ export const slideDown = keyframes`
   }
 `;
 
-export const RoomStatusMessage = styled.div<{ status: string, show: boolean }>`
+export const RoomStatusMessage = styled.div<{ status: 'READY' | 'START' | 'WAIT', $show: boolean }>`
   position: absolute;
   bottom: 20vh;
   width: 10.3vw;
@@ -159,10 +157,10 @@ export const RoomStatusMessage = styled.div<{ status: string, show: boolean }>`
   color: white;
   padding: 10px;
   margin-top: 10px;
-  visibility: ${({ show }) => (show ? 'visible' : 'hidden')};
+  visibility: ${({ $show }) => ($show ? 'visible' : 'hidden')};
   background-color: ${({ status }) =>
-    status === '준비 중' ? 'rgba(255, 255, 0, 0.7)' :
-    status === '게임 중' ? 'rgba(255, 0, 0, 0.7)' :
+    status === 'READY' ? 'rgba(255, 255, 0, 0.7)' :
+    status === 'START' ? 'rgba(255, 0, 0, 0.7)' :
     'transparent'};
-  animation: ${({ show }) => (show ? slideUp : slideDown)} 0.3s ease forwards;
+  animation: ${({ $show }) => ($show ? slideUp : slideDown)} 0.3s ease forwards;
 `;

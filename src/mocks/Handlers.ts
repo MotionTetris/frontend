@@ -1,6 +1,8 @@
 import { http, HttpResponse } from 'msw';
-
+import {RoomStatuses} from '../types/room'
 const rankingsPerPage = 10; // 페이지 당 표시할 랭킹의 수
+
+
 
 export const handlers = [
 
@@ -76,37 +78,32 @@ export const handlers = [
     totalPages: totalPages
   });
 }),
+
+
 http.get('/api/room-data', () => {
   const roomsData = Array.from({ length: 9 }).map(() => ({
-    id: Math.random().toString(36).substring(2, 15),
-    // 랜덤한 방 제목 생성 (10글자 이내)
+    roomid: Math.random().toString(36).substring(2, 15),
     title: Math.random().toString(36).substring(2, 12),
-    // '대기 중', '준비 중', '게임 중' 중 랜덤하게 선택
-    status: ['대기 중', '준비 중', '게임 중'][Math.floor(Math.random() * 3)],
-    // Profile1.png, Profile2.png, Profile3.png 중 랜덤하게 선택
+    roomStatus: Object.values(RoomStatuses)[Math.floor(Math.random() * Object.values(RoomStatuses).length)], // RoomStatuses 상수 사용
     creatorProfilePic: `src/assets/Profile${Math.floor(Math.random() * 3) + 1}.png`,
     backgroundUrl: `src/assets/Tetris_back${Math.floor(Math.random() * 5) + 1}.png`,
-    // 'User1'에서 'User100' 중 랜덤하게 선택
     creatorNickname: `User${Math.floor(Math.random() * 100) + 1}`,
-    // 2에서 4 사이의 랜덤한 MaxCount
     maxCount: Math.floor(Math.random() * 3) + 2,
   })).map(room => ({
     ...room,
-    // 1에서 MaxCount-1 사이의 랜덤한 currentCount
     currentCount: Math.floor(Math.random() * room.maxCount) + 1,
   }));
 
   return HttpResponse.json({ rooms: roomsData });
 }),
-
 http.get('/api/rooms', async ({ request }) => {
   const url = new URL(request.url);
   const currentPage = Number(url.searchParams.get('page')) || 1;
-  const rankingsPerPage = 9; // 페이지 당 표시할 랭킹의 수
+  const rankingsPerPage = 9;
   const allRoomsData = Array.from({ length: 100 }).map(() => ({
-    id: Math.random().toString(36).substring(2, 15),
+    roomid: Math.random().toString(36).substring(2, 15),
     title: Math.random().toString(36).substring(2, 12),
-    status: ['대기 중', '준비 중', '게임 중'][Math.floor(Math.random() * 3)],
+    roomStatus: Object.values(RoomStatuses)[Math.floor(Math.random() * Object.values(RoomStatuses).length)], // RoomStatuses 상수 사용
     creatorProfilePic: `src/assets/Profile${Math.floor(Math.random() * 3) + 1}.png`,
     backgroundUrl: `src/assets/Tetris_back${Math.floor(Math.random() * 5) + 1}.png`,
     creatorNickname: `User${Math.floor(Math.random() * 100) + 1}`,
@@ -115,7 +112,6 @@ http.get('/api/rooms', async ({ request }) => {
     ...room,
     currentCount: Math.floor(Math.random() * room.maxCount) + 1,
   }));
-  // 현재 페이지에 맞는 방 데이터만 잘라서 반환
   const startIndex = (currentPage - 1) * rankingsPerPage;
   const endIndex = startIndex + rankingsPerPage;
   const roomsData = allRoomsData.slice(startIndex, endIndex);

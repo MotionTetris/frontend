@@ -4,7 +4,8 @@ import {RoomModalBackground, RoomModalContainer, RoomModalTitle,RoomModalContent
 import { RoomModalProps } from '../../../types/room';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { handleRoomStatusMessage, ROOM_STATUS } from '@util/room';
+import { handleRoomStatusMessage } from '@util/room';
+import { RoomStatuses } from '../../../types/room'
 // RoomModalProps
 const RoomModal: React.FC<RoomModalProps> = ({ roomData, onClose,onRoomClick }) => {
   console.log(typeof onRoomClick);
@@ -12,7 +13,7 @@ const RoomModal: React.FC<RoomModalProps> = ({ roomData, onClose,onRoomClick }) 
   
   const handleClick = () => {
     handleRoomStatusMessage(roomData, dispatch);
-    if (roomData.roomStatus === ROOM_STATUS.WAITING) {
+    if (roomData.roomStatus === RoomStatuses.WAIT) {
       onRoomClick(roomData);
     }
   };
@@ -24,7 +25,12 @@ const RoomModal: React.FC<RoomModalProps> = ({ roomData, onClose,onRoomClick }) 
         <RoomModalContent>
           인원수: {roomData.currentCount}/{roomData.maxCount}
         </RoomModalContent>
-        <RoomModalContent>상태: {roomData.roomStatus}</RoomModalContent>
+        <RoomModalContent>상태: {
+    roomData.roomStatus === 'WAIT' ? '대기 중' :
+    roomData.roomStatus === 'READY' ? '준비 중' :
+    roomData.roomStatus === 'START' ? '게임 중' :
+    '상태 정보 없음'
+  }</RoomModalContent>
         <RoomModalActions>
       <RoomModalButton onClick={onClose}>아니오</RoomModalButton>
       <RoomModalButton onClick={() => onRoomClick(roomData)}>예</RoomModalButton>

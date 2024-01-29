@@ -1,6 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RoomCardComponentProps,RoomState } from '../../types/room';
-import { handleRoomStatusMessage, ROOM_STATUS } from '@util/room';
+import { handleRoomStatusMessage} from '@util/room';
+import { RoomStatuses } from '../../types/room'
 import {
   RoomContainer,
   RoomBackground,
@@ -19,7 +20,7 @@ const RoomCardComponent: React.FC<RoomCardComponentProps> = ({ roomData, onRoomC
 
   const handleClick = () => {
     handleRoomStatusMessage(roomData, dispatch);
-    if (roomData.roomStatus === ROOM_STATUS.WAITING) {
+    if (roomData.roomStatus === RoomStatuses.WAIT) {
       onRoomClick(roomData);
     }
   };
@@ -29,12 +30,17 @@ const RoomCardComponent: React.FC<RoomCardComponentProps> = ({ roomData, onRoomC
       <RoomBackground className="room-background" style={{ backgroundImage: `url(${roomData.backgroundUrl})` }} status={roomData.roomStatus} />
       <RoomTitleContainer>
         <RoomTitle>{roomData.title}</RoomTitle>
-        <RoomStatus status={roomData.roomStatus}>{roomData.roomStatus}</RoomStatus>
+        <RoomStatus status={roomData.roomStatus}>{
+    roomData.roomStatus === 'WAIT' ? '대기 중' :
+    roomData.roomStatus === 'READY' ? '준비 중' :
+    roomData.roomStatus === 'START' ? '게임 중' :
+    '상태 정보 없음'
+  }</RoomStatus>
         <RoomCreateProfile src={roomData.creatorProfilePic} alt={`${roomData.creatorNickname}'s profile`} />
         <RoomCreateNickname>{roomData.creatorNickname}</RoomCreateNickname>
         <RoomCount>{roomData.currentCount}/{roomData.maxCount}</RoomCount>
         {roomStatus.showStatusMessage && (
-          <RoomStatusMessage status={roomData.roomStatus} show={roomStatus.showStatusMessage}>
+          <RoomStatusMessage status={roomData.roomStatus} $show={roomStatus.showStatusMessage}>
             {roomStatus.statusMessage}
           </RoomStatusMessage>
         )}

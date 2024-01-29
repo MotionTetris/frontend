@@ -33,6 +33,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "public"],
+  "include": ["src", "public", "src/Game"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
