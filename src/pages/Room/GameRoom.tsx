@@ -452,46 +452,48 @@ const particleEffect = new PIXI.ParticleContainer(100, { alpha: true, scale: tru
 pixiApp.stage.addChild(particleEffect);
 
 // 폭발 효과 함수
-const explode = (x: number, y: number) => {
-    // 100개의 입자를 생성
-    for (let i = 0; i < 100; i++) {
-        // 각 입자는 작은 흰색 사각형으로 표현
-        const effectParticle = new PIXI.Sprite(PIXI.Texture.WHITE);
-        effectParticle.tint = 0xff0000; // 입자 색상 설정
-        effectParticle.width = effectParticle.height = Math.random() * 5 + 5; // 입자 크기 설정
-        effectParticle.x = x;
-        effectParticle.y = y;
+const explode = (x: number, y: number, width: number, height: number) => {
+  // 100개의 입자를 생성
+  for (let i = 0; i < 100; i++) {
+      // 각 입자는 작은 흰색 사각형으로 표현
+      const effectParticle = new PIXI.Sprite(PIXI.Texture.WHITE);
+      effectParticle.tint = 0xff0000; // 입자 색상 설정
+      effectParticle.width = effectParticle.height = Math.random() * 5 + 5; // 입자 크기 설정
 
-        // 각 입자는 무작위 방향으로 이동
-        effectParticle.vx = Math.random() * 5 - 2.5;
-        effectParticle.vy = Math.random() * 5 - 2.5;
+      // 파티클의 위치를 라인의 직사각형 범위 내로 설정
+      effectParticle.x = x + Math.random() * width;
+      effectParticle.y = y + Math.random() * height;
 
-        // 입자를 ParticleContainer에 추가
-        particleEffect.addChild(effectParticle);
-    }
+      // 각 입자는 무작위 방향으로 이동
+      effectParticle.vx = Math.random() * 5 - 2.5;
+      effectParticle.vy = Math.random() * 5 - 2.5;
 
-    // 입자 이동 함수
-    const moveEffectParticles = () => {
-        for (let i = particleEffect.children.length - 1; i >= 0; i--) {
-            const effectParticle = particleEffect.children[i] as PIXI.Sprite;
-            effectParticle.x += effectParticle.vx;
-            effectParticle.y += effectParticle.vy;
-            effectParticle.alpha -= 0.01;
-            effectParticle.scale.x = effectParticle.scale.y += 0.01;
+      // 입자를 ParticleContainer에 추가
+      particleEffect.addChild(effectParticle);
+  }
 
-            // 입자가 완전히 투명해지면 ParticleContainer에서 제거
-            if (effectParticle.alpha <= 0) {
-                particleEffect.removeChild(effectParticle);
-            }
-        }
+  // 입자 이동 함수
+  const moveEffectParticles = () => {
+      for (let i = particleEffect.children.length - 1; i >= 0; i--) {
+          const effectParticle = particleEffect.children[i] as PIXI.Sprite;
+          effectParticle.x += effectParticle.vx;
+          effectParticle.y += effectParticle.vy;
+          effectParticle.alpha -= 0.01;
+          effectParticle.scale.x = effectParticle.scale.y += 0.01;
 
-        // 모든 입자가 제거되면 ticker에서 이 함수를 제거
-        if (particleEffect.children.length === 0) {
-            pixiApp.ticker.remove(moveEffectParticles);
-        }
-    };
+          // 입자가 완전히 투명해지면 ParticleContainer에서 제거
+          if (effectParticle.alpha <= 0) {
+              particleEffect.removeChild(effectParticle);
+          }
+      }
 
-    pixiApp.ticker.add(moveEffectParticles);
+      // 모든 입자가 제거되면 ticker에서 이 함수를 제거
+      if (particleEffect.children.length === 0) {
+          pixiApp.ticker.remove(moveEffectParticles);
+      }
+  };
+
+  pixiApp.ticker.add(moveEffectParticles);
 };
 
 
@@ -607,12 +609,12 @@ const explode = (x: number, y: number) => {
         
         else  {
           // 특정 위치에서 폭발 효과 발생
-          explode(280, i*32);
+          explode(140, i*32, 320, 32);
 
-          line.clear(); // 이전 라인 스타일 제거
-          line.beginFill(0xff0000, alpha/1.5); 
-          line.drawRect(200, i * 32, 320, 32); // 32픽셀 간격으로 높이를 설정
-          line.endFill();          
+          // line.clear(); // 이전 라인 스타일 제거
+          // line.beginFill(0xff0000, alpha/1.5); 
+          // line.drawRect(200, i * 32, 320, 32); // 32픽셀 간격으로 높이를 설정
+          // line.endFill();          
           scoreText = new PIXI.Text("폭파!", {fontFamily : 'Arial', fontSize: 20, fill : 0xffffff, align : 'center'});
           scoreText.x = 80;
           scoreText.y = i * 32;
