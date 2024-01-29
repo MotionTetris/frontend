@@ -200,27 +200,34 @@ import Matter, {
       return sum;
     }
   
-    public checkAndRemoveLines(threshold: number) {
+    public checkAndRemoveLines(threshold: number): number[] {
       let scoreSum = 0;
       const bodies = [...this.blocks.keys()];
       const lineToRemove = [];
+      let scoreList = [];
+      
+    
       for (let i = 0; i < this.lines.length; i++) {
         let score = 0;
+  
         for (let j = 0; j < bodies.length; j++) {
           score += this.calculateLineArea(bodies[j], this.lines[i]);
         }
+        scoreList.push(score/threshold);
   
-        console.log(`line[${i}]`, score);
         if (score >= threshold) {
           scoreSum += score;
           lineToRemove.push(i);
+          
         }
       }
-  
+      for (let i =0 ; i < scoreList.length; i++) {
+        console.log(`score of line ${i} = ${scoreList[i]/threshold}`);
+      }
       const lineIndex = lineToRemove.pop();
-      console.log(`lineIndex is ${lineIndex}`);
+      
       if (!lineIndex) {
-        return;
+        return scoreList;
       }
       for (let j = 0; j < bodies.length; j++) {
         let result = this.removeLines(bodies[j], this.lines[lineIndex]);
@@ -236,6 +243,7 @@ import Matter, {
           });
         }
       }
+      return scoreList;
     }
     // #endregion
   

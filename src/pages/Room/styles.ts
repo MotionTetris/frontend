@@ -1,96 +1,71 @@
-// StyledComponents.ts
-import styled from 'styled-components';
+import styled from "styled-components";
 
-export const RoomContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-around;
-  height: 100vh;
-  position: relative; // 상대적 위치
-`;
-
-export const TetrisLogo = styled.div`
-  width: 70%;
-  height: 10%;
-  background: lightgray;
-`;
-
-export const TetrisSingle = styled.div`
-  position: absolute;
-  top: 2%;
-  right: 2%;
-  width: 10%;
-  height: 5%;
-  background: lightblue;
-`;
-
-export const TetrisPlayer = styled.div`
-  position: absolute;
-  top: 10%;
-  right: 2%;
-  width: 10%;
-  height: 10%;
-  background: lightgray;
-`;
-
-export const TetrisNextBlock = styled.div`
-  position: absolute;
-  top: 22%;
-  right: 2%;
-  width: 10%;
-  height: 10%;
-  background: lightyellow;
-`;
-
-export const TetrisCanvas = styled.canvas`
-
-`;
-
-export const TetrisScore = styled.div`
-  position: absolute;
-  top: 2%;
-  left: 25%;
-  width: 20%;
-  height: 5%;
-  color: white;
-  background: rgba(0,0,0,0.5);
-  padding: 10px;
-  font-size: 1.5em; // 1.5 times the size of the default font
-`;
-
-export const MotionContainer = styled.div`
-  position: absolute;
-  width: 50%;
-  height: 50%;
-  border: 2px solid black;
+export const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100vh;
+  overflow: hidden;
 `;
 
-export const Motion = styled.video`
+export const GameContainer = styled.div`
+  position: relative;
+  width: 600px;
+  height: 800px;
+`;
+
+export const EffectCanvas = styled.canvas`
+  position: absolute;
+  width: 600px;
+  height: 800px;
+`;
+
+export const SceneCanvas = styled.canvas`
+  width: 600px;
+  height: 800px;
+  position: absolute;
+`;
+
+export const MessageDiv = styled.div`
+  position: absolute;
+  top: 90%;
+  left: 25%;
+  color: white;
+  background: rgba(255, 0, 0, 0.5);
+  padding: 0px;
+  font-size: 48px;
+`;
+
+export const ScoreDiv = styled.div`
+  position: absolute;
+  top: 0;
+  left: 30%;
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  font-size: 48px;
+`;
+
+export const VideoContainer = styled.div`
+  position: relative;
+  width: 480px;
+  height: 320px;
+  border: 2px solid black;
+`;
+
+export const Video = styled.video`
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
+  transform: scaleX(-1);
+  width: 480px;
+  height: 320px;
 `;
 
-export const MotionDot = styled.canvas`
+export const VideoCanvas = styled.canvas`
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 480px;
+  height: 320px;
 `;
-
-export const PlayerStatus = styled.button`
-  position: absolute;
-  bottom: 2%;
-  right: 2%;
-  width: 8%;
-  height: 5%;
-`;
-
