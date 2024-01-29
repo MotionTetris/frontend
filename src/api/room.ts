@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { RoomData } from '@app/store';
+import { RoomData } from '../types/room';
 
 // 방 목록 가져오기
 export const RoomsdataAPI = async (currentPage: number): Promise<RoomData[]> => {

@@ -99,6 +99,29 @@ http.get('/api/room-data', () => {
   return HttpResponse.json({ rooms: roomsData });
 }),
 
+http.get('/api/rooms', async ({ request }) => {
+  const url = new URL(request.url);
+  const currentPage = Number(url.searchParams.get('page')) || 1;
+  const rankingsPerPage = 9; // 페이지 당 표시할 랭킹의 수
+  const allRoomsData = Array.from({ length: 100 }).map(() => ({
+    id: Math.random().toString(36).substring(2, 15),
+    title: Math.random().toString(36).substring(2, 12),
+    status: ['대기 중', '준비 중', '게임 중'][Math.floor(Math.random() * 3)],
+    creatorProfilePic: `src/assets/Profile${Math.floor(Math.random() * 3) + 1}.png`,
+    backgroundUrl: `src/assets/Tetris_back${Math.floor(Math.random() * 5) + 1}.png`,
+    creatorNickname: `User${Math.floor(Math.random() * 100) + 1}`,
+    maxCount: Math.floor(Math.random() * 3) + 2,
+  })).map(room => ({
+    ...room,
+    currentCount: Math.floor(Math.random() * room.maxCount) + 1,
+  }));
+  // 현재 페이지에 맞는 방 데이터만 잘라서 반환
+  const startIndex = (currentPage - 1) * rankingsPerPage;
+  const endIndex = startIndex + rankingsPerPage;
+  const roomsData = allRoomsData.slice(startIndex, endIndex);
+  return HttpResponse.json({ rooms: roomsData });
+}),
 
-// ... 다른 핸들러들
+
+
 ];

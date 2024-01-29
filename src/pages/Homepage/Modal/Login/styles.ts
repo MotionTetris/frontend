@@ -23,7 +23,7 @@ type AnimatedSectionProps = {
 };
 
 const AnimatedSection = styled.section<AnimatedSectionProps>`
-  animation: ${props => props.fadeIn ? fadeIn : fadeOut} 500ms forwards;
+  animation: ${props => props.fadeIn ? fadeIn : fadeOut} 300ms forwards;
 `;
 
 export { AnimatedSection, /* ...other exports... */ };

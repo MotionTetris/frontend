@@ -1,10 +1,6 @@
 // src/features/banner/bannerSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-// 상태에 대한 타입을 정의합니다.
-interface BannerState {
-  currentIndex: number;
-}
+import { BannerState } from '../../types/banner';
 
 const initialState: BannerState = {
   currentIndex: 0,

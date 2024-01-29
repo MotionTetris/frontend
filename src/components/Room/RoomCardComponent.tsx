@@ -1,6 +1,5 @@
-import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, RoomCardComponentProps } from '@app/store';
+import { RoomCardComponentProps,RoomState } from '../../types/room';
 import { handleRoomStatusMessage, ROOM_STATUS } from '@util/room';
 import {
   RoomContainer,
@@ -16,26 +15,26 @@ import {
 
 const RoomCardComponent: React.FC<RoomCardComponentProps> = ({ roomData, onRoomClick }) => {
   const dispatch = useDispatch();
-  const roomStatus = useSelector((state: RootState) => state.roomStatus[roomData.title] || {showStatusMessage: false, statusMessage: ''});
+  const roomStatus = useSelector((state: RoomState) => state.roomStatus[roomData.title] || {showStatusMessage: false, statusMessage: ''});
 
   const handleClick = () => {
     handleRoomStatusMessage(roomData, dispatch);
-    if (roomData.status === ROOM_STATUS.WAITING) {
+    if (roomData.roomStatus === ROOM_STATUS.WAITING) {
       onRoomClick(roomData);
     }
   };
 
   return (
     <RoomContainer onClick={handleClick}>
-      <RoomBackground className="room-background" style={{ backgroundImage: `url(${roomData.backgroundUrl})` }} status={roomData.status} />
+      <RoomBackground className="room-background" style={{ backgroundImage: `url(${roomData.backgroundUrl})` }} status={roomData.roomStatus} />
       <RoomTitleContainer>
         <RoomTitle>{roomData.title}</RoomTitle>
-        <RoomStatus status={roomData.status}>{roomData.status}</RoomStatus>
+        <RoomStatus status={roomData.roomStatus}>{roomData.roomStatus}</RoomStatus>
         <RoomCreateProfile src={roomData.creatorProfilePic} alt={`${roomData.creatorNickname}'s profile`} />
         <RoomCreateNickname>{roomData.creatorNickname}</RoomCreateNickname>
         <RoomCount>{roomData.currentCount}/{roomData.maxCount}</RoomCount>
         {roomStatus.showStatusMessage && (
-          <RoomStatusMessage status={roomData.status} show={roomStatus.showStatusMessage}>
+          <RoomStatusMessage status={roomData.roomStatus} show={roomStatus.showStatusMessage}>
             {roomStatus.statusMessage}
           </RoomStatusMessage>
         )}

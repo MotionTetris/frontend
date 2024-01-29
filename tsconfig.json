@@ -16,7 +16,8 @@
       "@features/*": ["features/*"],
       "@mocks/*": ["mocks/*"],
       "@pages/*": ["pages/*"],
-      "@util/*": ["util/*"]
+      "@util/*": ["util/*"],
+      "@types/*": ["types/*"],
     },
     /* Bundler mode */
     "moduleResolution": "node",

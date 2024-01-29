@@ -1,6 +1,6 @@
 // src/features/ranking/rankingSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RankingState,RankingItem } from '../../app/store';
+import { RankingState,RankingItem } from '../../types/ranking';
 
 
 const initialState: RankingState = {

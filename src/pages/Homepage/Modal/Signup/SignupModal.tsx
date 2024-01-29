@@ -57,22 +57,22 @@ function SignupModal({ onClose }: { onClose: () => void }) {
         <SignupText1>회원가입</SignupText1>
         <SignupForm onSubmit={handleSignup}>
           <SignupLabel>
-          <SignupText2>닉네임:</SignupText2>
+          <SignupText2>닉네임</SignupText2>
             <SignupInput type="text" value={nickname} onChange={handleNicknameChange} />
             <SignupErrorMessage>{nicknameError}</SignupErrorMessage>  
           </SignupLabel>
           <SignupLabel>
-          <SignupText3>이메일:</SignupText3>
+          <SignupText3>이메일</SignupText3>
             <SignupInput type="text" value={email} onChange={handleEmailChange} />
             <SignupErrorMessage>{emailError}</SignupErrorMessage>  
           </SignupLabel>
           <SignupLabel>
-          <SignupText4>비밀번호:</SignupText4>
+          <SignupText4>비밀번호</SignupText4>
             <SignupInput type="password" value={password} onChange={handlePasswordChange} />
             <SignupErrorMessage>{passwordError}</SignupErrorMessage>  
           </SignupLabel>
           <SignupLabel>
-          <SignupText5>비밀번호 확인:</SignupText5>
+          <SignupText5>비밀번호 확인</SignupText5>
             <SignupInput type="password" value={confirmPassword} onChange={handleConfirmPasswordChange} />
             <SignupErrorMessage>{confirmPasswordError}</SignupErrorMessage>  
           </SignupLabel>

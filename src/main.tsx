@@ -3,11 +3,11 @@ import App from './App'
 import { Provider } from 'react-redux';
 import { store } from './app/store';
 import React from 'react';
+import { worker } from './mocks/Browser';
 
 if (process.env.NODE_ENV === 'development') {
-  import('./mocks/Browser').then(({ worker }) => {
-    worker.start();
-  });
+  worker.start();
+  console.log(worker);
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

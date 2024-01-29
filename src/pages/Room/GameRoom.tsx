@@ -1,39 +1,76 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+// src/components/Room1.tsx
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate} from 'react-router-dom';
+import { startGame, togglePlayerReady } from '../../features/game/gameSlice';
 import { RootState } from '@app/store';
-import { Socketconnect } from '@util/socket';
+import {
+  RoomContainer,
+  LogoArea,
+  SinglePlayIndicator,
+  MainTetrisArea,
+  NextBlockArea,
+  MotionArea,
+  ScoreArea,
+  PlayerInfoArea,
+  BackgroundArea,
+  WarningModal,
+  ModalContent,
+  ModalButton
+} from './styles'; // Styled components import
 
 const GameRoom = () => {
-    const { roomId } = useParams<{ roomId: string }>();
-    const roomData = useSelector((state: RootState) => state.game.rooms.find(room => room.id === roomId));
-  
-    useEffect(() => {
-      const { cleanup } = Socketconnect(roomId!);
-  
-      return () => {
-        cleanup();
-      };
-    }, [roomId]); 
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const playerData = useSelector((state: RootState) => state.game.player);
+  const rooms = useSelector((state: RootState) => state.game.rooms);
 
-    if (!roomData) {
-      return <div>방을 찾을 수 없습니다.</div>;
+  const handleStartGame = () => {
+    if (playerData.role === 'CREATOR' && playerData.playerstatus === 'READY') {
+      dispatch(startGame());
+      switch (rooms.length) {
+        case 1:
+          navigate('/page1');
+          break;
+        case 2:
+          navigate('/page2');
+          break;
+        case 3:
+          navigate('/page3');
+          break;
+        // 4명일 경우 현재 페이지 유지
+        default:
+          break;
+      }
+    } else {
+      // Show warning modal
     }
-  
+  };
 
+
+  console.log("GameRoom rendered!")
   return (
-    <div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '5px', margin: '20px' }}>
-      <h1>{roomData.title}</h1>
-      <div>
-        <img src={roomData.creatorProfilePic} style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
-        <span>{roomData.creatorNickname}</span>
-      </div>
-      <div>상태: {roomData.status}</div>
-      <div>참여 인원: {roomData.currentCount}/{roomData.maxCount}</div>
-      <div style={{ marginTop: '10px' }}>
-        <img src={roomData.backgroundUrl} alt="방 배경" style={{ width: '100%', maxHeight: '300px', objectFit: 'cover', borderRadius: '5px' }} />
-      </div>
-    </div>
+    <RoomContainer>
+      <LogoArea>Logo Here</LogoArea>
+      <SinglePlayIndicator>Single Play</SinglePlayIndicator>
+      <MainTetrisArea>Main Tetris Area</MainTetrisArea>
+      <NextBlockArea>Next Block Area</NextBlockArea>
+      <MotionArea>Motion Area</MotionArea>
+      <ScoreArea>Score: {playerData.score}</ScoreArea>
+      <PlayerInfoArea>Player Info</PlayerInfoArea>
+      <BackgroundArea>Background</BackgroundArea>
+      {playerData.role === 'CREATOR' ? (
+        <button onClick={handleStartGame}>시작하기</button>
+      ) : (
+        <button onClick={() => dispatch(togglePlayerReady())}>준비하기</button>
+      )}
+      <WarningModal>
+        <ModalContent>
+          아직 게임이 진행 중입니다! 나가시면 10분간 게임 입장이 불가능합니다 나가시겠습니까?
+        </ModalContent>
+        <ModalButton>예</ModalButton>
+        <ModalButton>아니오</ModalButton>
+      </WarningModal>
+    </RoomContainer>
   );
 };
 

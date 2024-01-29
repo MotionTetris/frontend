@@ -1,16 +1,31 @@
 // src/features/game/gameSlice.ts
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { RoomData, GameState } from '../../app/store';
+import { RoomData, Role, CreatorStatuses, PlayerStatuses  } from '../../types/room';
+import { GameState } from '../../types/game';
 
 
 const initialState: GameState = {
+  player: {
+    role: 'PLAYER',
+    playerstatus: 'WAITING',
+    roomid: '',
+    title: '',
+    creatorProfilePic: '',
+    creatorNickname: '',
+    currentCount: 0,
+    maxCount: 0,
+    backgroundUrl: '',
+    roomStatus: 'WAIT',
+    isLock: 'UNLOCK',
+    players: [],
+    score: 0, 
+  },
   rooms: [],
   currentPage: 1,
   isModalOpen: false,
   selectedRoom: null,
 };
-
 export const fetchRooms = createAsyncThunk(
   'game/fetchRooms',
   async (page: number, { rejectWithValue }) => {
@@ -42,14 +57,30 @@ export const gameSlice = createSlice({
       state.isModalOpen = false;
       state.selectedRoom = null;
     },
+    createPlayer: (state) => {
+      state.player.role = 'CREATOR';
+    },
+    togglePlayerReady: (state) => {
+      if (state.player.role === Role.CREATOR) {
+        state.player.playerstatus = state.player.playerstatus === CreatorStatuses.WAITING ? CreatorStatuses.READY : CreatorStatuses.WAITING;
+      } else if (state.player.role === Role.PLAYER) {
+        state.player.playerstatus = state.player.playerstatus === PlayerStatuses.WAITING ? PlayerStatuses.READY : PlayerStatuses.WAITING;
+      }
+    },
+    
+    
+    startGame: (state) => {
+      state.player.roomStatus = 'START';
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchRooms.fulfilled, (state, action) => {
       state.rooms = action.payload;
     });
   },
+
 });
 
-export const { setCurrentPage, openModal, closeModal } = gameSlice.actions;
+export const { setCurrentPage, openModal, closeModal, createPlayer, togglePlayerReady, startGame } = gameSlice.actions;
 
 export default gameSlice.reducer;

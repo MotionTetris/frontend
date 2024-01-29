@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ApiResponse } from '@app/store';
+import { ApiResponse } from '../types/common';
 
 export const rankingAPI = async (currentPage: number): Promise<ApiResponse> => {
   try {

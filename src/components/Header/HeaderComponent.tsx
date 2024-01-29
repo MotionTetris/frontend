@@ -2,13 +2,13 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setProfile } from '@features/profile/profileSlice';
-import { RootState,SidebarComponentProps } from '@app/store';
+import { RootState } from '@app/store';
 import { HeaderContainer, HeaderLogoContainer, HeaderLogo, HeaderLogoTitle, HeaderProfileNickName, HeaderProfilePhoto, HeaderProfileContainer, HeaderStyledLinkContainer, HeaderStyledLink } from './styles';
 import { userprofileAPI } from '@api/user';
 
-const HeaderComponent: React.FC<SidebarComponentProps> = ({ activePath }) => {
+const HeaderComponent: React.FC<{ activePath: string }> = ({ activePath }) => {
   const dispatch = useDispatch();
-  const profile = useSelector((state: RootState) => state.profile);
+  const profile = useSelector((state: RootState) => state.profile); // Redux store에서 profile 상태를 가져옵니다.
 
   useEffect(() => {
     const userprofile = async () => {

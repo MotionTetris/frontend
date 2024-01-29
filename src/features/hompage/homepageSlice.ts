@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { HomepageState } from '../../app/store';
+import { HomepageState } from '../../types/homepage';
 
 
 // Define the initial state using that type

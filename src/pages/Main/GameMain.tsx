@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch, RoomData } from '@app/store';
+import { RootState, AppDispatch } from '@app/store';
+import { RoomData } from '../../types/room';
 import { fetchRooms, setCurrentPage, openModal, closeModal } from '@features/game/gameSlice';
 import HeaderComponent from '@components/Header/HeaderComponent';
 import RoomCardComponent from '@components/Room/RoomCardComponent';
@@ -26,7 +27,7 @@ const GameMain = () => {
   };
 
   const handleRoomEnter = (roomData: RoomData) => {
-    navigate(`/rooms/${roomData.id}`);
+    navigate(`/rooms/${roomData.roomid}`);
   };
 
   const handleCloseModal = () => {

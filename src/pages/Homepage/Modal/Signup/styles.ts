@@ -2,31 +2,33 @@
 import styled from 'styled-components';
 
 export const SignupModalOverlay = styled.div`
-  position: fixed;
-  top: 3vw;
+  position: absolute;
+  top: 0vw;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 28vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  scale: 0.8;
 `;
 
 export const SignupModalContainer = styled.div`
   position: relative;
-  width: 500px;
-  height: 100%;
-  scrollbar-width: none; // 스크롤바 숨기기
+  width: 400px;
+  height: 400px;
 `;
 
 export const SignupCloseButton = styled.button`
-  position: absolute;
-  left: 22vw;
-  bottom: 87vh;
+  position: relative;
+  right: 2vw;
+  top: 5vh;
   display: block;
   margin: 0 auto;
   padding: 10px 20px;
+  font-family: 'JalnanGothic', sans-serif;
+  font-style:light;
+  font-weight:100;
   font-size: 18px;
   color: #fff;
   border: none;
@@ -80,6 +82,13 @@ export const SignupInput = styled.input`
 `;
 
 export const SignupButton = styled.button`
+  font-family: 'JalnanGothic', sans-serif;
+  font-style:light;
+  font-weight:100;
+  letter-spacing: 3px;
+  position: relative;
+  left: 0vw;
+  top: 3vw;
   display: block;
   margin: 0 auto;
   padding: 10px 20px;
@@ -105,8 +114,8 @@ export const SignupErrorMessage = styled.div`
 
 export const SignupText1 = styled.h1`
   position: relative;
-  left: 8vw;
-  bottom: 0vw;
+  left: 5vw;
+  top: 1vw;
   font-family: 'DNFBitBitv2', sans-serif;
   font-style:light;
   font-weight:100;

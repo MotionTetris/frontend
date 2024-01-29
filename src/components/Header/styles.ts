@@ -1,7 +1,7 @@
 // Headercomponent
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { StyledLinkProps } from '../../app/store'
+import { StyledLinkProps } from '../../types/common';
 
 export const HeaderContainer = styled.header`
   height: 100px;

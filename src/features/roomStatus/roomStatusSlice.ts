@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RoomStatusState } from '../../app/store';
+import { RoomStatusState } from '../../types/room';
 
 const initialState: RoomStatusState = {};
 
