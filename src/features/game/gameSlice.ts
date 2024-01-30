@@ -7,18 +7,11 @@ import { GameState } from '../../types/game';
 
 const initialState: GameState = {
   player: {
-    role: 'PLAYER',
-    playerstatus: 'WAITING',
-    roomid: '',
-    title: '',
-    creatorProfilePic: '',
-    creatorNickname: '',
-    currentCount: 0,
-    maxCount: 0,
-    backgroundUrl: '',
-    roomStatus: 'WAIT',
-    isLock: 'UNLOCK',
-    players: [],
+    Role: 'PLAYER',
+    playerstatus: 'WAIT',
+    profilePicture: '',
+    nickname: '',
+    bannerBackground: '',
     score: 0, 
   },
   rooms: [],
@@ -58,20 +51,27 @@ export const gameSlice = createSlice({
       state.selectedRoom = null;
     },
     createPlayer: (state) => {
-      state.player.role = 'CREATOR';
+      state.player.Role = 'CREATOR';
     },
     togglePlayerReady: (state) => {
-      if (state.player.role === Role.CREATOR) {
-        state.player.playerstatus = state.player.playerstatus === CreatorStatuses.WAITING ? CreatorStatuses.READY : CreatorStatuses.WAITING;
-      } else if (state.player.role === Role.PLAYER) {
-        state.player.playerstatus = state.player.playerstatus === PlayerStatuses.WAITING ? PlayerStatuses.READY : PlayerStatuses.WAITING;
+      if (state.player.Role === Role.CREATOR) {
+        state.player.playerstatus = state.player.playerstatus === CreatorStatuses.WAIT ? CreatorStatuses.READY : CreatorStatuses.WAIT;
+      } else if (state.player.Role === Role.PLAYER) {
+        state.player.playerstatus = state.player.playerstatus === PlayerStatuses.WAIT ? PlayerStatuses.READY : PlayerStatuses.WAIT;
       }
     },
     
     
     startGame: (state) => {
-      state.player.roomStatus = 'START';
-    },
+      // 예시: selectedRoom이 설정되어 있고, 해당 방이 rooms 배열에 존재하는 경우
+      const selectedRoom = state.selectedRoom;
+      if (selectedRoom) {
+        const room = state.rooms.find(room => room.roomid === selectedRoom.roomid);
+        if (room) {
+          room.roomStatus = 'START';
+        }
+      }
+    }    
   },
   extraReducers: (builder) => {
     builder.addCase(fetchRooms.fulfilled, (state, action) => {

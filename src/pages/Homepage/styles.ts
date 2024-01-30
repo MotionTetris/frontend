@@ -1,12 +1,13 @@
 import styled from 'styled-components';
 
 export const HomepageTitle = styled.h1`
-  font-family: 'DNFBitBitv2', sans-serif;
-  font-style:light;
-  font-weight:100;
+
   position: absolute;
   right: 4.7vw;
   bottom: 35vw;
+  font-family: 'DNFBitBitv2', sans-serif;
+  font-style:light;
+  font-weight:100;
   font-size :42px;
   color: white;
   letter-spacing: 3px;

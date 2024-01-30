@@ -26,13 +26,13 @@ export interface RoomStatus {
   } as const;
 
   export const CreatorStatuses = {
-    WAITING: 'WAITING',
+    WAIT: 'WAIT',
     READY: 'READY',
-    STARTED: 'STARTED',
+    START: 'START',
   } as const;
   
   export const PlayerStatuses = {
-    WAITING: 'WAITING',
+    WAIT: 'WAIT',
     READY: 'READY',
   } as const;
   
@@ -40,6 +40,9 @@ export interface RoomStatus {
     CREATOR: 'CREATOR',
     PLAYER:'PLAYER'
   }
+
+
+  
   export interface RoomData {
     role: keyof typeof Role;
     playerstatus: keyof typeof CreatorStatuses | keyof typeof PlayerStatuses;
@@ -54,6 +57,20 @@ export interface RoomStatus {
     roomStatus: keyof typeof RoomStatuses;
     isLock: keyof typeof LockStatuses;
     players: string[];
+}
+
+export interface UserProfile {
+  profilePicture: string;
+  nickname: string;
+  Role: keyof typeof Role;
+  bannerBackground : string;
+  playerstatus: keyof typeof CreatorStatuses | keyof typeof PlayerStatuses;
+  score:number;
+}
+
+export interface RoomAPIResponse {
+  userProfile: UserProfile;
+  roomData: RoomData;
 }
 
   export type RoomModalProps = {

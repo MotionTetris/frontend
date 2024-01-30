@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import {RoomStatuses} from '../types/room'
+import {RoomStatuses, Role} from '../types/room'
 const rankingsPerPage = 10; // 페이지 당 표시할 랭킹의 수
 
 
@@ -118,6 +118,18 @@ http.get('/api/rooms', async ({ request }) => {
   return HttpResponse.json({ rooms: roomsData });
 }),
 
+
+http.get('/api/user/profile', async ({ params }) => {
+  const userId = params.userId;
+  console.log(`Received request for userId: ${userId}`);
+
+  return HttpResponse.json({
+    profilePicture: `/assets/Profile${Math.floor(Math.random() * 3) + 1}.png`,
+    nickname: `User${Math.floor(Math.random() * 100) + 1}`,
+    Role: Object.values(Role)[Math.floor(Math.random() * Object.values(Role).length)],
+    bannerBackground: `/assets/RoomHeader${Math.floor(Math.random() * 3) + 1}.png`,
+  });
+}),
 
 
 ];

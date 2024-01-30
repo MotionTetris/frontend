@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import path from 'path'; // path 모듈을 임포트합니다.
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
@@ -16,5 +16,6 @@ export default defineConfig({
       '@util': path.resolve(__dirname, './src/util'),
       '@types': path.resolve(__dirname, './src/types'),
     }
-  }
+  },
+
 });
