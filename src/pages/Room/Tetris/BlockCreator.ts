@@ -81,6 +81,7 @@ export class BlockCreator {
                     this.createRectangle(x, y, 1, 2, option)
                 ];
             default:
+                //console.log(`error ${option.type}`);
                 throw new Error(`Invalid block type: ${option.type}`);
         }
     }

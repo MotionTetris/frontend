@@ -8,11 +8,11 @@ export class Tetromino implements IObject {
     private _game: TetrisGame;
     private landingSound?: HTMLAudioElement;
 
-    public constructor(game: TetrisGame, option: TetrisOption, rigidBody?: Matter.Body) {
+    public constructor(game: TetrisGame, option: TetrisOption, blocktype:number, fillstyle: number, rigidBody?: Matter.Body) {
         this._game = game;
 
-        const type = this.getRandomBlockType();
-        const fillStyle = this.getRandomFillStyle();
+        const type = this.getRandomBlockType(blocktype);
+        const fillStyle = this.getRandomFillStyle(fillstyle);
         const spwanX = option.spawnX ?? 0;
         const spwanY = option.spawnY ?? 0;
 
@@ -42,15 +42,15 @@ export class Tetromino implements IObject {
 
     }
     
-    private getRandomBlockType() {
+    private getRandomBlockType(index: number) {
         const blockTypes = BlockTypeList;
-        const randomIndex = Math.floor(Math.random() * blockTypes.length);
-        return blockTypes[randomIndex];
+        return blockTypes[index];
     }
     
-    private getRandomFillStyle() {
+    private getRandomFillStyle(index: number) {
         const fillStyles = BlockColorList;
-        const randomIndex = Math.floor(Math.random() * fillStyles.length);
-        return fillStyles[randomIndex];
+        return fillStyles[index];
     }
+
+
 }

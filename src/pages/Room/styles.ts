@@ -2,13 +2,14 @@ import styled from "styled-components";
 
 export const Container = styled.div`
   display: flex;
-  justify-content: center;
-  align-items: center;
   height: 100vh;
+  padding-left: 100px;
   overflow: hidden;
 `;
 
 export const GameContainer = styled.div`
+  top: 100px;
+  left: 0px;
   position: relative;
   width: 600px;
   height: 800px;
@@ -16,20 +17,20 @@ export const GameContainer = styled.div`
 
 export const EffectCanvas = styled.canvas`
   position: absolute;
-  width: 600px;
-  height: 800px;
+  width: 100%;
+  height: 100%;
 `;
 
 export const SceneCanvas = styled.canvas`
-  width: 600px;
-  height: 800px;
+  width: 100%;
+  height: 100%;
   position: absolute;
 `;
 
 export const MessageDiv = styled.div`
   position: absolute;
-  top: 90%;
-  left: 25%;
+  top: 20%;
+  left: 50%;
   color: white;
   background: rgba(255, 0, 0, 0.5);
   padding: 0px;
@@ -39,14 +40,26 @@ export const MessageDiv = styled.div`
 export const ScoreDiv = styled.div`
   position: absolute;
   top: 0;
-  left: 30%;
+  left: 50%;
   color: white;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(24, 100, 0, 0.5);
   padding: 10px;
+  font-size: 48px;
+  z-index: 5;
+`;
+
+export const NextBlockDiv = styled.div`
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  color: black;
+  background: rgba(24, 100, 0, 0.5);
   font-size: 48px;
 `;
 
+
 export const VideoContainer = styled.div`
+  top: 450px;
   position: relative;
   width: 480px;
   height: 320px;

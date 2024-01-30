@@ -13,6 +13,7 @@ import {
   SceneCanvas,
   MessageDiv,
   ScoreDiv,
+  NextBlockDiv,
   VideoContainer,
   Video,
   VideoCanvas,
@@ -20,28 +21,24 @@ import {
   EffectCanvas,
 } from "./styles";
 
+import {gsap} from 'gsap';
+import { BlockTypeList, BlockColorList } from "./Tetris/BlockCreator";
+
 // CPU 백엔드로 강제 설정
 
+let nBTI: number;
+let nFSI: number;
 const GameRoom: React.FC = () => {
   const playerData = useSelector((state: RootState) => state.game.player);
-  const line = [
-    [
-      [100, 490],
-      [500, 490],
-      [100, 550],
-      [500, 550],
-    ],
-  ];
-
-  let playerScore = 0;
-
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<HTMLCanvasElement>(null);
   const blockRef = useRef<Body | null>(null); // 블록 참조 저장
   const hasCollidedRef = useRef(false);
   const [message, setMessage] = useState("");
-
+  const [playerScore, setPlayerScore] = useState(0);
+  const [nextBlockTypeIdx, setNextBlockTypeIdx] = useState(0);
+  const [nextFillStyleIdx, setNextFillStyleIdx] = useState(0);
   // 엔진 생성
   const engine = Engine.create({
     // 중력 설정
@@ -156,8 +153,14 @@ const GameRoom: React.FC = () => {
             : null;
           let leftElbow = leftElbowKeypoint ? leftElbowKeypoint.position : null;
           let leftWrist = leftWristKeypoint ? leftWristKeypoint.position : null;
+          let leftShoulderScore = leftShoulderKeypoint ? leftShoulderKeypoint.score : Infinity;
+          let leftElbowScore = leftElbowKeypoint ? leftElbowKeypoint.score : Infinity;
+          let leftWristScore = leftWristKeypoint ? leftWristKeypoint.score : Infinity;
 
-          if (leftShoulder && leftElbow && leftWrist) {
+          let leftMinScore = Math.min(leftShoulderScore, leftElbowScore, leftWristScore);
+          
+          
+          if (leftMinScore > 0.25 && leftShoulder && leftElbow && leftWrist) {
             let vectorA = {
               x: leftShoulder.x - leftElbow.x,
               y: leftShoulder.y - leftElbow.y,
@@ -204,8 +207,15 @@ const GameRoom: React.FC = () => {
           let rightWrist = rightWristKeypoint
             ? rightWristKeypoint.position
             : null;
-
-          if (rightShoulder && rightElbow && rightWrist) {
+          
+          
+          let rightShoulderScore = rightShoulderKeypoint ? rightShoulderKeypoint.score : Infinity;
+          let rightElbowScore = rightElbowKeypoint ? rightElbowKeypoint.score : Infinity;
+          let rightWristScore = rightWristKeypoint ? rightWristKeypoint.score : Infinity;
+            
+          let rightMinScore = Math.min(rightShoulderScore, rightElbowScore, rightWristScore);
+          
+          if (rightMinScore > 0.25 && rightShoulder && rightElbow && rightWrist) {
             let vectorA = {
               x: rightShoulder.x - rightElbow.x,
               y: rightShoulder.y - rightElbow.y,
@@ -276,8 +286,6 @@ const GameRoom: React.FC = () => {
                 };
 
                 pixiApp.ticker.add(animate);
-                setMessage("왼쪽으로 회전!"); // 메시지를 변경합니다.
-                setTimeout(() => setMessage(""), 500);
               }
             }
           } else {
@@ -322,8 +330,6 @@ const GameRoom: React.FC = () => {
                 };
 
                 pixiApp.ticker.add(animate);
-                setMessage("오른쪽으로 회전!");
-                setTimeout(() => setMessage(""), 500);
               }
             }
           }
@@ -392,8 +398,6 @@ const GameRoom: React.FC = () => {
           prevRightAngle = rightAngleInDegrees;
           prevRightWristX = rightWristX;
           prevLeftWristX = leftWristX;
-
-          console.log(leftAngleDelta);
         }
       }, 250);
     }
@@ -418,15 +422,23 @@ const GameRoom: React.FC = () => {
       combineDistance: 1,
       engine: engine,
       runner: runner,
-      blockFriction: 1.0,
-      blockRestitution: 0.0,
+      blockFriction: 0,
+      blockRestitution: 0,
       blockSize: 32,
       blockLandingCallback: block,
       view: render.canvas,
       spawnY: -100,
     });
-
-    GAME.spawnNewBlock();
+    const firstBlock = Math.floor(Math.random() * BlockTypeList.length);
+    const firstStyle = Math.floor(Math.random() * BlockColorList.length);
+    
+    const nextInfo = GAME.spawnFirstBlock(firstBlock, firstStyle);
+    console.log(`the first next info is ${nextInfo.nextBlockTypeIdx} , ${nextInfo.nextFillStyleIdx}`);
+    nBTI = nextInfo.nextBlockTypeIdx;
+    nFSI = nextInfo.nextFillStyleIdx;
+    setNextBlockTypeIdx(nBTI);
+    setNextFillStyleIdx(nFSI);
+    console.log(`set함수로 바꾼값 ${nBTI} ${nFSI}`)
 
     // pixi
     const effectView = document.getElementById("game-effect-view");
@@ -578,12 +590,14 @@ const explode = (x: number, y: number, width: number, height: number) => {
     render.canvas.focus();
     Matter.Render.run(render);
     function block({ bodyA, bodyB }: BlockCollisionCallbackParam) {
-      console.log("ㅋㅋ", bodyA.position.y, bodyB.position.y);
+      
       if (bodyB.position.y < 10 || bodyA.position.y < 10) {
+        setMessage("게임종료")
         return;
       }
-      const scoreList = GAME.checkAndRemoveLines(GAME.appropriateScore);
-      console.log(`score list is ${scoreList}`);
+      GAME.checkAndRemoveLines(GAME.appropriateScore);
+      const scoreList = GAME.scoreList;
+      
       for (let i = 0; i < lines.length; i++) {
         
         const alpha = scoreList[i]; // 점수를 투명도로 변환 (0 ~ 1 사이의 값)
@@ -601,23 +615,64 @@ const explode = (x: number, y: number, width: number, height: number) => {
         let scoreText: PIXI.Text;
 
         // 새로운 텍스트 객체 생성
-        if (alpha * 100 < 100) {
+        if (alpha * 100 < 95 && alpha * 100 >= 0) {
           scoreText = new PIXI.Text((alpha * 100).toFixed(2), {fontFamily : 'Arial', fontSize: 20, fill : 0xffffff, align : 'center'});
           scoreText.x = 80;
           scoreText.y = i * 32;
         }
-        
-        else  {
-          // 특정 위치에서 폭발 효과 발생
-          explode(140, i*32, 320, 32);
-
-          // line.clear(); // 이전 라인 스타일 제거
-          // line.beginFill(0xff0000, alpha/1.5); 
-          // line.drawRect(200, i * 32, 320, 32); // 32픽셀 간격으로 높이를 설정
-          // line.endFill();          
-          scoreText = new PIXI.Text("폭파!", {fontFamily : 'Arial', fontSize: 20, fill : 0xffffff, align : 'center'});
+        else if (alpha * 100 < 100) {
+          scoreText = new PIXI.Text("폭파직전!", {fontFamily : 'Arial', fontSize: 20, fill : 0xfff000, align : 'center'});
           scoreText.x = 80;
           scoreText.y = i * 32;
+          // 반짝이는 효과 추가
+          gsap.to(scoreText, { duration: 0.5, alpha: 0, yoyo: true, repeat: -1 });
+        }
+        
+        else  {
+          
+          // 특정 위치에서 폭발 효과 발생
+          explode(140, i*32, 320, 32);
+          
+          const gameMessage = ["좀 치시는군요", "보여주나??", "진짜보여주나?", "보여주시는군요!"];
+        
+          setPlayerScore((prevPlayerScore) => {
+            const newScore = prevPlayerScore + Math.floor(alpha * 3000);
+          
+            if (newScore >= 5000 && newScore < 10000 && prevPlayerScore < 5000) {
+              setMessage(gameMessage[0]);
+              setTimeout(() => setMessage(""), 2000);
+            } else if (newScore >= 10000 && newScore < 15000 && prevPlayerScore < 10000) {
+              setMessage(gameMessage[1]);
+              setTimeout(() => setMessage(""), 2000);
+            } else if (newScore >= 15000 && newScore < 20000 && prevPlayerScore < 15000) {
+              setMessage(gameMessage[2]);
+              setTimeout(() => setMessage(""), 2000);
+            } else if (newScore >= 20000 && prevPlayerScore < 20000) {
+              setMessage(gameMessage[3]);
+              setTimeout(() => setMessage(""), 2000);
+            }
+          
+            return newScore;
+          });
+          
+          
+              
+          scoreText = new PIXI.Text("폭파!", {fontFamily : 'Arial', fontSize: 20, fill : 0xff0000, align : 'center'});
+          scoreText.x = 80;
+          scoreText.y = i * 32;
+          // 확대 효과 추가
+          // 글자 크기를 크게 했다가 작게 하는 효과 추가
+          gsap.to(scoreText.scale, { 
+            duration: 1, 
+            x: 2, 
+            y: 2, 
+            yoyo: true, 
+            repeat: 1, 
+            onComplete: () => {
+              gsap.to(scoreText.scale, { duration: 0, x: 1, y: 1 });
+              return;
+            },
+          });
 
           // 1초 후에 라인 스타일을 원래대로 되돌림
           setTimeout(() => {
@@ -644,7 +699,7 @@ const explode = (x: number, y: number, width: number, height: number) => {
       Body.setStatic(bodyB, true);
       
       for (let i = 0; i < 40; i++) {
-        console.log(`body a is ${bodyA.label}`);
+        
         let collisionPoint;
         if (bodyA.label == "Rectangle Body") {
           collisionPoint = bodyA;
@@ -677,10 +732,14 @@ const explode = (x: number, y: number, width: number, height: number) => {
         });
         ticker.start();
       }
-      GAME.spawnNewBlock();
+      
+      GAME.spawnNewBlock(nBTI,nFSI);
+      nBTI = Math.floor(Math.random() * BlockTypeList.length);
+      nFSI = Math.floor(Math.random() * BlockColorList.length);
+      setNextBlockTypeIdx(nBTI);
+      setNextFillStyleIdx(nFSI);
     }
     return () => {
-      console.log("제거");
       // 클린업 함수
       // 엔진 정지
       Engine.clear(engine);
@@ -695,10 +754,16 @@ const explode = (x: number, y: number, width: number, height: number) => {
 
   return (
     <Container>
+    <ScoreDiv>score: {playerScore}</ScoreDiv>
+    <MessageDiv>{message}</MessageDiv>
+    <NextBlockDiv>   다음블럭 
+      <span style={{color: BlockColorList[nextFillStyleIdx]}}>
+        {BlockTypeList[nextBlockTypeIdx]}
+      </span> 
+  
+    </NextBlockDiv>
       <GameContainer>
         <SceneCanvas id="game-view" ref={sceneRef}>
-          <MessageDiv>{message}</MessageDiv>
-          <ScoreDiv>score: {playerScore}</ScoreDiv>
         </SceneCanvas>
         <EffectCanvas id="game-effect-view"></EffectCanvas>
       </GameContainer>
