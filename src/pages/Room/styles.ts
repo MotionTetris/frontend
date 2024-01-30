@@ -29,7 +29,7 @@ export const SceneCanvas = styled.canvas`
 
 export const MessageDiv = styled.div`
   position: absolute;
-  top: 20%;
+  top: 10%;
   left: 50%;
   color: white;
   background: rgba(255, 0, 0, 0.5);
@@ -48,18 +48,29 @@ export const ScoreDiv = styled.div`
   z-index: 5;
 `;
 
-export const NextBlockDiv = styled.div`
+export const NextBlockContainer = styled.div`
   position: absolute;
-  top: 30%;
+  width: 200px;
+  height: 200px;
+  background-color: peachpuff;
+  top: 20%;
   left: 50%;
   color: black;
-  background: rgba(24, 100, 0, 0.5);
-  font-size: 48px;
+  font-size: 32px;
 `;
 
+export const NextBlockDiv = styled.div`
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  top: 50px;
+  left: 0px;
+
+`;
 
 export const VideoContainer = styled.div`
-  top: 450px;
+  top: 520px;
+  left: 0%;
   position: relative;
   width: 480px;
   height: 320px;

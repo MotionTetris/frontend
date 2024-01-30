@@ -19,13 +19,13 @@ export class Wall implements IObject {
             label: 'ground'
         });
 
-        const leftWall = Bodies.rectangle(canvasWidth / 2 - width / 2 * blockSize - wall_thick / 2, canvasHeight / 2, wall_thick, canvasHeight, {
+        const leftWall = Bodies.rectangle(canvasWidth / 2 - width / 2 * blockSize - wall_thick / 2, canvasHeight / 2, wall_thick, canvasHeight * 2, {
             isStatic: true,
             friction: 0,
             label: 'wall'
         });
 
-        const rightWall = Bodies.rectangle(canvasWidth / 2 + width / 2 * blockSize + wall_thick / 2, canvasHeight / 2, wall_thick, canvasHeight, {
+        const rightWall = Bodies.rectangle(canvasWidth / 2 + width / 2 * blockSize + wall_thick / 2, canvasHeight / 2, wall_thick, canvasHeight * 2, {
             isStatic: true,
             friction: 0,
             label: 'wall'

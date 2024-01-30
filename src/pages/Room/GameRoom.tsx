@@ -13,6 +13,7 @@ import {
   SceneCanvas,
   MessageDiv,
   ScoreDiv,
+  NextBlockContainer,
   NextBlockDiv,
   VideoContainer,
   Video,
@@ -28,6 +29,15 @@ import { BlockTypeList, BlockColorList } from "./Tetris/BlockCreator";
 
 let nBTI: number;
 let nFSI: number;
+const blockImages = [
+  "../src/assets/blocks/Iblock.png",
+  "../src/assets/blocks/Oblock.png",
+  "../src/assets/blocks/Tblock.png",
+  "../src/assets/blocks/Sblock.png",
+  "../src/assets/blocks/Zblock.png",
+  "../src/assets/blocks/Jblock.png",
+  "../src/assets/blocks/Lblock.png"
+]
 const GameRoom: React.FC = () => {
   const playerData = useSelector((state: RootState) => state.game.player);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -634,7 +644,8 @@ const explode = (x: number, y: number, width: number, height: number) => {
           explode(140, i*32, 320, 32);
           
           const gameMessage = ["좀 치시는군요", "보여주나??", "진짜보여주나?", "보여주시는군요!"];
-        
+          
+
           setPlayerScore((prevPlayerScore) => {
             const newScore = prevPlayerScore + Math.floor(alpha * 3000);
           
@@ -755,13 +766,14 @@ const explode = (x: number, y: number, width: number, height: number) => {
   return (
     <Container>
     <ScoreDiv>score: {playerScore}</ScoreDiv>
-    <MessageDiv>{message}</MessageDiv>
-    <NextBlockDiv>   다음블럭 
-      <span style={{color: BlockColorList[nextFillStyleIdx]}}>
-        {BlockTypeList[nextBlockTypeIdx]}
-      </span> 
-  
-    </NextBlockDiv>
+    <MessageDiv>message{message}</MessageDiv>
+    <NextBlockContainer>
+    다음블럭 
+      <NextBlockDiv>   
+      <img src={blockImages[nextBlockTypeIdx]} style={{width: '100%', height: '100%'}} />
+    
+      </NextBlockDiv>
+    </NextBlockContainer>
       <GameContainer>
         <SceneCanvas id="game-view" ref={sceneRef}>
         </SceneCanvas>
