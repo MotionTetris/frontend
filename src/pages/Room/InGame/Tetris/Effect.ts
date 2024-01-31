@@ -58,3 +58,53 @@ export function createRectangle(app: PIXI.Application, width: number, height: nu
     return rectangle;
 }
 
+
+export function performRotateEffect(rectangle: PIXI.Graphics, app: PIXI.Application, color: number) {
+    rectangle.clear();
+    rectangle.beginFill(color);
+    rectangle.drawRect(0, 0, 50, 400);
+    rectangle.endFill();
+  
+    let direction = 1;
+    const effectDuration = 0.5; // 효과 지속 시간(초)
+    const startTime = Date.now(); // 시작 시간
+  
+    const animate = () => {
+      rectangle.alpha += 0.01 * direction;
+      if (rectangle.alpha > 1) {
+        rectangle.alpha = 1;
+        direction = -1;
+      } else if (rectangle.alpha < 0) {
+        rectangle.alpha = 0;
+        direction = 1;
+      }
+  
+      // 효과 지속 시간이 지나면 ticker에서 콜백 함수를 제거
+      if ((Date.now() - startTime) / 1000 > effectDuration) {
+        app.ticker.remove(animate);
+  
+        // 효과가 끝나면 채우기 색상을 다시 검정색으로 변경
+        rectangle.clear();
+        rectangle.beginFill(0x000000);
+        rectangle.drawRect(0, 0, 50, 400);
+        rectangle.endFill();
+      }
+    };
+  
+    // 티커에 애니메이션 함수 추가
+    app.ticker.add(animate);
+  }
+  
+  
+  export function performPushEffect(firstRectangle: PIXI.Graphics, secondRectangle: PIXI.Graphics, alpha: number, color: number) {
+    firstRectangle.alpha = alpha;
+    firstRectangle.clear();
+    firstRectangle.beginFill(color);
+    firstRectangle.drawRect(0, 0,50, 400);
+    firstRectangle.endFill();
+  
+    secondRectangle.clear();
+    secondRectangle.beginFill(0x000000);
+    secondRectangle.drawRect(0, 0, 50, 400);
+    secondRectangle.endFill();
+  }

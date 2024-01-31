@@ -26,7 +26,8 @@ import {  Container,
   import {gsap} from 'gsap';
   import { BlockTypeList, BlockColorList } from "./Tetris/BlockCreator";
   import { blockImages } from "./Tetris/BlockCreator";
-  import { explode, createRectangle } from "./Tetris/Effect";
+  import { explode, createRectangle, performRotateEffect, performPushEffect } from "./Tetris/Effect";
+  import { setupWebcam, calculateAngle } from "./Tetris/WebcamPosenet";
 import { getUserProfileAndRoomData } from '@api/room';
 import { RoomAPIResponse, UserProfile, RoomData, GameRoomProps } from '../../../types/room';
 // CPU 백엔드로 강제 설정
@@ -80,27 +81,9 @@ const GameRoom: React.FC<GameRoomProps> = ({ userId }) => {
   });
 
   useEffect(() => {
-    async function setupWebcam() {
-      console.log('웹캠 설정을 시작합니다...');
-      const video = document.createElement("video");
-      if (videoRef.current) {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-        });
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-        return new Promise<HTMLVideoElement>((resolve) => {
-          videoRef.current!.onloadedmetadata = () => {
-            resolve(videoRef.current!);
-          };
-        });
-      }
-      return video;
-    }
-
     async function runPosenet() {
       const net = await posenet.load();
-      const video = await setupWebcam();
+      const video = await setupWebcam(videoRef);
       const canvas = canvasRef.current;
       const ctx = canvas?.getContext("2d");
       video.width = 480;
@@ -192,28 +175,7 @@ const GameRoom: React.FC<GameRoomProps> = ({ userId }) => {
           
           
           if (leftMinScore > 0.25 && leftShoulder && leftElbow && leftWrist) {
-            let vectorA = {
-              x: leftShoulder.x - leftElbow.x,
-              y: leftShoulder.y - leftElbow.y,
-            };
-            let vectorB = {
-              x: leftWrist.x - leftElbow.x,
-              y: leftWrist.y - leftElbow.y,
-            };
-
-            let leftDotProduct = vectorA.x * vectorB.x + vectorA.y * vectorB.y;
-            let leftMagnitudeA = Math.sqrt(
-              vectorA.x * vectorA.x + vectorA.y * vectorA.y
-            );
-            let leftMagnitudeB = Math.sqrt(
-              vectorB.x * vectorB.x + vectorB.y * vectorB.y
-            );
-
-            let leftAngleInRadians = Math.acos(
-              leftDotProduct / (leftMagnitudeA * leftMagnitudeB)
-            );
-            leftAngleInDegrees = leftAngleInRadians * (180 / Math.PI);
-
+            leftAngleInDegrees  = calculateAngle(leftShoulder, leftElbow, leftWrist);
             leftWristX = leftWrist.x;
             leftAngleDelta = leftAngleInDegrees - prevLeftAngle;
           }
@@ -247,27 +209,7 @@ const GameRoom: React.FC<GameRoomProps> = ({ userId }) => {
           let rightMinScore = Math.min(rightShoulderScore, rightElbowScore, rightWristScore);
           
           if (rightMinScore > 0.25 && rightShoulder && rightElbow && rightWrist) {
-            let vectorA = {
-              x: rightShoulder.x - rightElbow.x,
-              y: rightShoulder.y - rightElbow.y,
-            };
-            let vectorB = {
-              x: rightWrist.x - rightElbow.x,
-              y: rightWrist.y - rightElbow.y,
-            };
-
-            let rightDotProduct = vectorA.x * vectorB.x + vectorA.y * vectorB.y;
-            let rightMagnitudeA = Math.sqrt(
-              vectorA.x * vectorA.x + vectorA.y * vectorA.y
-            );
-            let rightMagnitudeB = Math.sqrt(
-              vectorB.x * vectorB.x + vectorB.y * vectorB.y
-            );
-
-            let rightAngleInRadians = Math.acos(
-              rightDotProduct / (rightMagnitudeA * rightMagnitudeB)
-            );
-            rightAngleInDegrees = rightAngleInRadians * (180 / Math.PI);
+          rightAngleInDegrees = calculateAngle(rightShoulder, rightElbow, rightWrist);
 
             rightWristX = rightWrist.x;
             // 각도의 변화값. (이전 각도와의 차이)
@@ -283,40 +225,7 @@ const GameRoom: React.FC<GameRoomProps> = ({ userId }) => {
               if (GAME.fallingBlock) {
                 // block이 존재하는지 확인
                 Body.rotate(GAME.fallingBlock, -Math.PI / 4); // 45도 회전
-
-                // 효과 시작 시 채우기 색상을 빨간색으로 변경
-                rectangleLeftRotate.clear();
-                rectangleLeftRotate.beginFill(0xff0000);
-                rectangleLeftRotate.drawRect(0, 0, 50, 400);
-                rectangleLeftRotate.endFill();
-
-                let direction = 1;
-                const effectDuration = 0.5; // 효과 지속 시간(초)
-                const startTime = Date.now(); // 시작 시간
-
-                const animate = () => {
-                  rectangleLeftRotate.alpha += 0.01 * direction;
-                  if (rectangleLeftRotate.alpha > 1) {
-                    rectangleLeftRotate.alpha = 1;
-                    direction = -1;
-                  } else if (rectangleLeftRotate.alpha < 0) {
-                    rectangleLeftRotate.alpha = 0;
-                    direction = 1;
-                  }
-
-                  // 효과 지속 시간이 지나면 ticker에서 콜백 함수를 제거
-                  if ((Date.now() - startTime) / 1000 > effectDuration) {
-                    pixiApp.ticker.remove(animate);
-
-                    // 효과가 끝나면 채우기 색상을 다시 검정색으로 변경
-                    rectangleLeftRotate.clear();
-                    rectangleLeftRotate.beginFill(0x000000);
-                    rectangleLeftRotate.drawRect(0, 0, 50, 400);
-                    rectangleLeftRotate.endFill();
-                  }
-                };
-
-                pixiApp.ticker.add(animate);
+                performRotateEffect(rectangleLeftRotate, pixiApp, 0xff0000);
               }
             }
           } else {
@@ -328,39 +237,7 @@ const GameRoom: React.FC<GameRoomProps> = ({ userId }) => {
               if (GAME.fallingBlock) {
                 // block이 존재하는지 확인
                 Body.rotate(GAME.fallingBlock, Math.PI / 4); // 45도 회전
-                // 효과 시작 시 채우기 색상을 빨간색으로 변경
-                rectangleRightRotate.clear();
-                rectangleRightRotate.beginFill(0xff0000);
-                rectangleRightRotate.drawRect(0, 0, 50, 400);
-                rectangleRightRotate.endFill();
-
-                let direction = 1;
-                const effectDuration = 0.5; // 효과 지속 시간(초)
-                const startTime = Date.now(); // 시작 시간
-
-                const animate = () => {
-                  rectangleRightRotate.alpha += 0.01 * direction;
-                  if (rectangleRightRotate.alpha > 1) {
-                    rectangleRightRotate.alpha = 1;
-                    direction = -1;
-                  } else if (rectangleRightRotate.alpha < 0) {
-                    rectangleRightRotate.alpha = 0;
-                    direction = 1;
-                  }
-
-                  // 효과 지속 시간이 지나면 ticker에서 콜백 함수를 제거
-                  if ((Date.now() - startTime) / 1000 > effectDuration) {
-                    pixiApp.ticker.remove(animate);
-
-                    // 효과가 끝나면 채우기 색상을 다시 검정색으로 변경
-                    rectangleRightRotate.clear();
-                    rectangleRightRotate.beginFill(0x000000);
-                    rectangleRightRotate.drawRect(0, 0, 50, 400);
-                    rectangleRightRotate.endFill();
-                  }
-                };
-
-                pixiApp.ticker.add(animate);
+                performRotateEffect(rectangleRightRotate, pixiApp, 0xff0000);
               }
             }
           }
@@ -390,37 +267,14 @@ const GameRoom: React.FC<GameRoomProps> = ({ userId }) => {
                   x: -forceMagnitude,
                   y: 0,
                 });
-                // 왼쪽 직사각형 색상 변경
-                rectangleLeft.alpha = alpha;
-                rectangleLeft.clear();
-                rectangleLeft.beginFill(0x00ff00);
-                rectangleLeft.drawRect(0, 0, 50, 400);
-                rectangleLeft.endFill();
-
-                // 오른쪽 직사각형 색상 원래대로
-                rectangleRight.clear();
-                rectangleRight.beginFill(0x000000);
-                rectangleRight.drawRect(0, 0, 50, 400);
-                rectangleRight.endFill();
+                performPushEffect(rectangleLeft, rectangleRight,  alpha, 0x00ff00);
               } else {
                 // 코의 x 좌표가 캔버스 중앙보다 오른쪽에 있다면, 블록에 오른쪽으로 힘을 가합니다.
                 Body.applyForce(GAME.fallingBlock, GAME.fallingBlock.position, {
                   x: forceMagnitude,
                   y: 0,
                 });
-
-                // 오른쪽 직사각형 색상 변경
-                rectangleRight.alpha = alpha;
-                rectangleRight.clear();
-                rectangleRight.beginFill(0x00ff00);
-                rectangleRight.drawRect(0, 0, 50, 400);
-                rectangleRight.endFill();
-
-                // 왼쪽 직사각형 색상 원래대로
-                rectangleLeft.clear();
-                rectangleLeft.beginFill(0x000000);
-                rectangleLeft.drawRect(0, 0, 50, 400);
-                rectangleLeft.endFill();
+                performPushEffect(rectangleRight, rectangleLeft, alpha, 0x00ff00);
               }
             }
           }
