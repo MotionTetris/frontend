@@ -1,35 +1,63 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.tsx
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
-function App() {
-  const [count, setCount] = useState(0)
 
+import GameMain from './pages/Main/GameMain';
+import GameLobby from './pages/Lobby/GameLobby';
+import GameDashBoard from './pages/DashBoard/GameDashBoard';
+import GameRoom from './pages/Room/InGame/Ingame';
+import HomePage from './pages/Homepage/HomePage';
+import { GlobalStyles } from './GloabalStyles';
+import Ingame from '@pages/Room/InGame/Ingame';
+
+
+
+// interface RequireAuthProps {
+//   children: React.ReactElement;
+// }
+
+// // 인증이 필요한 컴포넌트를 렌더링하기 전에 인증 상태를 확인하는 컴포넌트
+// const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
+//   const isAuthenticated = useSelector((state: RootState) => state.homepage.isAuthenticated);
+
+//   if (!isAuthenticated) {
+//     // 인증되지 않았다면 홈페이지로 리디렉션
+//     return <Navigate to="/" replace />;
+//   }
+
+//   return children; // 인증된 경우 자식 컴포넌트를 렌더링합니다.
+// };
+
+const App: React.FC = () => {
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
 
-export default App
+    <Router>
+      <GlobalStyles />
+      <Routes>
+        <Route path="/gamemain" element={
+          // <RequireAuth>
+            <GameMain />
+          // </RequireAuth>
+        } />
+        <Route path="/gamelobby" element={
+          // <RequireAuth>
+            <GameLobby />
+          // </RequireAuth>
+        } />
+        <Route path="/gamedashboard" element={
+          // <RequireAuth>
+            <GameDashBoard />
+          // </RequireAuth>
+        } />
+        <Route path="/rooms/:roomId" element={<Ingame />
+        
+        } />
+
+        <Route path="/" element={<HomePage />} />
+      </Routes>
+    </Router>
+  );
+};
+
+export default App;
