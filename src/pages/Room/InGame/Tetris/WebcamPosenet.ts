@@ -20,8 +20,6 @@ export async function setupWebcam(videoRef: RefObject<HTMLVideoElement>) {
     return video;
 }
 
-
-
 interface Point {
     x: number;
     y: number;

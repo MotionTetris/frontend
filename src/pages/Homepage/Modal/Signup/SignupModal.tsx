@@ -37,15 +37,9 @@ function SignupModal({ onClose }: { onClose: () => void }) {
     e.preventDefault();
     try {
       const response = await signupAPI(nickname, email, password);
-      if (response.status === 200) {
-        console.log('Signup successful:', response.data);
-        alert('회원가입이 성공적으로 완료되었습니다.');
+        alert('회원가입이 성공적으로 완료되었습니다. 이메일로 인증 메일이 발송되었습니다.');
         onClose();
-      } else {
-        console.error('Signup failed:', response.data);
-      }
     } catch (error) {
-      console.error('Signup failed:', error);
       alert('회원가입에 실패했습니다.');
     }
   };

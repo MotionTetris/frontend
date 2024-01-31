@@ -1,20 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { HomepageState } from '../../types/homepage';
 
-
-// Define the initial state using that type
   const initialState: HomepageState = {
+    nickname: '',
     email: '',
     isAuthenticated: false,
     error: null,
   };
 
-
 export const homepageSlice = createSlice({
   name: 'homepage',
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<{ email: string; isAuthenticated: boolean }>) => {
+    setUser: (state, action: PayloadAction<{ nickname: string, email: string; isAuthenticated: boolean }>) => {
+      state.nickname = action.payload.nickname;
       state.email = action.payload.email;
       state.isAuthenticated = action.payload.isAuthenticated;
     },
@@ -22,6 +21,7 @@ export const homepageSlice = createSlice({
       state.error = action.payload.error;
     },
     clearUser: (state) => {
+      state.nickname = '';
       state.email = '';
       state.isAuthenticated = false;
       state.error = null;

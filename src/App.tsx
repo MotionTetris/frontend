@@ -6,10 +6,12 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import GameMain from './pages/Main/GameMain';
 import GameLobby from './pages/Lobby/GameLobby';
 import GameDashBoard from './pages/DashBoard/GameDashBoard';
-import GameRoom from './pages/Room/GameRoom';
+import GameRoom from './pages/Room/InGame/Ingame';
 import HomePage from './pages/Homepage/HomePage';
 import { GlobalStyles } from './GloabalStyles';
 import Ingame from '@pages/Room/InGame/Ingame';
+
+
 
 // interface RequireAuthProps {
 //   children: React.ReactElement;
@@ -29,6 +31,7 @@ import Ingame from '@pages/Room/InGame/Ingame';
 
 const App: React.FC = () => {
   return (
+
     <Router>
       <GlobalStyles />
       <Routes>

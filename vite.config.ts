@@ -17,5 +17,17 @@ export default defineConfig({
       '@types': path.resolve(__dirname, './src/types'),
     }
   },
-
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://jeongminjo.shop",
+        changeOrigin: true,
+        rewrite: (path) => {
+          let newPath = path.replace(/^\/api/, '');
+          console.log(newPath);
+          return newPath
+        }
+      }
+    }
+  }
 });

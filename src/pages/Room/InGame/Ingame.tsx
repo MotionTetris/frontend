@@ -8,9 +8,6 @@ import TetrisGame, {
 } from "./Tetris/TetrisGame";
 import * as PIXI from "pixi.js";
 import Matter from "matter-js";
-import { useSelector } from 'react-redux';
-import { RootState } from '@app/store';
-import {RoomContainer,StartButton, ReadyButton,PlayerBackground, TetrisBackButton, TetrisCanvas, TetrisNextBlock, TetrisPlayer, TetrisScore, PlayerNickName,PlayerProficture,  MotionContainer, Motion, MotionDot} from '../styles';
 import {  Container,
   SceneCanvas,
   MessageDiv,
@@ -22,14 +19,12 @@ import {  Container,
   Video,
   VideoCanvas,
   GameContainer,
-  EffectCanvas,} from './Ingamestyles';
+  EffectCanvas,} from './styles';
   import {gsap} from 'gsap';
   import { BlockTypeList, BlockColorList } from "./Tetris/BlockCreator";
   import { blockImages } from "./Tetris/BlockCreator";
   import { explode, createRectangle, performRotateEffect, performPushEffect } from "./Tetris/Effect";
   import { setupWebcam, calculateAngle } from "./Tetris/WebcamPosenet";
-import { getUserProfileAndRoomData } from '@api/room';
-import { RoomAPIResponse, UserProfile, RoomData, GameRoomProps } from '../../../types/room';
 // CPU 백엔드로 강제 설정
 import startSound from "@assets/startbgm.mp3";
 import explodeSound from "@assets/explodebgm.wav";
@@ -39,11 +34,6 @@ let nFSI: number; // 다음 블록 색상
 
 
 const Ingame: React.FC = () => {
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-
- 
-
-
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<HTMLCanvasElement>(null);

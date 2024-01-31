@@ -8,7 +8,7 @@ import RoomCardComponent from '@components/Room/RoomCardComponent';
 import RoomModal from '@components/Room/Modal/RoomModal';
 import { GameRoomGrid, GamePagination, GameContainer , GamePaginationButton, CreateRoomButton } from './styles';
 import { useNavigate } from 'react-router-dom';
-import { RoomsdataAPI } from '@api/room';
+// import { RoomsdataAPI } from '@api/room';
 import { goToPreviousPage, goToNextPage } from '@util/pagination';
 import { useSocketIO } from '../../api/WebSocket/useSocketIO'; // useSocketIO 훅 import
 import RoomCreate from '@components/Room/Modal/RoomCreate'
@@ -21,7 +21,7 @@ const GameMain = () => {
   const roomsPerPage = 6;
   const navigate = useNavigate();
 
-   const {joinUser, createRoom} = useSocketIO('localhost:3001');
+  const {joinUser, createRoom} = useSocketIO('localhost:3001');
 
    const handleCreateRoomClick = () => {
     setIsCreateRoomModalOpen(true); 
@@ -32,10 +32,10 @@ const GameMain = () => {
   };
 
   
-  useEffect(() => {
-    RoomsdataAPI(currentPage)
-    dispatch(fetchRooms(currentPage))
-  }, [dispatch, currentPage]);
+  // useEffect(() => {
+  //   RoomsdataAPI(currentPage)
+  //   dispatch(fetchRooms(currentPage))
+  // }, [dispatch, currentPage]);
 
   const handleRoomClick = (roomData: RoomData) => {
     dispatch(openModal(roomData));
@@ -44,7 +44,7 @@ const GameMain = () => {
   const handleRoomEnter = (roomData: RoomData) => {
     console.log('Attempting to join room', roomData.roomId); 
     navigate(`/rooms/${roomData.roomId}`);
-    joinUser(roomData.roomId);  // 'joinUser' 이벤트 발생
+    joinUser(roomData);  // 'joinUser' 이벤트 발생
   };
 
   const handleCloseModal = () => {
@@ -57,7 +57,7 @@ const currentRooms = rooms.slice((currentPage - 1) * roomsPerPage, currentPage *
   return (
     <GameContainer>
       <HeaderComponent activePath={activePath}/>
-      <CreateRoomButton onClick={handleCreateRoomClick}>방 생성</CreateRoomButton>
+        <CreateRoomButton onClick={handleCreateRoomClick}>방 생성</CreateRoomButton>
       <GameRoomGrid>
         {currentRooms.map((roomData, index) => (
           <RoomCardComponent

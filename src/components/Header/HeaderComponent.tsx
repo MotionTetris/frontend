@@ -2,30 +2,40 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setProfile } from '../../redux/profile/profileSlice';
-import { RootState } from '@app/store';
+import { RootState, store } from '@app/store';
 import { HeaderContainer, HeaderLogoContainer, HeaderLogo, HeaderLogoTitle, HeaderProfileNickName, HeaderProfilePhoto, HeaderProfileContainer, HeaderStyledLinkContainer, HeaderStyledLink } from './styles';
-import { userprofileAPI } from '@api/user';
+import { userProfileAPI } from '@api/user';
+import defaultProfileImage from '../../assets/ProfilePhoto.png';
+import { Navigate } from 'react-router-dom';
 
 const HeaderComponent: React.FC<{ activePath: string }> = ({ activePath }) => {
   const dispatch = useDispatch();
+  const currentState = store.getState();
   const profile = useSelector((state: RootState) => state.profile); // Redux store에서 profile 상태를 가져옵니다.
 
   useEffect(() => {
-    const userprofile = async () => {
-      if (!profile.photo && !profile.nickname) {
+    const requestUserProfile = async () => {
         try {
-          const data = await userprofileAPI();
+          const data = await userProfileAPI(currentState.homepage.nickname);
           dispatch(setProfile(data));
         } catch (error) {
           // 오류 처리
         }
       }
-    };
-    userprofile();
-    const interval = setInterval(userprofile, 600000); 
+    requestUserProfile();
+    const interval = setInterval(requestUserProfile, 600000); 
     return () => clearInterval(interval);
   }, [dispatch, profile.photo, profile.nickname]);
 
+  console.log(currentState.homepage.nickname);
+  if (!currentState.homepage.nickname) {
+    return <Navigate to="/"></Navigate>
+  }
+
+  if (currentState.homepage.nickname === '') {
+    return <Navigate to="/"></Navigate>
+  }
+  
   return (
     <HeaderContainer>
       <HeaderLogoContainer>
@@ -33,8 +43,9 @@ const HeaderComponent: React.FC<{ activePath: string }> = ({ activePath }) => {
         <HeaderLogoTitle>Motion Tetris</HeaderLogoTitle>
       </HeaderLogoContainer>
       <HeaderProfileContainer>
-        <HeaderProfilePhoto src={profile.photo} alt="profile" />
-        <HeaderProfileNickName>{profile.nickname}</HeaderProfileNickName>
+        {/* TODO: Profile images */}
+        <HeaderProfilePhoto src={defaultProfileImage} alt="profile"/>
+        <HeaderProfileNickName>{currentState.homepage.nickname}</HeaderProfileNickName>
       </HeaderProfileContainer>
       <HeaderStyledLinkContainer>
         <HeaderStyledLink to="/gamelobby" active={activePath === '/gamelobby'} image="src/assets/Home.png">게임 로비</HeaderStyledLink>

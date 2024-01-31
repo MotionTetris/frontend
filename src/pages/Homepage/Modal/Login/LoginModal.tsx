@@ -28,16 +28,12 @@ function LoginModal() {
     event.preventDefault();
     try {
       const response = await loginAPI(email, password);
-      if (response.status === 200) {
-        dispatch(setUser({ email: email, isAuthenticated: true }));
-        alert('로그인 성공!');
+      console.log(response);
+        dispatch(setUser({ nickname: response.nickname, email: response.email, isAuthenticated: true }));
+        localStorage.setItem("token", response.access_token);
         navigate('/GameLobby');
-      } else {
-        alert('로그인 실패!');
-      }
     } catch (error) {
-      console.error('로그인 요청 실패:', error);
-      alert('로그인 요청 실패!');
+      alert('아이디 또는 비밀번호가 다릅니다.');
     }
   };
 

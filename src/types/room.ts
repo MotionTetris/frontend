@@ -41,8 +41,6 @@ export interface RoomStatus {
     PLAYER:'PLAYER'
   }
 
-
-  
   export interface RoomData {
     role: keyof typeof Role;
     playerstatus: keyof typeof CreatorStatuses | keyof typeof PlayerStatuses;

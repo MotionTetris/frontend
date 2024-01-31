@@ -1,5 +1,5 @@
-// test/frontend/src/components/Room/Player.tsx
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import {
   PlayerStatus,
   TetrisPlayer,
@@ -8,14 +8,22 @@ import {
   PlayerNickName,
   PlayerProficture,
 } from './styles';
-import { UserProfile } from '../../../types/room';
+import { RootState } from '../../../app/store';  // RootState를 import 합니다.
+import { createRoomAPI } from '../../../api/room'
+import { UserProfile } from '../../../types/room'
+import { roomStatusSlice } from '../../../redux/roomStatus/roomStatusSlice'  // roomStatusSlice를 import 합니다.
+import { useDispatch } from 'react-redux';
 
 interface PlayerProps {
-  userProfile: UserProfile;
+  nickname: string;
 }
 
-const Player: React.FC<PlayerProps> = ({ userProfile }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);  // videoRef 생성
+const Player: React.FC<PlayerProps> = ({ nickname }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const roomData = useSelector((state: RootState) => state.roomState.roomData);
+  const [fetchedRoomData, setFetchedRoomData] = useState<UserProfile| null>(null);
+  const dispatch = useDispatch();  // dispatch 함수를 가져옵니다.
+
   useEffect(() => {
     // 웹캠 연결 로직
     const connectWebcam = async () => {
@@ -31,13 +39,31 @@ const Player: React.FC<PlayerProps> = ({ userProfile }) => {
     connectWebcam();
   }, []);
 
+  useEffect(() => {
+    const fetchRoomData = async () => {
+      const fetchedData = await createRoomAPI(roomData);
+      setFetchedRoomData(fetchedData); 
+      fetchRoomData().then(() => {
+        if (fetchedRoomData) {
+          dispatch(roomStatusSlice.actions.drawUserInterface(fetchedData));
+        }
+      });
+    };
+  }, [nickname]);
+
+
+  if (!fetchedRoomData) {
+    return null;  // 방 정보를 찾을 수 없으면 null을 반환합니다.
+  }
+
+  console.log('fetchedRoomData 값:', fetchedRoomData);
   return (
-    <TetrisPlayer>
-      <PlayerBackground src={userProfile.bannerBackground} alt="Background" />
-      <PlayerNickName>{userProfile.nickname}</PlayerNickName>
-      <PlayerProficture src={userProfile.profilePicture} alt="Profile Picture" />
-      <PlayerStatus playerstatus={userProfile.playerstatus}> {/* 상태 표시 텍스트 변경 필요 */}
-        {userProfile.playerstatus === 'WAIT' ? '대기 중' : '준비 중'}
+     <TetrisPlayer>
+      <PlayerBackground src={fetchedRoomData.bannerBackground} alt="Background" />
+      <PlayerNickName>{fetchedRoomData.nickname}</PlayerNickName>
+      <PlayerProficture src={fetchedRoomData.profilePicture} alt="Profile Picture" />
+      <PlayerStatus playerstatus={fetchedRoomData.playerstatus}>
+        {fetchedRoomData.playerstatus === 'WAIT' ? '대기 중' : '준비 중'}
       </PlayerStatus>
       <VideoContainer ref={videoRef} autoPlay playsInline />
     </TetrisPlayer>

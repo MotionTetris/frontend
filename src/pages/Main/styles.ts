@@ -14,7 +14,6 @@ export const GameRoomGrid = styled.div`
 
 export const GameContainer = styled.div`
   position:relative;
-  bottom:5vh;
 `;
 
 export const GamePaginationButton = styled.button<{ direction: 'left' | 'right' }>`
@@ -53,21 +52,16 @@ export const GamePagination = styled.div`
 
 export const CreateRoomButton = styled.button`
   position: absolute;
-  bottom: 60vh;
-  right: 6vw;
-  width: 8%;
-  height: 5%;
+  top: 16vh;
+  right: 8vw;
+  width: 80px;
+  height: 50px;
   background-color: lightgreen;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   color: white;
-  font-size: 1em;
-  cursor: pointer;
+  font-size: 18px;
   border: none;
   border-radius: 5px;
   transition: background-color 0.3s, box-shadow 0.3s;
-
   &:hover {
     background-color: green;
     box-shadow: 0 0 15px rgba(255, 0, 0, 0.1);

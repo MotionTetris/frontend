@@ -5,13 +5,17 @@ import {RoomModalBackground, RoomModalContainer,RoomModalActions, RoomModalButto
 import { RoomData, CreateRoomModalProps, CreatorStatuses, RoomStatuses, LockStatuses } from '../../../types/room';
 import { createRoomAPI } from '../../../api/room';
 import { useNavigate } from 'react-router-dom';
-import { useSocketIO } from '../../../api/WebSocket/useSocketIO'
+import { userProfileAPI } from '@api/user';
+import { store } from '@app/store';
+import { useDispatch } from 'react-redux';
+import { drawUserInterface } from '../../../redux/roomStatus/roomStatusSlice';
 
-const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ onClose, onOpen, createRoom }) => {
+const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ onClose, onOpen, createRoom}) => {
   const [title, setTitle] = useState('');
   const [maxCount, setMaxCount] = useState(1);
   const navigate = useNavigate();
-
+  const currentState = store.getState();
+  const dispatch = useDispatch()
   let nextRoomId = 1;
 
   const generateRoomId = () => {
@@ -28,9 +32,9 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ onClose, onOpen, crea
 
   const handleCreateClick = async () => {
     const creatorProfilePic = `test/frontend/public/assets/Profile${Math.floor(Math.random() * 3) + 1}.png`; // 1~3 중 랜덤한 숫자를 선택
-    const creatorNickname = `User${Math.floor(Math.random() * 9999) + 1}`; // User1~User9999 중 랜덤한 닉네임 생성
+    const creatorNickname = await userProfileAPI(currentState.homepage.nickname);
     const backgroundUrl = `test/frontend/public/assets/RoomHeader${Math.floor(Math.random() * 3) + 1}.png`; // 1~3 중 랜덤한 숫자를 선택
-  
+
     const roomData: RoomData = {
       title,
       maxCount,
@@ -48,12 +52,12 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ onClose, onOpen, crea
     };
       
     try {
-      const createdRoomData = await createRoomAPI(roomData);
-
-      onOpen(createdRoomData);
+      const createdRoomData:RoomData = await createRoomAPI(roomData);
+      dispatch(drawUserInterface(createdRoomData));
+      // onOpen(createdRoomData);
       onClose();
-      navigate(`/rooms/${roomData.roomId}`);
-      createRoom(roomData);
+      createRoom(createdRoomData);
+      navigate(`/rooms/${createdRoomData.roomId}`);
     } catch (error) {
       console.error('Failed to create room:', error);
     }
