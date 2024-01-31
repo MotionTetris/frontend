@@ -31,34 +31,17 @@ import {  Container,
 import { getUserProfileAndRoomData } from '@api/room';
 import { RoomAPIResponse, UserProfile, RoomData, GameRoomProps } from '../../../types/room';
 // CPU 백엔드로 강제 설정
-
+import startSound from "@assets/startbgm.mp3";
+import explodeSound from "@assets/explodebgm.wav";
 let nBTI: number; // 다음 블록 타입
 let nFSI: number; // 다음 블록 색상
 
 
 
-const GameRoom: React.FC<GameRoomProps> = ({ userId }) => {
+const Ingame: React.FC = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
-  const handleStartButtonClick = () => {
-    // TODO: 사용자 숫자를 확인하고 조건을 검사합니다.
-    // 조건이 충족되면 Ingame 페이지로 이동합니다.
-    // 예: history.push('/ingame');
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const userProfileData: UserProfile = await getUserProfileAndRoomData(userId);
-        setUserProfile(userProfileData);
-        console.log("API 호출 결과:", userProfileData);
-      } catch (error) {
-        console.error('Error fetching data: ', error);
-      }
-    };
-
-    fetchData();
-  }, [userId]);
+ 
 
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -66,19 +49,58 @@ const GameRoom: React.FC<GameRoomProps> = ({ userId }) => {
   const sceneRef = useRef<HTMLCanvasElement>(null);
   const blockRef = useRef<Body | null>(null); // 블록 참조 저장
   const hasCollidedRef = useRef(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState("게임이 곧 시작됩니다.");
+  const [timeLeft, setTimeLeft] = useState(6); // 남은 시간을 상태로 관리합니다.
+
   const [playerScore, setPlayerScore] = useState(0);
   const [nextBlockTypeIdx, setNextBlockTypeIdx] = useState(0);
   const [nextFillStyleIdx, setNextFillStyleIdx] = useState(0);
 
-  // 엔진 생성
-  const engine = Engine.create({
+   // 엔진 생성
+   const engine = Engine.create({
     // 중력 설정
     gravity: {
       x: 0,
-      y: 0.043,
+      y: 0,
     },
   });
+  useEffect(() => {
+    const audio = new Audio(startSound);
+    audio.play().catch(error => console.log('재생 오류:', error));
+
+    // 컴포넌트가 언마운트될 때 오디오를 정지
+    return () => {
+      audio.pause();
+    };
+  }, []); 
+  // 중력 y 값을 0으로 설정하는 함수
+  const upGravity = () => {
+    engine.gravity.y = 0.043;
+  };
+  
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      upGravity();
+    }, 6000); // 5초 후에 stopGravity 함수를 호출
+  
+    // 컴포넌트가 언마운트될 때 인터벌을 정리
+    return () => clearInterval(intervalId);
+  }, []);
+
+
+  useEffect(() => {
+    if(timeLeft > 0) { // 남은 시간이 있을 때만 카운트다운을 진행합니다.
+      const intervalId = setInterval(() => {
+        setTimeLeft(prevTime => prevTime - 1); // 1초씩 감소
+        setMessage(`게임이 ${timeLeft - 1}초 후에 시작됩니다.`); // 남은 시간을 메시지로 표시
+      }, 1000);
+
+      // 컴포넌트가 언마운트될 때 인터벌을 정리
+      return () => clearInterval(intervalId);
+    } else {
+      setMessage("게임 시작!");
+    }
+  }, [timeLeft]); // timeLeft가 변경될 때마다 useEffect를 실행
 
   useEffect(() => {
     async function runPosenet() {
@@ -422,6 +444,8 @@ const GameRoom: React.FC<GameRoomProps> = ({ userId }) => {
         }
         
         else  {
+          const exaudio = new Audio(explodeSound);
+          exaudio.play().catch(error => console.log('재생 오류:', error));
           kill += 1;
           // 특정 위치에서 폭발 효과 발생
           explode(pixiApp, particleEffect, 140, i*32);
@@ -592,4 +616,4 @@ const GameRoom: React.FC<GameRoomProps> = ({ userId }) => {
   );
 };
 
-export default GameRoom;
+export default Ingame;

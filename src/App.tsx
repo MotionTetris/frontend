@@ -9,6 +9,7 @@ import GameDashBoard from './pages/DashBoard/GameDashBoard';
 import GameRoom from './pages/Room/GameRoom';
 import HomePage from './pages/Homepage/HomePage';
 import { GlobalStyles } from './GloabalStyles';
+import Ingame from '@pages/Room/InGame/Ingame';
 
 // interface RequireAuthProps {
 //   children: React.ReactElement;
@@ -46,7 +47,7 @@ const App: React.FC = () => {
             <GameDashBoard />
           // </RequireAuth>
         } />
-        <Route path="/rooms/:roomId" element={<GameRoom />
+        <Route path="/rooms/:roomId" element={<Ingame />
         
         } />
 
