@@ -1,5 +1,5 @@
 import { Dispatch } from 'redux';
-import { setCurrentPage } from '@features/ranking/rankingSlice';
+import { setCurrentPage } from '../redux/ranking/rankingSlice';
 
 export const goToPreviousPage = (currentPage: number, dispatch: Dispatch) => {
   dispatch(setCurrentPage(Math.max(currentPage - 1, 1)));

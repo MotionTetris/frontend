@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@app/store';
-import { setRankings, setTotalPages } from '@features/ranking/rankingSlice';
+import { setRankings, setTotalPages } from '../../redux/ranking/rankingSlice';
 import { rankingAPI } from '@api/ranking';
 import { goToPreviousPage, goToNextPage, renderRank } from '@util/ranking';
 import {

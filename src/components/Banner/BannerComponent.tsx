@@ -1,7 +1,7 @@
 // src/components/BannerComponent.tsx
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { goToPrevious, goToNext } from '@features/banner/bannerSlice';
+import { goToPrevious, goToNext } from '../../redux/banner/bannerSlice';
 import { RootState } from '@app/store';
 import { BannerContainer, BannerSlide, BannerImageWrapper, BannerArrowButton, BannerImage, BannerSlideNumber } from './styles';
 import { bannerImages } from '@util/images';

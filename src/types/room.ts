@@ -46,7 +46,7 @@ export interface RoomStatus {
   export interface RoomData {
     role: keyof typeof Role;
     playerstatus: keyof typeof CreatorStatuses | keyof typeof PlayerStatuses;
-    roomid: string;
+    roomId: number;
     title: string;
     creatorProfilePic: string;
     creatorNickname: string;
@@ -73,16 +73,21 @@ export interface RoomAPIResponse {
   roomData: RoomData;
 }
 
-  export type RoomModalProps = {
-    roomData: RoomData;
-    onClose: () => void;
-    onRoomClick: (roomData: RoomData) => void;
-  };
+export type RoomModalProps = {
+  roomData: RoomData;
+  onClose: () => void;
+  onRoomClick: (roomData: RoomData) => void;
+};
 
-  export interface RoomState {
-    roomStatus: RoomStatusState;
-    roomCardComponentProps: RoomCardComponentProps;
-    roomData: RoomData;
-    roomModalProps: RoomModalProps;
-  }
-  
+export interface RoomState {
+  roomStatus: RoomStatusState;
+  roomCardComponentProps: RoomCardComponentProps;
+  roomData: RoomData;
+  roomModalProps: RoomModalProps;
+}
+
+export interface CreateRoomModalProps {
+  onClose: () => void;
+  onOpen: (roomData: RoomData) => void;
+  createRoom: (roomData: RoomData) => void;
+}

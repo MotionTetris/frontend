@@ -1,5 +1,5 @@
 import { Dispatch } from 'redux';
-import { setShowStatusMessage, setStatusMessage } from '@features/roomStatus/roomStatusSlice';
+import { setShowStatusMessage, setStatusMessage } from '../redux/roomStatus/roomStatusSlice';
 import { RoomStatuses } from '../types/room'
 
 export const handleRoomStatusMessage = (roomData: any, dispatch: Dispatch) => {

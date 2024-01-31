@@ -10,7 +10,7 @@ export default defineConfig({
       '@app': path.resolve(__dirname, './src/app'),
       '@assets': path.resolve(__dirname, './src/assets'),
       '@components': path.resolve(__dirname, './src/components'),
-      '@features': path.resolve(__dirname, './src/features'),
+      '@redux': path.resolve(__dirname, './src/redus'),
       '@mocks': path.resolve(__dirname, './src/mocks'),
       '@pages': path.resolve(__dirname, './src/pages'),
       '@util': path.resolve(__dirname, './src/util'),

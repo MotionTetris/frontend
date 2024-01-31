@@ -13,7 +13,7 @@
       "@app/*": ["app/*"],
       "@assets/*": ["assets/*"],
       "@components/*": ["components/*"],
-      "@features/*": ["features/*"],
+      "@redux/*": ["redux/*"],
       "@mocks/*": ["mocks/*"],
       "@pages/*": ["pages/*"],
       "@util/*": ["util/*"],

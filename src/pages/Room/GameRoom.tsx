@@ -1,8 +1,8 @@
-// src/components/Room1.tsx
+// src/components/GameRoom.tsx
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../app/store';
-import { togglePlayerReady, startGame } from '../../features/game/gameSlice';
+import { togglePlayerReady, startGame } from '../../redux/game/gameSlice';
 import {
   RoomContainer,
   StartButton, 
@@ -12,7 +12,6 @@ import {
 import { getUserProfileAndRoomData } from '@api/room';
 import { UserProfile } from '../../types/room';
 import Player from '@components/Room/Player/Player';
-import { RoominSocketIO } from '@api/WebSocket/roomin';
 
 const GameRoom: React.FC = () => {
   const dispatch = useDispatch();
@@ -22,13 +21,6 @@ const GameRoom: React.FC = () => {
 
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userProfiles, setUserProfiles] = useState<UserProfile[]>([]);
-  const handleSocketIOMessage = (data: string) => {
-    const userProfile: UserProfile = JSON.parse(data);
-    console.log('Received Socket.IO message:', userProfile);
-    setUserProfiles((prevProfiles) => [...prevProfiles, userProfile]);
-  };
-
-  RoominSocketIO('172.17.0.3:3001', handleSocketIOMessage);
 
   const handleStartButtonClick = () => {
     if (startGame) {

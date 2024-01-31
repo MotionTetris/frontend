@@ -36,7 +36,7 @@ const RoomModal: React.FC<RoomModalProps> = ({ roomData, onClose,onRoomClick }) 
       <RoomModalButton onClick={() => onRoomClick(roomData)}>예</RoomModalButton>
     </RoomModalActions>
       </RoomModalContainer>
-      <Link to={`/rooms/${roomData.roomid}`} onClick={handleClick}>
+      <Link to={`/rooms/${roomData.roomId}`} onClick={handleClick}>
     </Link>
     </RoomModalBackground>
   );

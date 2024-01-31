@@ -1,7 +1,7 @@
 // HeaderComponent.tsx
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setProfile } from '@features/profile/profileSlice';
+import { setProfile } from '../../redux/profile/profileSlice';
 import { RootState } from '@app/store';
 import { HeaderContainer, HeaderLogoContainer, HeaderLogo, HeaderLogoTitle, HeaderProfileNickName, HeaderProfilePhoto, HeaderProfileContainer, HeaderStyledLinkContainer, HeaderStyledLink } from './styles';
 import { userprofileAPI } from '@api/user';

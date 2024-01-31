@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { SignupModalOverlay, SignupModalContainer, SignupCloseButton, SignupForm, SignupInput, SignupErrorMessage, SignupButton, SignupLabel, SignupText1,SignupText2, SignupText3, SignupText4, SignupText5 } from './styles';
-import { setNickname, setEmail, setPassword, setConfirmPassword, setNicknameError, setEmailError, setPasswordError, setConfirmPasswordError } from '@features/hompage/signupSlice'; // 경로는 실제 구조에 맞게 조정하세요.
+import { setNickname, setEmail, setPassword, setConfirmPassword, setNicknameError, setEmailError, setPasswordError, setConfirmPasswordError } from '../../../../redux/hompage/signupSlice'; // 경로는 실제 구조에 맞게 조정하세요.
 import { RootState } from '@app/store';
 import { validateNickname, validateEmail, validatePassword, validateConfirmPassword } from '@util/validation';
 import { signupAPI } from '@api/auth';

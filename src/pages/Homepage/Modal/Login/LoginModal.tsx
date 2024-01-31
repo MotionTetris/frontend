@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AnimatedSection, HomepagesubTitle, Icon, HomepageInnerContainer,HomepageDiv, EmailInputField, PasswordInputField, HomepageTitle, EmailInputString, PasswordInputString, HomepageLoginButton,HomepageGuestLoginButton, HomepageSignupButton, HomepageContainer  } from './styles';
 import SignupModal from '@pages/Homepage/Modal/Signup/SignupModal'
 import { useDispatch } from 'react-redux';
-import { setUser } from '@features/hompage/homepageSlice';
+import { setUser } from '../../../../redux/hompage/homepageSlice';
 import { useNavigate } from 'react-router-dom';
 import { loginAPI } from '@api/auth';
 import { MdEmail } from "react-icons/md";

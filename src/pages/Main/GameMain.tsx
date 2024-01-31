@@ -1,23 +1,38 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@app/store';
 import { RoomData } from '../../types/room';
-import { fetchRooms, setCurrentPage, openModal, closeModal } from '@features/game/gameSlice';
+import { fetchRooms, setCurrentPage, openModal, closeModal } from '../../redux/game/gameSlice';
 import HeaderComponent from '@components/Header/HeaderComponent';
 import RoomCardComponent from '@components/Room/RoomCardComponent';
 import RoomModal from '@components/Room/Modal/RoomModal';
-import { GameRoomGrid, GamePagination, GameContainer , GamePaginationButton } from './styles';
+import { GameRoomGrid, GamePagination, GameContainer , GamePaginationButton, CreateRoomButton } from './styles';
 import { useNavigate } from 'react-router-dom';
 import { RoomsdataAPI } from '@api/room';
 import { goToPreviousPage, goToNextPage } from '@util/pagination';
+import { useSocketIO } from '../../api/WebSocket/useSocketIO'; // useSocketIO 훅 import
+import RoomCreate from '@components/Room/Modal/RoomCreate'
 
 const GameMain = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { rooms, currentPage, isModalOpen, selectedRoom } = useSelector((state: RootState) => state.game);
+  const [isCreateRoomModalOpen, setIsCreateRoomModalOpen] = useState(false);
   const activePath = '/gamemain';
   const roomsPerPage = 6;
   const navigate = useNavigate();
-    useEffect(() => {
+
+   const {joinUser, createRoom} = useSocketIO('localhost:3001');
+
+   const handleCreateRoomClick = () => {
+    setIsCreateRoomModalOpen(true); 
+  };
+  
+  const handleCloseCreateRoomModal = () => {
+    setIsCreateRoomModalOpen(false);
+  };
+
+  
+  useEffect(() => {
     RoomsdataAPI(currentPage)
     dispatch(fetchRooms(currentPage))
   }, [dispatch, currentPage]);
@@ -27,7 +42,9 @@ const GameMain = () => {
   };
 
   const handleRoomEnter = (roomData: RoomData) => {
-    navigate(`/rooms/${roomData.roomid}`);
+    console.log('Attempting to join room', roomData.roomId); 
+    navigate(`/rooms/${roomData.roomId}`);
+    joinUser(roomData.roomId);  // 'joinUser' 이벤트 발생
   };
 
   const handleCloseModal = () => {
@@ -40,6 +57,7 @@ const currentRooms = rooms.slice((currentPage - 1) * roomsPerPage, currentPage *
   return (
     <GameContainer>
       <HeaderComponent activePath={activePath}/>
+      <CreateRoomButton onClick={handleCreateRoomClick}>방 생성</CreateRoomButton>
       <GameRoomGrid>
         {currentRooms.map((roomData, index) => (
           <RoomCardComponent
@@ -49,6 +67,9 @@ const currentRooms = rooms.slice((currentPage - 1) * roomsPerPage, currentPage *
           />
         ))}
       </GameRoomGrid>
+      {isCreateRoomModalOpen && (
+    <RoomCreate onOpen={handleCreateRoomClick} onClose={handleCloseCreateRoomModal} createRoom={createRoom}/>  // 방 생성 모달 추가
+)}
       {isModalOpen && selectedRoom && (
         <RoomModal roomData={selectedRoom} onClose={handleCloseModal} onRoomClick={handleRoomEnter}/>
       )}

@@ -33,5 +33,24 @@ export const RoomModalActions = styled.div`
 
 export const RoomModalButton = styled.button`
   padding: 10px 20px;
+  
   margin-left: 10px;
 `;
+
+// 새로운 컴포넌트를 위한 스타일 추가
+export const ModalInput = styled.input`
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+`;
+
+// 새로운 컴포넌트를 위한 스타일 추가
+export const ModalSelect = styled.select`
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+`;
+
+

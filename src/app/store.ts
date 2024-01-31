@@ -1,12 +1,13 @@
 // src/app/store.ts
 import { configureStore } from '@reduxjs/toolkit';
-import bannerReducer from '../features/banner/bannerSlice';
-import profileReducer from '../features/profile/profileSlice';
-import rankingReducer from '../features/ranking/rankingSlice'; 
-import roomStatusReducer from '../features/roomStatus/roomStatusSlice';
-import gameReducer from '../features/game/gameSlice';
-import homepageReducer from '../features/hompage/homepageSlice';
-import signupReducer from '../features/hompage/signupSlice';
+import bannerReducer from '../redux/banner/bannerSlice';
+import profileReducer from '../redux/profile/profileSlice';
+import rankingReducer from '../redux/ranking/rankingSlice'; 
+import roomStatusReducer from '../redux/roomStatus/roomStatusSlice';
+import gameReducer from '../redux/game/gameSlice';
+import homepageReducer from '../redux/hompage/homepageSlice';
+import signupReducer from '../redux/hompage/signupSlice';
+import socketReducer from '../redux/socket/socketReducer'
 import { CommonState } from '../types/common';
 import { GameState } from '../types/game';
 import { HomepageState } from '../types/homepage';
@@ -15,6 +16,7 @@ import { RankingState } from '../types/ranking';
 import { RoomState } from '../types/room';
 import { SignupState } from '../types/signup';
 import { BannerState } from '../types/banner';
+import { Socket } from 'socket.io-client';
 
 
 export const store = configureStore({
@@ -26,7 +28,7 @@ export const store = configureStore({
     game: gameReducer,
     homepage: homepageReducer,
     signup: signupReducer,
-    // 기타 다른 feature reducers
+    socket: socketReducer
   },
   devTools: process.env.NODE_ENV !== 'production', // 개발 환경에서만 DevTools 활성화
 });
@@ -40,6 +42,7 @@ export type RootState = {
   roomState: RoomState;
   signup: SignupState;
   banner: BannerState;
+  socket: Socket | null;
 };
 
 export type AppDispatch = typeof store.dispatch;

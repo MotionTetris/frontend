@@ -21,3 +21,16 @@ export const getUserProfileAndRoomData = async (): Promise<UserProfile> =>{
     throw error; // 오류를 던져서 상위 컴포넌트에서 처리할 수 있게 합니다.
   }
 };
+
+
+// 방 생성 API 호출 함수
+export const createRoomAPI = async (roomData: RoomData) => {
+  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6InRlc3RtYW4iLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjJ9.0_Wib_oJ8TQ13mEbR3v0OK6sPQVQVLNy3i6btIemVMo';
+  const config = {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  };
+  const response = await axios.post('http://localhost:3000/room', roomData, config);
+  return response.data;
+};
