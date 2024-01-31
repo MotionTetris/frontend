@@ -85,3 +85,14 @@ export class BlockCreator {
         }
     }
 }
+
+
+export const blockImages = [
+    "../src/assets/blocks/Iblock.png",
+    "../src/assets/blocks/Oblock.png",
+    "../src/assets/blocks/Tblock.png",
+    "../src/assets/blocks/Sblock.png",
+    "../src/assets/blocks/Zblock.png",
+    "../src/assets/blocks/Jblock.png",
+    "../src/assets/blocks/Lblock.png"
+]

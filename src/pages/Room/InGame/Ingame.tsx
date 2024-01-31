@@ -11,9 +11,30 @@ import Matter from "matter-js";
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 import {RoomContainer,StartButton, ReadyButton,PlayerBackground, TetrisBackButton, TetrisCanvas, TetrisNextBlock, TetrisPlayer, TetrisScore, PlayerNickName,PlayerProficture,  MotionContainer, Motion, MotionDot} from '../styles';
+import {  Container,
+  SceneCanvas,
+  MessageDiv,
+  ScoreDiv,
+  NextBlockContainer,
+  NextBlockText,
+  NextBlockImage,
+  VideoContainer,
+  Video,
+  VideoCanvas,
+  GameContainer,
+  EffectCanvas,} from './Ingamestyles';
+  import {gsap} from 'gsap';
+  import { BlockTypeList, BlockColorList } from "./Tetris/BlockCreator";
+  import { blockImages } from "./Tetris/BlockCreator";
+  import { explode, createRectangle } from "./Tetris/Effect";
 import { getUserProfileAndRoomData } from '@api/room';
 import { RoomAPIResponse, UserProfile, RoomData, GameRoomProps } from '../../../types/room';
 // CPU 백엔드로 강제 설정
+
+let nBTI: number; // 다음 블록 타입
+let nFSI: number; // 다음 블록 색상
+
+
 
 const GameRoom: React.FC<GameRoomProps> = ({ userId }) => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -38,16 +59,6 @@ const GameRoom: React.FC<GameRoomProps> = ({ userId }) => {
     fetchData();
   }, [userId]);
 
-const line = [
-  [
-    [100, 490],
-    [500, 490],
-    [100, 550],
-    [500, 550],
-  ],
-];
-
-let playerScore = 0;
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -55,6 +66,9 @@ let playerScore = 0;
   const blockRef = useRef<Body | null>(null); // 블록 참조 저장
   const hasCollidedRef = useRef(false);
   const [message, setMessage] = useState("");
+  const [playerScore, setPlayerScore] = useState(0);
+  const [nextBlockTypeIdx, setNextBlockTypeIdx] = useState(0);
+  const [nextFillStyleIdx, setNextFillStyleIdx] = useState(0);
 
   // 엔진 생성
   const engine = Engine.create({
@@ -89,7 +103,10 @@ let playerScore = 0;
       const video = await setupWebcam();
       const canvas = canvasRef.current;
       const ctx = canvas?.getContext("2d");
-
+      video.width = 480;
+      video.height = 320;
+      canvas!.width = 480;
+      canvas!.height = 320;
       // 각도와 손목의 위치를 저장할 변수 선언
       let leftAngleInDegrees = 0;
       let prevLeftAngle = 0;
@@ -103,14 +120,13 @@ let playerScore = 0;
 
       let leftAngleDelta = 0;
       let rightAngleDelta = 0;
-      
+
       let noseX = 0;
 
       setInterval(async () => {
         const pose = await net.estimateSinglePose(video, {
           flipHorizontal: true,
         });
-        console.log(`ctx, canvas = ${ctx}, ${canvas}`);
         if (ctx && canvas) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -149,12 +165,10 @@ let playerScore = 0;
               ctx.fill();
             }
           });
-          console.log("1")
           //모션인식 키고싶으면 !block으로 할것
           if (!GAME.fallingBlock || hasCollidedRef.current) {
             return;
           }
-          console.log("2")
           let leftShoulderKeypoint = pose.keypoints.find(
             (keypoint) => keypoint.part === "leftShoulder"
           );
@@ -164,15 +178,20 @@ let playerScore = 0;
           let leftWristKeypoint = pose.keypoints.find(
             (keypoint) => keypoint.part === "leftWrist"
           );
-
           // 각 요소가 존재하는지 확인하고, 존재한다면 위치 정보를 가져옵니다.
           let leftShoulder = leftShoulderKeypoint
             ? leftShoulderKeypoint.position
             : null;
           let leftElbow = leftElbowKeypoint ? leftElbowKeypoint.position : null;
           let leftWrist = leftWristKeypoint ? leftWristKeypoint.position : null;
+          let leftShoulderScore = leftShoulderKeypoint ? leftShoulderKeypoint.score : Infinity;
+          let leftElbowScore = leftElbowKeypoint ? leftElbowKeypoint.score : Infinity;
+          let leftWristScore = leftWristKeypoint ? leftWristKeypoint.score : Infinity;
 
-          if (leftShoulder && leftElbow && leftWrist) {
+          let leftMinScore = Math.min(leftShoulderScore, leftElbowScore, leftWristScore);
+          
+          
+          if (leftMinScore > 0.25 && leftShoulder && leftElbow && leftWrist) {
             let vectorA = {
               x: leftShoulder.x - leftElbow.x,
               y: leftShoulder.y - leftElbow.y,
@@ -219,8 +238,15 @@ let playerScore = 0;
           let rightWrist = rightWristKeypoint
             ? rightWristKeypoint.position
             : null;
-
-          if (rightShoulder && rightElbow && rightWrist) {
+          
+          
+          let rightShoulderScore = rightShoulderKeypoint ? rightShoulderKeypoint.score : Infinity;
+          let rightElbowScore = rightElbowKeypoint ? rightElbowKeypoint.score : Infinity;
+          let rightWristScore = rightWristKeypoint ? rightWristKeypoint.score : Infinity;
+            
+          let rightMinScore = Math.min(rightShoulderScore, rightElbowScore, rightWristScore);
+          
+          if (rightMinScore > 0.25 && rightShoulder && rightElbow && rightWrist) {
             let vectorA = {
               x: rightShoulder.x - rightElbow.x,
               y: rightShoulder.y - rightElbow.y,
@@ -269,30 +295,28 @@ let playerScore = 0;
                 const startTime = Date.now(); // 시작 시간
 
                 const animate = () => {
-                    rectangleLeftRotate.alpha += 0.01 * direction;
-                    if (rectangleLeftRotate.alpha > 1) {
-                        rectangleLeftRotate.alpha = 1;
-                        direction = -1;
-                    } else if (rectangleLeftRotate.alpha < 0) {
-                        rectangleLeftRotate.alpha = 0;
-                        direction = 1;
-                    }
+                  rectangleLeftRotate.alpha += 0.01 * direction;
+                  if (rectangleLeftRotate.alpha > 1) {
+                    rectangleLeftRotate.alpha = 1;
+                    direction = -1;
+                  } else if (rectangleLeftRotate.alpha < 0) {
+                    rectangleLeftRotate.alpha = 0;
+                    direction = 1;
+                  }
 
-                    // 효과 지속 시간이 지나면 ticker에서 콜백 함수를 제거
-                    if ((Date.now() - startTime) / 1000 > effectDuration) {
-                        pixiApp.ticker.remove(animate);
+                  // 효과 지속 시간이 지나면 ticker에서 콜백 함수를 제거
+                  if ((Date.now() - startTime) / 1000 > effectDuration) {
+                    pixiApp.ticker.remove(animate);
 
-                        // 효과가 끝나면 채우기 색상을 다시 검정색으로 변경
-                        rectangleLeftRotate.clear();
-                        rectangleLeftRotate.beginFill(0x000000);
-                        rectangleLeftRotate.drawRect(0, 0, 50, 400);
-                        rectangleLeftRotate.endFill();
-                    }
+                    // 효과가 끝나면 채우기 색상을 다시 검정색으로 변경
+                    rectangleLeftRotate.clear();
+                    rectangleLeftRotate.beginFill(0x000000);
+                    rectangleLeftRotate.drawRect(0, 0, 50, 400);
+                    rectangleLeftRotate.endFill();
+                  }
                 };
 
                 pixiApp.ticker.add(animate);
-                setMessage("왼쪽으로 회전!"); // 메시지를 변경합니다.
-                setTimeout(() => setMessage(""), 500);
               }
             }
           } else {
@@ -304,7 +328,7 @@ let playerScore = 0;
               if (GAME.fallingBlock) {
                 // block이 존재하는지 확인
                 Body.rotate(GAME.fallingBlock, Math.PI / 4); // 45도 회전
-                 // 효과 시작 시 채우기 색상을 빨간색으로 변경
+                // 효과 시작 시 채우기 색상을 빨간색으로 변경
                 rectangleRightRotate.clear();
                 rectangleRightRotate.beginFill(0xff0000);
                 rectangleRightRotate.drawRect(0, 0, 50, 400);
@@ -315,30 +339,28 @@ let playerScore = 0;
                 const startTime = Date.now(); // 시작 시간
 
                 const animate = () => {
-                    rectangleRightRotate.alpha += 0.01 * direction;
-                    if (rectangleRightRotate.alpha > 1) {
-                        rectangleRightRotate.alpha = 1;
-                        direction = -1;
-                    } else if (rectangleRightRotate.alpha < 0) {
-                        rectangleRightRotate.alpha = 0;
-                        direction = 1;
-                    }
+                  rectangleRightRotate.alpha += 0.01 * direction;
+                  if (rectangleRightRotate.alpha > 1) {
+                    rectangleRightRotate.alpha = 1;
+                    direction = -1;
+                  } else if (rectangleRightRotate.alpha < 0) {
+                    rectangleRightRotate.alpha = 0;
+                    direction = 1;
+                  }
 
-                    // 효과 지속 시간이 지나면 ticker에서 콜백 함수를 제거
-                    if ((Date.now() - startTime) / 1000 > effectDuration) {
-                        pixiApp.ticker.remove(animate);
+                  // 효과 지속 시간이 지나면 ticker에서 콜백 함수를 제거
+                  if ((Date.now() - startTime) / 1000 > effectDuration) {
+                    pixiApp.ticker.remove(animate);
 
-                        // 효과가 끝나면 채우기 색상을 다시 검정색으로 변경
-                        rectangleRightRotate.clear();
-                        rectangleRightRotate.beginFill(0x000000);
-                        rectangleRightRotate.drawRect(0, 0, 50, 400);
-                        rectangleRightRotate.endFill();
-                    }
+                    // 효과가 끝나면 채우기 색상을 다시 검정색으로 변경
+                    rectangleRightRotate.clear();
+                    rectangleRightRotate.beginFill(0x000000);
+                    rectangleRightRotate.drawRect(0, 0, 50, 400);
+                    rectangleRightRotate.endFill();
+                  }
                 };
 
                 pixiApp.ticker.add(animate);
-                setMessage("오른쪽으로 회전!");
-                setTimeout(() => setMessage(""), 500);
               }
             }
           }
@@ -354,13 +376,12 @@ let playerScore = 0;
             ? videoRef.current.offsetWidth / 2
             : null;
 
-
           if (noseX && centerX) {
             let forceMagnitude = Math.abs(noseX - centerX) / (centerX * 100); // 중앙에서 얼마나 떨어져 있는지에 비례하는 힘의 크기를 계산합니다.
             forceMagnitude = Math.min(forceMagnitude, 1); // 힘의 크기가 너무 커지지 않도록 1로 제한합니다.
 
             // noseX와 centerX의 차이에 따라 alpha 값을 결정
-            let alpha = Math.min(Math.abs(noseX - centerX) / 300, 1);  // 100은 정규화를 위한 값이며 조절 가능
+            let alpha = Math.min(Math.abs(noseX - centerX) / 300, 1); // 100은 정규화를 위한 값이며 조절 가능
 
             if (GAME.fallingBlock) {
               if (noseX < centerX) {
@@ -369,7 +390,7 @@ let playerScore = 0;
                   x: -forceMagnitude,
                   y: 0,
                 });
-                 // 왼쪽 직사각형 색상 변경
+                // 왼쪽 직사각형 색상 변경
                 rectangleLeft.alpha = alpha;
                 rectangleLeft.clear();
                 rectangleLeft.beginFill(0x00ff00);
@@ -381,14 +402,13 @@ let playerScore = 0;
                 rectangleRight.beginFill(0x000000);
                 rectangleRight.drawRect(0, 0, 50, 400);
                 rectangleRight.endFill();
-
               } else {
                 // 코의 x 좌표가 캔버스 중앙보다 오른쪽에 있다면, 블록에 오른쪽으로 힘을 가합니다.
                 Body.applyForce(GAME.fallingBlock, GAME.fallingBlock.position, {
                   x: forceMagnitude,
                   y: 0,
                 });
-                
+
                 // 오른쪽 직사각형 색상 변경
                 rectangleRight.alpha = alpha;
                 rectangleRight.clear();
@@ -409,30 +429,24 @@ let playerScore = 0;
           prevRightAngle = rightAngleInDegrees;
           prevRightWristX = rightWristX;
           prevLeftWristX = leftWristX;
-
-          console.log(leftAngleDelta);
         }
       }, 250);
     }
-    //runPosenet();
+    runPosenet();
 
     if (!sceneRef.current) return;
 
     // 렌더러 시작
 
-    let container = document.createElement("div");
-    container.style.position = "absolute";  // position을 absolute로 설정
-    container.style.bottom = "045px";            // 상단에서의 위치
-    container.style.left = "486px";           // 왼쪽에서의 위치
-    container.style.width = "40vh";        // 너비
-    container.style.height = "40vw";       // 높이
-    document.body.appendChild(container);
+    const gameView = document.getElementById("game-view");
+
+    // 렌더러 시작
     const render = Matter.Render.create({
-      element: container, // DOM element to render the canvas (document.body means it will be appended to the body)
+      canvas: gameView, // DOM element to render the canvas (document.body means it will be appended to the body)
       engine: engine, // Reference to the Matter.js engine
       options: {
-        width: 560, // Width of the canvas
-        height: 670, // Height of the canvas
+        width: 600, // Width of the canvas
+        height: 800, // Height of the canvas
         wireframes: false, // Set to true for wireframe rendering
       },
     });
@@ -441,95 +455,68 @@ let playerScore = 0;
       combineDistance: 1,
       engine: engine,
       runner: runner,
-      blockFriction: 1.0,
-      blockRestitution: 0.0,
-      blockSize: 16,
+      blockFriction: 0,
+      blockRestitution: 0,
+      blockSize: 32,
       blockLandingCallback: block,
       view: render.canvas,
       spawnY: -100,
     });
-    GAME.spawnNewBlock();
-    // 엔진 실행
-    render.canvas.style = "position: absolute";
-    container.appendChild(render.canvas);
+    const firstBlock = Math.floor(Math.random() * BlockTypeList.length);
+    const firstStyle = Math.floor(Math.random() * BlockColorList.length);
+    
+    const nextInfo = GAME.spawnFirstBlock(firstBlock, firstStyle);
+    console.log(`the first next info is ${nextInfo.nextBlockTypeIdx} , ${nextInfo.nextFillStyleIdx}`);
+    nBTI = nextInfo.nextBlockTypeIdx;
+    nFSI = nextInfo.nextFillStyleIdx;
+    setNextBlockTypeIdx(nBTI);
+    setNextFillStyleIdx(nFSI);
+    
 
     // pixi
+    const effectView = document.getElementById("game-effect-view");
+
     const pixiApp = new PIXI.Application({
-      width: 560,
-      height: 670,
+      width: 600,
+      height: 800,
       backgroundAlpha: 0, // 배경색 투명하게 설정
+      view: effectView,
     });
 
-    // @ts-ignore
-    pixiApp.view.style.position = "absolute";
-
-    
-    container.appendChild(pixiApp.view);
-    // 파티클 생성을 위한 그래픽스 객체
+    // 블록 떨어지는 효과
     const particleGraphics = new PIXI.Graphics();
     particleGraphics.beginFill(0xffb6c1);
     particleGraphics.drawCircle(0, 0, 5);
     particleGraphics.endFill();
     const texture = pixiApp.renderer.generateTexture(particleGraphics);
 
-
-    const rectangleRight = new PIXI.Graphics();
-    rectangleRight.beginFill(0x000000); // 초록색으로 채움
-    rectangleRight.drawRect(0, 0, 50, 400); // 너비 50, 높이 800의 사각형
-    rectangleRight.endFill();
-
-    // 사각형의 위치를 렌더러의 오른쪽에 위치하도록 설정
-    rectangleRight.x = pixiApp.screen.width - rectangleRight.width;
-    rectangleRight.y = 0;
-
-    // 사각형을 stage에 추가
-    pixiApp.stage.addChild(rectangleRight);
+    const explosionTexture = PIXI.Texture.from("../src/assets/explosion.png");
+    const flash = new PIXI.Sprite(explosionTexture);
 
 
+    // explosion 효과 
+    const particleEffect = new PIXI.ParticleContainer(100, { alpha: true, scale: true });
+    // ParticleContainer를 stage에 추가
+    pixiApp.stage.addChild(particleEffect);
+    // 좌우밀기, 좌우회전 이펙트객체
+    const rectangleLeft = createRectangle(pixiApp, 50, 400, 0,0 )
+    const rectangleRight = createRectangle(pixiApp, 50, 400, pixiApp.screen.width - 50, 0);
+    const rectangleRightRotate = createRectangle(pixiApp, 50, 400, pixiApp.screen.width - 50, 400);
+    const rectangleLeftRotate = createRectangle(pixiApp, 50, 400, 0, 400);
+    
+    let lines: PIXI.Graphics[] = [];
+    let scoreTexts: PIXI.Text[] = [];
 
-
-    // 왼쪽 사각형 그래픽 생성
-    const rectangleLeft = new PIXI.Graphics();
-    rectangleLeft.beginFill(0x000000); // 초기 채우기 색상을 검정색으로 설정
-    rectangleLeft.drawRect(0, 0, 50, 400); // 너비 50, 높이 800의 사각형
-    rectangleLeft.endFill();
-
-    // 사각형의 위치를 렌더러의 왼쪽에 위치하도록 설정
-    rectangleLeft.x = 0;
-    rectangleLeft.y = 0;
-
-    // 사각형을 stage에 추가
-    pixiApp.stage.addChild(rectangleLeft);
-
-    // 하단 오른쪽 사각형 그래픽 생성
-    const rectangleRightRotate = new PIXI.Graphics();
-    rectangleRightRotate.beginFill(0x000000); // 초록색으로 채움
-    rectangleRightRotate.drawRect(0, 0, 50, 400); // 너비 50, 높이 400의 사각형
-    rectangleRightRotate.endFill();
-
-    // 사각형의 위치를 렌더러의 오른쪽, 하단에 위치하도록 설정
-    rectangleRightRotate.x = pixiApp.screen.width - rectangleRightRotate.width;
-    rectangleRightRotate.y = 400;
-
-    // 사각형을 stage에 추가
-    pixiApp.stage.addChild(rectangleRightRotate);
-
-    // 하단 왼쪽 사각형 그래픽 생성
-    const rectangleLeftRotate = new PIXI.Graphics();
-    rectangleLeftRotate.beginFill(0x000000); // 초록색으로 채움
-    rectangleLeftRotate.drawRect(0, 0, 50, 400); // 너비 50, 높이 400의 사각형
-    rectangleLeftRotate.endFill();
-
-    // 사각형의 위치를 렌더러의 왼쪽, 하단에 위치하도록 설정
-    rectangleLeftRotate.x = 0;
-    rectangleLeftRotate.y = 400;
-
-    // 사각형을 stage에 추가
-    pixiApp.stage.addChild(rectangleLeftRotate);
-
-
-
-
+    // 라인 격자 이펙트 객체
+    for (let i = 0; i < 20; i++) {
+      let line = new PIXI.Graphics();
+      line.lineStyle(1, 0xFFF000, 0.2); // 선의 두께는 1, 색상은 검정색, 투명도는 1(불투명)
+      line.beginFill(0x000000, 0); 
+      line.drawRect(140, i * 32, 320, 32); // 32픽셀 간격으로 높이를 설정
+      line.endFill();
+      lines.push(line); // lines 배열에 추가
+      pixiApp.stage.addChild(line); // stage에 추가
+    }
 
     // 엔진 업데이트
     pixiApp.ticker.add(() => {
@@ -543,12 +530,129 @@ let playerScore = 0;
     render.canvas.focus();
     Matter.Render.run(render);
     function block({ bodyA, bodyB }: BlockCollisionCallbackParam) {
-      console.log("ㅋㅋ", bodyA.position.y, bodyB.position.y);
+      
       if (bodyB.position.y < 10 || bodyA.position.y < 10) {
+        setMessage("게임종료")
         return;
       }
-      GAME.checkAndRemoveLines(GAME.appropriateScore);
+      GAME.checkAndRemoveLines();
+      const scoreList = GAME.scoreList;
+      let kill = 0;
+      for (let i = 0; i < lines.length; i++) {
+        const alpha = scoreList[i]; // 점수를 투명도로 변환 (0 ~ 1 사이의 값)
+        let line = lines[i];
+        line.clear(); // 이전 라인 스타일 제거
+        line.beginFill(0x808080, alpha/1.5); 
+        line.drawRect(140, i * 32, 320, 32); // 32픽셀 간격으로 높이를 설정
+        line.endFill();
 
+        // 이전에 생성된 텍스트 객체가 있다면 제거
+        if (scoreTexts[i]) {
+          pixiApp.stage.removeChild(scoreTexts[i]);
+        }
+
+        let scoreText: PIXI.Text;
+
+        // 새로운 텍스트 객체 생성
+        if (alpha * 100 < 95 && alpha * 100 >= 0) {
+          scoreText = new PIXI.Text((alpha * 100).toFixed(2), {fontFamily : 'Arial', fontSize: 20, fill : 0xffffff, align : 'center'});
+          scoreText.x = 80;
+          scoreText.y = i * 32;
+        }
+        else if (alpha * 100 < 100) {
+          scoreText = new PIXI.Text("폭파직전!", {fontFamily : 'Arial', fontSize: 20, fill : 0xfff000, align : 'center'});
+          scoreText.x = 80;
+          scoreText.y = i * 32;
+          // 반짝이는 효과 추가
+          gsap.to(scoreText, { duration: 0.5, alpha: 0, yoyo: true, repeat: -1 });
+        }
+        
+        else  {
+          kill += 1;
+          // 특정 위치에서 폭발 효과 발생
+          explode(pixiApp, particleEffect, 140, i*32);
+          // 스프라이트 초기화
+          flash.alpha = 1; // 알파값 초기화
+          if (flash.parent) { // 스프라이트가 이미 부모에 추가되어 있으면 제거
+            flash.parent.removeChild(flash);
+          }
+
+          // 스프라이트 위치 설정 및 추가
+          flash.x = 140;
+          flash.y = i*32 -200;
+          flash.alpha = 0.5;
+          pixiApp.stage.addChild(flash);
+
+          // 애니메이션 생성
+          let ticker = PIXI.Ticker.shared;
+          let timeElapsed = 0; // 경과 시간
+          const handleTick = (deltaTime: number) => {
+            timeElapsed += deltaTime;
+            if (timeElapsed >= 60) { // 약 1초 후
+              ticker.remove(handleTick); // 애니메이션 제거
+              if (flash.parent) { // 스프라이트가 부모에 추가되어 있다면 제거
+                flash.parent.removeChild(flash);
+              }
+            }
+          };
+          ticker.add(handleTick);
+                  
+
+          setPlayerScore((prevPlayerScore) => {
+            const newScore = prevPlayerScore + Math.floor(alpha * 3000);
+            return newScore;
+          });
+          
+          
+              
+          scoreText = new PIXI.Text("폭파!", {fontFamily : 'Arial', fontSize: 20, fill : 0xff0000, align : 'center'});
+          scoreText.x = 80;
+          scoreText.y = i * 32;
+          // 확대 효과 추가
+          // 글자 크기를 크게 했다가 작게 하는 효과 추가
+          gsap.to(scoreText.scale, { 
+            duration: 1, 
+            x: 2, 
+            y: 2, 
+            yoyo: true, 
+            repeat: 1, 
+            onComplete: () => {
+              gsap.to(scoreText.scale, { duration: 0, x: 1, y: 1 });
+              return;
+            },
+          });
+
+          // 1초 후에 라인 스타일을 원래대로 되돌림
+          setTimeout(() => {
+            line.clear();
+            line.beginFill(0x808080, alpha/1.5); // 원래 색상으로 변경
+            line.drawRect(140, i * 32, 320, 32);
+            line.endFill();
+          }, 1000); // 1초 후에 실행
+
+        }
+
+        // 새로 생성한 텍스트 객체를 배열에 저장
+        scoreTexts[i] = scoreText;
+        pixiApp.stage.addChild(scoreText); // stage에 텍스트 추가
+      }
+      const gameMessage = ["single", "double", "triple", "quadra"];
+    
+
+      if (kill == 1) {
+        setMessage(gameMessage[0]+  " explosion!");
+        setTimeout(() => setMessage(""), 2000);
+      } else if (kill == 2) {
+        setMessage(gameMessage[1]+  " explosion!");
+        setTimeout(() => setMessage(""), 2000);
+      } else if (kill == 3) {
+        setMessage(gameMessage[2]+  " explosion!");
+        setTimeout(() => setMessage(""), 2000);
+      } else if (kill == 4) {
+        setMessage(gameMessage[3]+  " explosion!");
+        setTimeout(() => setMessage(""), 2000);
+      }
+      
       Body.setVelocity(bodyA, { x: 0, y: 0 });
       Body.setVelocity(bodyB, { x: 0, y: 0 });
       Body.setAngularSpeed(bodyA, 0);
@@ -557,21 +661,23 @@ let playerScore = 0;
       Body.setSpeed(bodyB, 0);
       Body.setStatic(bodyA, true);
       Body.setStatic(bodyB, true);
-      console.log(bodyA, bodyB, "오");
-      for (let i = 0; i < 40; i++) {
-        console.log(`body a is ${bodyA.label}`)
+      
+      for (let i = 0; i < 30; i++) {
+        
         let collisionPoint;
-        if (bodyA.label == 'Rectangle Body') {
+        if (bodyA.label == "Rectangle Body") {
           collisionPoint = bodyA;
-        }
-        else {
+        } else {
           collisionPoint = bodyB;
         }
 
-        
         const particle = new PIXI.Sprite(texture); // 파티클 이미지
-        
-        particle.position.set(collisionPoint.position.x, collisionPoint.position.y); // 파티클 위치
+
+        particle.position.set(
+          collisionPoint.position.x,
+          collisionPoint.position.y
+        ); // 파티클 위치
+
         particle.speed = Math.random() * 5; // 파티클 속도
         particle.direction = Math.random() * Math.PI * 2; // 파티클 방향
         particle.alpha = 1; // 파티클 초기 투명도
@@ -591,10 +697,14 @@ let playerScore = 0;
         });
         ticker.start();
       }
-      GAME.spawnNewBlock();
+      
+      GAME.spawnNewBlock(nBTI,nFSI);
+      nBTI = Math.floor(Math.random() * BlockTypeList.length);
+      nFSI = Math.floor(Math.random() * BlockColorList.length);
+      setNextBlockTypeIdx(nBTI);
+      setNextFillStyleIdx(nFSI);
     }
     return () => {
-      console.log("제거");
       // 클린업 함수
       // 엔진 정지
       Engine.clear(engine);
@@ -608,31 +718,23 @@ let playerScore = 0;
   }, []);
 
   return (
-    <RoomContainer>
-  <TetrisBackButton>Logo Here</TetrisBackButton>
-  <TetrisPlayer>
-  {userProfile && (
-    <>
-      <PlayerBackground src={userProfile.bannerBackground} alt="Background" />
-      <PlayerNickName>{userProfile.nickname}</PlayerNickName>
-      <PlayerProficture src={userProfile.profilePicture} alt="Profile Picture" />
-      <TetrisScore>SCORE </TetrisScore>
-    </>
-  )}
-</TetrisPlayer>
-  <TetrisNextBlock>Next Block Info</TetrisNextBlock>
-  <TetrisCanvas ref={sceneRef}>Tetris here</TetrisCanvas>
-  <MotionContainer>
-    <Motion ref={videoRef}>Motion Show</Motion>
-    <MotionDot ref={canvasRef}>Dot here</MotionDot>
-  </MotionContainer>
-  <StartButton
-      disabled={userProfile?.Role !== 'CREATOR'} // CREATOR가 아니면 버튼을 비활성화
-      onClick={handleStartButtonClick}
-    >Start Button</StartButton>
-  <ReadyButton>Ready Button</ReadyButton>
-</RoomContainer>
-
+    <Container>
+      <ScoreDiv>score: {playerScore}</ScoreDiv>
+      <MessageDiv>{message}</MessageDiv>
+      <NextBlockContainer>
+        <NextBlockText>next</NextBlockText>
+        <NextBlockImage src={blockImages[nextBlockTypeIdx]} alt="next block" />
+      </NextBlockContainer>
+      <GameContainer>
+        <SceneCanvas id="game-view" ref={sceneRef}>
+        </SceneCanvas>
+        <EffectCanvas id="game-effect-view"></EffectCanvas>
+      </GameContainer>
+      <VideoContainer>
+        <Video ref={videoRef} autoPlay />
+        <VideoCanvas ref={canvasRef} />
+      </VideoContainer>
+    </Container>
   );
 };
 

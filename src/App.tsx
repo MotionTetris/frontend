@@ -46,7 +46,7 @@ const App: React.FC = () => {
             <GameDashBoard />
           // </RequireAuth>
         } />
-         <Route path="/rooms/:roomId" element={<GameRoom />
+        <Route path="/rooms/:roomId" element={<GameRoom />
         
         } />
 
