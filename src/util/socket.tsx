@@ -1,17 +1,17 @@
-import io from 'socket.io-client';
+import io from "socket.io-client";
 
-const SOCKET_SERVER_URL = 'http://localhost:3001';
+const SOCKET_SERVER_URL = "http://localhost:3001";
 
 export const Socketconnect = (roomId: string) => {
   const socket = io(SOCKET_SERVER_URL);
-  socket.emit('joinRoom', { roomId });
+  socket.emit("joinRoom", { roomId });
 
-  socket.on('message', message => {
+  socket.on("message", (message) => {
     console.log(message);
   });
 
   const cleanup = () => {
-    socket.emit('leaveRoom', { roomId });
+    socket.emit("leaveRoom", { roomId });
     socket.disconnect();
   };
 

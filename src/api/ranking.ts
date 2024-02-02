@@ -1,12 +1,7 @@
-import axios from 'axios';
-import { ApiResponse } from '../types/common';
+import axios from "axios";
+import { APIRankingResponse } from "../types/Refactoring";
 
-export const rankingAPI = async (currentPage: number): Promise<ApiResponse> => {
-  try {
-    const response = await axios.post<ApiResponse>(`/api/rankings`, { page: currentPage });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching rankings:', error);
-    throw error;
-  }
+export const rankingAPI = async (): Promise<APIRankingResponse> => {
+  const response = await axios.post<APIRankingResponse>(`/api/rankings`, {});
+  return response.data;
 };

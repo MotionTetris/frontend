@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RoomData, RoomStatus } from '../../types/room';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { RoomData, RoomStatus } from "../../types/room";
 
 interface RoomStatusState extends RoomStatus {
   rooms: Record<string, RoomData>;
@@ -7,25 +7,31 @@ interface RoomStatusState extends RoomStatus {
 
 const initialState: RoomStatusState = {
   showStatusMessage: false,
-  statusMessage: '',
+  statusMessage: "",
   rooms: {},
 };
 
 export const roomStatusSlice = createSlice({
-  name: 'roomStatus',
+  name: "roomStatus",
   initialState,
   reducers: {
     drawUserInterface: (state, action: PayloadAction<RoomData>) => {
       const roomData = action.payload;
       state.rooms[roomData.roomId] = roomData;
     },
-    setShowStatusMessage: (state, action: PayloadAction<{ roomId:number; show: boolean }>) => {
+    setShowStatusMessage: (
+      state,
+      action: PayloadAction<{ roomId: number; show: boolean }>,
+    ) => {
       const { roomId, show } = action.payload;
       if (state.rooms[roomId]) {
         state.showStatusMessage = show;
       }
     },
-    setStatusMessage: (state, action: PayloadAction<{ roomId: number; message: string }>) => {
+    setStatusMessage: (
+      state,
+      action: PayloadAction<{ roomId: number; message: string }>,
+    ) => {
       const { roomId, message } = action.payload;
       if (state.rooms[roomId]) {
         state.statusMessage = message;
@@ -34,6 +40,7 @@ export const roomStatusSlice = createSlice({
   },
 });
 
-export const { drawUserInterface, setShowStatusMessage, setStatusMessage } = roomStatusSlice.actions;
+export const { drawUserInterface, setShowStatusMessage, setStatusMessage } =
+  roomStatusSlice.actions;
 
 export default roomStatusSlice.reducer;

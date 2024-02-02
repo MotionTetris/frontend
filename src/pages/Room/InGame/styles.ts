@@ -78,7 +78,6 @@ export const NextBlockImage = styled.img`
   height: 50%;
 `;
 
-
 export const VideoContainer = styled.div`
   top: 520px;
   left: 0%;

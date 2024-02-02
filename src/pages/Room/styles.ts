@@ -1,9 +1,8 @@
 // StyledComponents.ts
-import styled from 'styled-components';
-
+import styled from "styled-components";
 
 interface PlayerStatusProps {
-  playerstatus: 'WAIT' | 'READY' | 'START';
+  playerstatus: "WAIT" | "READY" | "START";
 }
 export const RoomContainer = styled.div`
   display: flex;
@@ -23,6 +22,24 @@ export const TetrisBackButton = styled.button`
   background: lightgray;
 `;
 
+export const GameRoomId = styled.span`
+  position: absolute;
+  top: 2%;
+  right: 2%;
+  width: 10%;
+  height: 5%;
+  background: lightblue;
+`;
+
+export const GameRoomTitle = styled.span`
+  position: absolute;
+  top: 2%;
+  right: 2%;
+  width: 10%;
+  height: 5%;
+  background: lightblue;
+`;
+
 export const TetrisSingle = styled.div`
   position: absolute;
   top: 2%;
@@ -39,7 +56,7 @@ export const TetrisPlayer = styled.div`
   width: 30vw;
   height: 10vh;
   border: 2px solid black;
-  border-top-left-radius: 50px;  // 왼쪽 상단 코너에 대한 radius 설정
+  border-top-left-radius: 50px; // 왼쪽 상단 코너에 대한 radius 설정
   border-top-right-radius: 50px; // 오른쪽 상단 코너에 대한 radius 설정
   background: lightgray;
   scale: 0.8;
@@ -52,7 +69,12 @@ export const PlayerNickName = styled.span`
   padding: 0.5em 1em; // 텍스트와 테두리 사이의 여백을 설정
   border: 2px solid #ffffff; // 테두리 색상을 흰색으로 설정
   border-radius: 20px; // 둥근 모서리 효과
-  background-color: rgba(255, 255, 255, 0.2); // 배경색을 흰색의 투명도 20%로 설정
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.2
+  ); // 배경색을 흰색의 투명도 20%로 설정
   transition: box-shadow 0.3s; // smooth transition for the glow effect
 
   &:hover {
@@ -61,25 +83,23 @@ export const PlayerNickName = styled.span`
 `;
 
 export const PlayerBackground = styled.img`
-   position: absolute;
+  position: absolute;
   bottom: 0vh;
   left: 0vh;
   width: 30vw;
   opacity: 0.8;
   height: 10vh;
-  border-top-left-radius: 50px;  // 왼쪽 상단 코너에 대한 radius 설정
+  border-top-left-radius: 50px; // 왼쪽 상단 코너에 대한 radius 설정
   border-top-right-radius: 50px; // 오른쪽 상단 코너에 대한 radius 설정
   background: lightgray;
 `;
 
-
 export const PlayerProficture = styled.img`
-position: absolute;
-top: 1.5vh;
-left: 3vw;
-scale: 0.9;
+  position: absolute;
+  top: 1.5vh;
+  left: 3vw;
+  scale: 0.9;
 `;
-
 
 export const PlayerStatus = styled.span<PlayerStatusProps>`
   position: absolute;
@@ -90,17 +110,19 @@ export const PlayerStatus = styled.span<PlayerStatusProps>`
   display: flex; // flexbox를 사용하여 아이템을 정렬
   align-items: center; // 수직 방향으로 중앙 정렬
   justify-content: center; // 수평 방향으로 중앙 정렬
-  font-family: 'DNFBitBitv2', sans-serif;
+  font-family: "DNFBitBitv2", sans-serif;
   font-style: light;
   font-weight: 100;
   font-size: 24px;
-  background-color: ${props => props.playerstatus === 'READY' ? 'green' : 'gray'}; // 배경색 조건부 설정
+  background-color: ${(props) =>
+    props.playerstatus === "READY" ? "green" : "gray"}; // 배경색 조건부 설정
   color: white; // 텍스트 색상 설정
   border-radius: 50px; // 모서리 둥글게
   padding: 20px 10px; // 안쪽 여백 설정
-  transition: background-color 0.3s, transform 0.3s; // 배경색과 변형에 애니메이션 효과 적용
+  transition:
+    background-color 0.3s,
+    transform 0.3s; // 배경색과 변형에 애니메이션 효과 적용
 `;
-
 
 export const TetrisNextBlock = styled.div`
   position: absolute;
@@ -109,11 +131,11 @@ export const TetrisNextBlock = styled.div`
   width: 23vw;
   height: 9.1vh;
   border: 2px solid black;
-  font-family: 'DNFBitBitv2', sans-serif;
+  font-family: "DNFBitBitv2", sans-serif;
   font-style: light;
   font-weight: 100;
   font-size: 20px;
-  color:lightblue;
+  color: lightblue;
   background: gray;
 `;
 
@@ -123,16 +145,14 @@ export const VideoContainer = styled.video`
   left: -0.1vw;
   width: 30vw;
   height: 90vh;
-  border: 2px solid black; 
+  border: 2px solid black;
   border-radius: 0px;
   object-fit: cover;
 `;
 
-
 export const TetrisCanvas = styled.canvas`
   position: relative;
 `;
-
 
 export const MotionContainer = styled.div`
   position: absolute;
@@ -179,7 +199,9 @@ export const StartButton = styled.button`
   cursor: pointer; // 마우스 오버시 커서 변경
   border: none; // 테두리 제거
   border-radius: 5px; // 버튼 모서리 둥글게
-  transition: background-color 0.3s, box-shadow 0.3s; // 배경색 및 그림자 변화에 애니메이션 효과
+  transition:
+    background-color 0.3s,
+    box-shadow 0.3s; // 배경색 및 그림자 변화에 애니메이션 효과
 
   &:hover {
     background-color: #ff6666; // 호버 시 색상을 더 부드럽게 변경
@@ -187,27 +209,24 @@ export const StartButton = styled.button`
   }
 `;
 
-
-export const ReadyButton = styled.span<PlayerStatusProps>`
+export const ReadyButton = styled.span`
   position: absolute;
   bottom: 10vh;
   right: 6vw;
   width: 8%;
   height: 5%;
-  background-color: ${props => props.playerstatus === 'READY' ? 'green' : 'gray'};
+  background-color: gray;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white; // 텍스트 색상 설정
-  font-size: 1em; // 텍스트 크기 설정
-  cursor: pointer; // 마우스 오버시 커서 변경
-  border: none; // 테두리 제거
-  border-radius: 5px; // 버튼 모서리 둥글게
-  transition: background-color 0.3s; // 배경색 변경에 애니메이션 효과
+  color: white;
+  font-size: 1em;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
 
   &:hover {
-    background-color: ${props => props.playerstatus === 'READY' ? 'darkgreen' : 'darkgray'}; // 호버 시 배경색 변경
+    background-color: "darkgreen";
   }
 `;
-
-

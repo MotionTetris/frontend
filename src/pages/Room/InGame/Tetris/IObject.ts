@@ -1,3 +1,3 @@
 export interface IObject {
-    update(): void;
+  update(): void;
 }

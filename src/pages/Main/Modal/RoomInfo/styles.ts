@@ -1,6 +1,6 @@
-// RoomModal
-import styled from 'styled-components';
-export const RoomModalBackground = styled.div`
+// RoomInfo
+import styled from "styled-components";
+export const RoomInfoBackground = styled.div`
   position: fixed;
   top: 0;
   left: 0;
@@ -13,7 +13,7 @@ export const RoomModalBackground = styled.div`
   z-index: 10;
 `;
 
-export const RoomModalContainer = styled.div`
+export const RoomInfoContainer = styled.div`
   background: white;
   padding: 20px;
   border-radius: 10px;
@@ -21,19 +21,19 @@ export const RoomModalContainer = styled.div`
   max-width: 600px;
 `;
 
-export const RoomModalTitle = styled.h2``;
+export const RoomInfoTitle = styled.h2``;
 
-export const RoomModalContent = styled.p``;
+export const RoomInfoContent = styled.p``;
 
-export const RoomModalActions = styled.div`
+export const RoomInfoActions = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
 `;
 
-export const RoomModalButton = styled.button`
+export const RoomInfoButton = styled.button`
   padding: 10px 20px;
-  
+
   margin-left: 10px;
 `;
 
@@ -52,5 +52,3 @@ export const ModalSelect = styled.select`
   padding: 10px;
   margin-bottom: 10px;
 `;
-
-

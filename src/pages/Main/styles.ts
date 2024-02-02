@@ -1,6 +1,6 @@
 //GameMain.tsx
 //GameMain
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const GameRoomGrid = styled.div`
   display: grid;
@@ -13,10 +13,12 @@ export const GameRoomGrid = styled.div`
 `;
 
 export const GameContainer = styled.div`
-  position:relative;
+  position: relative;
 `;
 
-export const GamePaginationButton = styled.button<{ direction: 'left' | 'right' }>`
+export const GamePaginationButton = styled.button<{
+  direction: "left" | "right";
+}>`
   position: fixed;
   top: 50%;
   width: 50px;
@@ -27,12 +29,16 @@ export const GamePaginationButton = styled.button<{ direction: 'left' | 'right' 
   outline: none;
   background-color: transparent;
   transition: transform 0.3s ease-in-out;
-  ${({ direction }) => direction === 'left' && `
+  ${({ direction }) =>
+    direction === "left" &&
+    `
     left: 20vw;
     background-image: url('src/assets/ArrowLeft.png'); // 왼쪽 화살표 이미지
   `}
 
-  ${({ direction }) => direction === 'right' && `
+  ${({ direction }) =>
+    direction === "right" &&
+    `
     right:20vw ;
     background-image: url('src/assets/ArrowRight.png'); // 오른쪽 화살표 이미지
   `}
@@ -46,9 +52,7 @@ export const GamePagination = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-
 `;
-
 
 export const CreateRoomButton = styled.button`
   position: absolute;
@@ -61,7 +65,9 @@ export const CreateRoomButton = styled.button`
   font-size: 18px;
   border: none;
   border-radius: 5px;
-  transition: background-color 0.3s, box-shadow 0.3s;
+  transition:
+    background-color 0.3s,
+    box-shadow 0.3s;
   &:hover {
     background-color: green;
     box-shadow: 0 0 15px rgba(255, 0, 0, 0.1);

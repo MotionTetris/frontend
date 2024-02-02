@@ -1,20 +1,20 @@
 // Headercomponent
-import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import { StyledLinkProps } from '../../types/common';
+import styled from "styled-components";
+import { Link } from "react-router-dom";
+import { StyledLinkProps } from "../../types/common";
 
 export const HeaderContainer = styled.header`
   height: 100px;
-  background: url('/src/assets/HeaderBackground.png') no-repeat center center;
+  background: url("/src/assets/HeaderBackground.png") no-repeat center center;
   background-size: cover;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: fixed;
-  top: 0; 
+  top: 0;
   left: 0;
   width: 100%;
-  z-index:3;
+  z-index: 3;
 `;
 
 export const HeaderLogoContainer = styled.div`
@@ -35,7 +35,7 @@ export const HeaderLogo = styled.img`
   margin-right: 10px;
 
   &:hover {
-  box-shadow: 0 0 10px white;
+    box-shadow: 0 0 10px white;
   }
 `;
 
@@ -89,15 +89,30 @@ export const HeaderStyledLink = styled(Link)<StyledLinkProps>`
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  background: linear-gradient(90deg, rgba(54,209,220,1) 0%, rgba(91,134,229,1) 100%);
+  background: linear-gradient(
+    90deg,
+    rgba(54, 209, 220, 1) 0%,
+    rgba(91, 134, 229, 1) 100%
+  );
   border-radius: 60px;
-  transition: box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease, filter 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    background 0.3s ease,
+    color 0.3s ease,
+    filter 0.3s ease;
   position: relative;
-  background: ${props => props.active ? 'linear-gradient(90deg, rgba(54,209,220,1) 0%, rgba(91,134,229,1) 100%)' : 'grey'};
-  filter: ${props => !props.active && 'grayscale(100%)'};
+  background: ${(props) =>
+    props.active
+      ? "linear-gradient(90deg, rgba(54,209,220,1) 0%, rgba(91,134,229,1) 100%)"
+      : "grey"};
+  filter: ${(props) => !props.active && "grayscale(100%)"};
   &:hover {
     box-shadow: 0 0 5px white;
-    background: linear-gradient(90deg, rgba(54,209,220,1) 0%, rgba(91,134,229,1) 100%);
+    background: linear-gradient(
+      90deg,
+      rgba(54, 209, 220, 1) 0%,
+      rgba(91, 134, 229, 1) 100%
+    );
     color: white;
     filter: none;
     &::before {
@@ -105,17 +120,17 @@ export const HeaderStyledLink = styled(Link)<StyledLinkProps>`
     }
   }
   &::before {
-    content: '';
+    content: "";
     display: block;
     position: relative;
     left: 20px;
     width: 35px;
     height: 35px;
-    background-image: url('${props => props.image}');
+    background-image: url("${(props) => props.image}");
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     margin-right: 35px;
-    filter: ${props => !props.active && 'grayscale(100%)'};
+    filter: ${(props) => !props.active && "grayscale(100%)"};
   }
 `;

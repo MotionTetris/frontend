@@ -1,70 +1,54 @@
 // src/components/GameRoom.tsx
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../app/store';
-import { togglePlayerReady, startGame } from '../../redux/game/gameSlice';
 import {
   RoomContainer,
-  StartButton, 
+  StartButton,
   ReadyButton,
   TetrisBackButton,
-} from './styles';
-// import { getUserProfileAndRoomData } from '@api/room';
-import { UserProfile } from '../../types/room';
-import Player from '@components/Room/Player/Player';
-import { useSocketIO } from "@api/WebSocket/useSocketIO";
+  GameRoomId,
+  GameRoomTitle,
+} from "./styles";
+import Player from "@components/Player/Player";
+import { useRoomSocket, RoomSocketEvent } from "../../context/roomSocket";
+import { InGamePlayerCard } from "../../types/Refactoring";
 
 const GameRoom: React.FC = () => {
-  const dispatch = useDispatch();
-  const player = useSelector((state: RootState) => state.game.player);
-  const allReady = useSelector((state: RootState) => state.game);
-  const buttonText = player.playerstatus === 'WAIT' ? '준비하기' : '대기하기';
-  const socket = useSocketIO('localhost:3001');
-  
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [userProfiles, setUserProfiles] = useState<UserProfile[]>([]);
-  const roomStatus = useSelector((state:RootState) => state.roomState)
-  const handleStartButtonClick = () => {
-    if (startGame) {
-      dispatch(startGame());
-      // 여기에 게임 시작 관련 로직을 추가하세요.
-    }
-  };
+  const [inGameCard, setInGameCard] = useState<InGamePlayerCard | null>(null);
+  const [currentPlayerNickname, setCurrentPlayerNickname] = useState<string>("");
+  const [ingameStart, setGameStart] = useState<InGamePlayerCard | null>(null);
 
-  const handleReadyButtonClick = () => {
-    dispatch(togglePlayerReady());
-    // 여기에 ready 상태를 toggle하는 로직을 추가하세요.
-  };
+  const socket = useRoomSocket();
+  console.assert(socket, "socket is undefined");
 
-  
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const userProfileData: UserProfile = await getUserProfileAndRoomData();
-  //       setUserProfiles([userProfileData]); // userProfileData를 배열에 넣어줌
-  //       console.log("API 호출 결과:", userProfileData);
-  //     } catch (error) {
-  //       console.error('Error fetching data: ', error);
-  //     }
-  //   };
-  
-  //   fetchData();
-  // }, []);
-  
+  useEffect(() => {
+    const handleInGameCard = (data: InGamePlayerCard) => {
+      setInGameCard(data);
+    };
+    const gameStart = (data: InGamePlayerCard) => {
+      setGameStart(data);
+    };
+    socket?.on(RoomSocketEvent.EMIT_JOIN, handleInGameCard);
+    socket?.on(RoomSocketEvent.EMIT_GAME_START, gameStart);
+    return () => {
+      socket?.off(RoomSocketEvent.EMIT_JOIN, handleInGameCard);
+      socket?.off(RoomSocketEvent.EMIT_GAME_START, gameStart);
+    };
+  }, []);
+
+  const isCreator = inGameCard?.creatorNickname === currentPlayerNickname;
+
   return (
     <RoomContainer>
+      <GameRoomId>{inGameCard?.roomId}</GameRoomId>
+      <GameRoomTitle>{inGameCard?.roomTitle}</GameRoomTitle>
       <TetrisBackButton>Logo Here</TetrisBackButton>
-      {userProfiles.map((profile, index) => (
-  <Player key={index} nickname={profile.nickname} />
-))}
-      {player.Role === 'CREATOR' && (
-        <StartButton disabled={!allReady} onClick={handleStartButtonClick}>
-          Start Game
-        </StartButton>
+      {inGameCard && <Player playerCard={inGameCard} />}
+      <StartButton>Start Game</StartButton>
+      {isCreator ? (
+        <StartButton>Start Game</StartButton>
+      ) : (
+        <ReadyButton>Ready</ReadyButton>
       )}
-      <ReadyButton playerstatus={player.playerstatus} onClick={handleReadyButtonClick}>
-        {buttonText}
-      </ReadyButton>
     </RoomContainer>
   );
 };

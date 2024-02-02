@@ -1,4 +1,3 @@
 export interface BannerState {
-    currentIndex: number;
+  currentIndex: number;
 }
-  

@@ -23,7 +23,7 @@ export default defineConfig({
         target: "https://jeongminjo.shop",
         changeOrigin: true,
         rewrite: (path) => {
-          let newPath = path.replace(/^\/api/, '');
+          const newPath = path.replace(/^\/api/, '');
           console.log(newPath);
           return newPath
         }

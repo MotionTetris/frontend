@@ -1,26 +1,25 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const HomepageTitle = styled.h1`
-
   position: absolute;
   right: 4.7vw;
   bottom: 35vw;
-  font-family: 'DNFBitBitv2', sans-serif;
-  font-style:light;
-  font-weight:100;
-  font-size :42px;
+  font-family: "DNFBitBitv2", sans-serif;
+  font-style: light;
+  font-weight: 100;
+  font-size: 42px;
   color: white;
   letter-spacing: 3px;
 `;
 
-export const HomepagesubTitle= styled.h1`
+export const HomepagesubTitle = styled.h1`
   position: absolute;
   bottom: 33vw;
-  font-size :20px;
+  font-size: 20px;
   color: white;
-  font-family: 'JalnanGothic', sans-serif;
+  font-family: "JalnanGothic", sans-serif;
   letter-spacing: 1px;
-  font-weight:100;
+  font-weight: 100;
 `;
 
 export const HomepageBackgroundVideo = styled.video`
@@ -34,8 +33,7 @@ export const HomepageBackgroundVideo = styled.video`
   z-index: -1;
 `;
 
-
-export const EmailInputString = styled.label `
+export const EmailInputString = styled.label`
   position: absolute;
   top: 18vw;
   right: 3vw;
@@ -65,22 +63,23 @@ export const EmailInputField = styled.input`
   background: linear-gradient(145deg, #ffffff, #e6e6e6);
   transition: box-shadow 0.3s ease;
 
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     box-shadow: 0 0 10px #dcd6f7;
   }
   &::placeholder {
     position: relative;
     font-size: 16px;
-    top:2px;
+    top: 2px;
     color: rgba(128, 128, 128, 0.6);
-    font-family: 'JalnanGothic', sans-serif;
+    font-family: "JalnanGothic", sans-serif;
   }
 `;
 
-export const PasswordInputString = styled.label `
+export const PasswordInputString = styled.label`
   position: absolute;
   top: 23vw;
-  right:3vw;
+  right: 3vw;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -97,15 +96,16 @@ export const PasswordInputField = styled.input`
   background: linear-gradient(145deg, #ffffff, #e6e6e6);
 
   transition: box-shadow 0.3s ease;
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     box-shadow: 0 0 10px #dcd6f7;
   }
   &::placeholder {
     position: relative;
     font-size: 16px;
-    top:2px;
+    top: 2px;
     color: rgba(128, 128, 128, 0.6);
-    font-family: 'JalnanGothic', sans-serif;
+    font-family: "JalnanGothic", sans-serif;
   }
 `;
 
@@ -122,12 +122,12 @@ export const HomepageInnerContainer = styled.div`
   bottom: 0;
   right: 0vw;
   width: 500px;
-  background: rgba( 255, 255, 255, 0.1 );
-  box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
-  backdrop-filter: blur( 10px );
-  -webkit-backdrop-filter: blur( 10px );
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-radius: 10px;
-  border: 1px solid rgba( 255, 255, 255, 0.2 );
+  border: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -147,46 +147,43 @@ export const HomepageButton = styled.button`
   width: 60%;
   margin: 10px 0;
   transition: all 0.3s; // 모든 CSS 속성에 대해 0.3초의 트랜지션 효과 적용
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     box-shadow: 0 0 10px #dcd6f7;
     transform: scale(1.1); // scale을 transform 속성 내부에 지정
   }
 `;
 
-
 export const HomepageLoginButton = styled(HomepageButton)`
   position: absolute;
-  font-family: 'JalnanGothic', sans-serif;
-  font-style:light;
-  font-weight:100;
+  font-family: "JalnanGothic", sans-serif;
+  font-style: light;
+  font-weight: 100;
   letter-spacing: 3px;
 
-  bottom : 15vw;
+  bottom: 15vw;
   right: 2vw;
   background-color: #007bff;
-
 `;
 
 export const HomepageGuestLoginButton = styled(HomepageButton)`
   position: absolute;
-  font-family: 'JalnanGothic', sans-serif;
-  font-style:light;
-  font-weight:100;
+  font-family: "JalnanGothic", sans-serif;
+  font-style: light;
+  font-weight: 100;
   letter-spacing: 3px;
-  bottom : 11vw;
+  bottom: 11vw;
   right: 2vw;
   background-color: #6c757d;
-
 `;
 
 export const HomepageSignupButton = styled(HomepageButton)`
   position: absolute;
-  font-family: 'JalnanGothic', sans-serif;
-  font-style:light;
-  font-weight:100;
+  font-family: "JalnanGothic", sans-serif;
+  font-style: light;
+  font-weight: 100;
   letter-spacing: 3px;
-  bottom : 7vw;
+  bottom: 7vw;
   right: 2vw;
   background-color: #28a745;
 `;
-

@@ -1,7 +1,6 @@
 // src/features/ranking/rankingSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RankingState,RankingItem } from '../../types/ranking';
-
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { RankingState, RankingItem } from "../../types/ranking";
 
 const initialState: RankingState = {
   rankings: [],
@@ -10,7 +9,7 @@ const initialState: RankingState = {
 };
 
 export const rankingSlice = createSlice({
-  name: 'ranking',
+  name: "ranking",
   initialState,
   reducers: {
     setRankings: (state, action: PayloadAction<RankingItem[]>) => {
@@ -25,6 +24,7 @@ export const rankingSlice = createSlice({
   },
 });
 
-export const { setRankings, setTotalPages, setCurrentPage } = rankingSlice.actions;
+export const { setRankings, setTotalPages, setCurrentPage } =
+  rankingSlice.actions;
 
 export default rankingSlice.reducer;

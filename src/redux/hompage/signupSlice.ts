@@ -1,20 +1,19 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { SignupState } from '../../types/signup';
-
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { SignupState } from "../../types/signup";
 
 const initialState: SignupState = {
-  nickname: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-  nicknameError: '',
-  emailError: '',
-  passwordError: '',
-  confirmPasswordError: '',
+  nickname: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+  nicknameError: "",
+  emailError: "",
+  passwordError: "",
+  confirmPasswordError: "",
 };
 
 export const signupSlice = createSlice({
-  name: 'signup',
+  name: "signup",
   initialState,
   reducers: {
     setNickname: (state, action: PayloadAction<string>) => {

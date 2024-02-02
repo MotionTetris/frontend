@@ -1,5 +1,5 @@
 // BannerComponent
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const BannerContainer = styled.div`
   display: flex;
@@ -7,12 +7,13 @@ export const BannerContainer = styled.div`
   justify-content: center;
   width: 70vw;
   height: 60vh;
-  left:15vw;
+  right: 10vw;
+  top: 10vh;
   margin-top: calc((100vh - 100px - 280px - 20vh) / 2);
   margin-bottom: calc((100vh - 100px - 280px - 20vh) / 2);
   position: relative;
   border-radius: 2vw;
-  box-shadow: 0 2vw 4vw rgba(0, 0, 0, 0.1); 
+  box-shadow: 0 2vw 4vw rgba(0, 0, 0, 0.1);
   overflow: hidden;
   background: white;
   transition: all 0.5s ease;
@@ -31,7 +32,6 @@ export const BannerImageWrapper = styled.div`
   position: relative;
 `;
 
-
 export const BannerImage = styled.img`
   position: absolute;
   top: 0px;
@@ -42,7 +42,7 @@ export const BannerImage = styled.img`
   transition: transform 0.5s ease-in-out;
 `;
 
-export const BannerArrowButton = styled.button<{ direction: 'left' | 'right' }>`
+export const BannerArrowButton = styled.button<{ direction: "left" | "right" }>`
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -56,12 +56,16 @@ export const BannerArrowButton = styled.button<{ direction: 'left' | 'right' }>`
   background-position: center;
   background-size: contain;
 
-  ${({ direction }) => direction === 'left' && `
+  ${({ direction }) =>
+    direction === "left" &&
+    `
     left: 10px;
     background-image: url('src/assets/ArrowLeft.png');
   `}
 
-  ${({ direction }) => direction === 'right' && `
+  ${({ direction }) =>
+    direction === "right" &&
+    `
     right: 10px;
     background-image: url('src/assets/ArrowRight.png');
   `}
