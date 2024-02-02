@@ -1,27 +1,43 @@
 import * as io from "socket.io-client";
 import * as config from "../config";
 import React, { useContext } from "react";
+import cookie from 'react-cookies'
 
-
-const loadToken = () => localStorage.getItem("token");
-const token =`Bearer ${loadToken()}`;
+// const loadToken = () => localStorage.getItem("token");
 // Socket.IO 연결 시 토큰을 auth 객체에 포함하여 전달
-export const roomSocket = io.connect(config.ROOM_SOCKET_URL, {
-  auth: {
-    token: token,
-  },
-  reconnection: true, // 자동 재연결 활성화
-  reconnectionAttempts: Infinity, // 재연결 시도 횟수 (무제한)
-  reconnectionDelay: 1000, // 재연결 사이의 지연 시간 (ms)
-  reconnectionDelayMax: 5000, // 재연결 사이의 최대 지연 시간 (ms)
-  autoConnect: true, // 인스턴스 생성시 자동으로 연결 시도
-});
+export const createRoomSocket = ():io.Socket => {
 
-export const RoomSocketContext = React.createContext<io.Socket | undefined>(
+  const token =`Bearer ${cookie.load('token')}`;
+
+  return io.connect(config.ROOM_SOCKET_URL, {
+    auth: {
+      token
+    },
+    // reconnection: true, // 자동 재연결 활성화
+    // reconnectionAttempts: Infinity, // 재연결 시도 횟수 (무제한)
+    // reconnectionDelay: 1000, // 재연결 사이의 지연 시간 (ms)
+    // reconnectionDelayMax: 5000, // 재연결 사이의 최대 지연 시간 (ms)
+    // autoConnect: true, // 인스턴스 생성시 자동으로 연결 시도
+  });
+};
+
+export type RoomSocketContextType = {
+  roomSocket: io.Socket | null;
+  setRoomSocket: React.Dispatch<React.SetStateAction<io.Socket | null>>;
+}
+
+export const RoomSocketContext = React.createContext<RoomSocketContextType| undefined>(
   undefined,
 );
-export const useRoomSocket = () => useContext(RoomSocketContext);
+export const useRoomSocket = () => {
+  const context = useContext(RoomSocketContext);
 
+  if (context === undefined) {
+    throw new Error('useRoomSocket must be used within a RoomSocketProvider');
+  }
+
+  return context;
+};
 export enum RoomSocketEvent {
   EMIT_JOIN = "joinRoom",
   EMIT_EXIT = "leaveRoom",

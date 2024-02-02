@@ -17,8 +17,8 @@ const GameRoom: React.FC = () => {
   const [currentPlayerNickname, setCurrentPlayerNickname] = useState<string>("");
   const [ingameStart, setGameStart] = useState<InGamePlayerCard | null>(null);
 
-  const socket = useRoomSocket();
-  console.assert(socket, "socket is undefined");
+  const {roomSocket} = useRoomSocket();
+  console.assert(roomSocket, "socket is undefined");
 
   useEffect(() => {
     const handleInGameCard = (data: InGamePlayerCard) => {
@@ -27,11 +27,11 @@ const GameRoom: React.FC = () => {
     const gameStart = (data: InGamePlayerCard) => {
       setGameStart(data);
     };
-    socket?.on(RoomSocketEvent.EMIT_JOIN, handleInGameCard);
-    socket?.on(RoomSocketEvent.EMIT_GAME_START, gameStart);
+    roomSocket?.on(RoomSocketEvent.EMIT_JOIN, handleInGameCard);
+    roomSocket?.on(RoomSocketEvent.EMIT_GAME_START, gameStart);
     return () => {
-      socket?.off(RoomSocketEvent.EMIT_JOIN, handleInGameCard);
-      socket?.off(RoomSocketEvent.EMIT_GAME_START, gameStart);
+      roomSocket?.off(RoomSocketEvent.EMIT_JOIN, handleInGameCard);
+      roomSocket?.off(RoomSocketEvent.EMIT_GAME_START, gameStart);
     };
   }, []);
 

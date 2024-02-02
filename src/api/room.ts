@@ -30,8 +30,7 @@ export const requestRoomAPI = async ():Promise<LobbyGameRoomCard[]> => {
     "http://54.180.148.103:3000/room",
     config,
   );
-  console.log(response.data.message)
-  return response.data.message;
+  return response.data;
 };
 
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState} from "react";
 import {
   AnimatedSection,
   HomepagesubTitle,
@@ -18,17 +18,20 @@ import {
 import SignupModal from "@pages/Homepage/Modal/Signup/SignupModal";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../../../redux/hompage/homepageSlice";
-import { useNavigate } from "react-router-dom";
 import { loginAPI } from "@api/auth";
 import { MdEmail } from "react-icons/md";
 import { RiLockPasswordFill } from "react-icons/ri";
+import { useNavigate } from "react-router-dom";
+import cookie from 'react-cookies'
+import { createRoomSocket, useRoomSocket } from "../../../../context/roomSocket"
 
-function LoginModal() {
+const LoginModal: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignupModalOpen, setSignupModalOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const {setRoomSocket} = useRoomSocket()
 
   const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -51,6 +54,11 @@ function LoginModal() {
         }),
       );
       localStorage.setItem("token", response.access_token);
+      
+      cookie.save('token',response.access_token,{
+        path:'/'
+      })
+      setRoomSocket(createRoomSocket())
       navigate("/GameLobby");
     } catch (error) {
       console.log(error);

@@ -1,5 +1,5 @@
 // src/App.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import GameMain from "./pages/Main/GameMain";
@@ -8,13 +8,15 @@ import GameDashBoard from "./pages/DashBoard/GameDashBoard";
 import HomePage from "./pages/Homepage/HomePage";
 import { GlobalStyles } from "./GloabalStyles";
 import Ingame from "@pages/Room/InGame/Ingame";
-import { RoomSocketContext, roomSocket } from "./context/roomSocket";
-const App: React.FC = () => {
+import { RoomSocketContext, createRoomSocket } from "./context/roomSocket";
+import * as io from "socket.io-client";
 
+const App: React.FC = () => {
+  const [roomSocket, setRoomSocket] = useState<io.Socket | null>(null);
   return (
     <Router>
       <GlobalStyles />
-      <RoomSocketContext.Provider value={roomSocket}>
+      <RoomSocketContext.Provider value={{roomSocket, setRoomSocket}}>
         <Routes>
           <Route path="/gamemain" element={<GameMain />} />
           <Route path="/gamelobby" element={<GameLobby />} />

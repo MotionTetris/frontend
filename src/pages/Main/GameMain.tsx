@@ -10,7 +10,7 @@ import {
 } from "./styles";
 import CreateRoom from "./Modal/CreateRoom/CreateRoom";
 import { LobbyGameRoomCard } from "../../types/Refactoring";
-import { useRoomSocket, RoomSocketEvent, roomSocket } from "../../context/roomSocket";
+import { useRoomSocket } from "../../context/roomSocket";
 import RoomInfo from "../Main/Modal/RoomInfo/RoomInfo";
 import { requestRoomAPI } from "@api/room";
 
@@ -59,8 +59,8 @@ const GameMain = () => {
     );
   };
 
-  const socket = roomSocket;
-  console.assert(socket, "socket is undefined");
+  const {roomSocket} = useRoomSocket();
+  console.assert(roomSocket, "socket is undefined");
 
   useEffect(() => {
     (async()=>{

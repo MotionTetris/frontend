@@ -20,12 +20,12 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
   const navigate = useNavigate();
   const [roomName, setRoomName] = useState("");
   const [selectedOption, setSelectedOption] = useState(1);
-  const socket = useRoomSocket();
+  const {roomSocket} = useRoomSocket();
   const [createRooms, setCreateRooms] = useState<LobbyGameRoomCard[]>();
 
   const rodomData: CreateRoomCard = {
     roomTitle: roomName,
-    creatorNickname: "dasdas", //이거 좀이따 jwt decode형태
+    creatorNickname: "", //이거 좀이따 jwt decode형태
     currentCount: 1,
     maxCount: selectedOption,
     backgroundUrl:"",
@@ -35,7 +35,7 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
   };
 
 
-  console.assert(socket, "socket is undefined");
+  console.assert(roomSocket, "socket is undefined");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRoomName(e.target.value);
@@ -46,9 +46,15 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
   };
 
   const handleCreateRoom = async() => {
-    const roomInfo = await createRoomAPI(rodomData)
+    const roomInfo:LobbyGameRoomCard = await createRoomAPI(rodomData)
     setCreateRooms([...(createRooms || []), roomInfo]);
-    // socket?.emit(RoomSocketEvent.EMIT_CREATE_ROOM);
+    const {roomId, creatorNickname, roomTitle} = roomInfo
+    const socketStatus = {
+      roomId,
+      creatorNickname,
+      roomTitle
+    }
+    roomSocket?.emit(RoomSocketEvent.EMIT_CREATE_ROOM,socketStatus);
     // socket?.on(RoomSocketEvent.ON_CREATE_ROOM);
     onClose();
     navigate("/rooms/:roomId");
