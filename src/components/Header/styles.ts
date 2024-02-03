@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { StyledLinkProps } from "../../types/common";
 
 export const HeaderContainer = styled.header`
+  position: relative;
   height: 100px;
   background: url("/src/assets/HeaderBackground.png") no-repeat center center;
   background-size: cover;
@@ -49,7 +50,7 @@ export const HeaderProfileContainer = styled.div`
   display: flex;
   align-items: center;
   position: absolute;
-  right: 4vw;
+  right: 8vw;
   top: 50%;
   transform: translateY(-50%);
 `;
@@ -80,9 +81,11 @@ export const HeaderStyledLinkContainer = styled.div`
 `;
 
 export const HeaderStyledLink = styled(Link)<StyledLinkProps>`
+  position: absolute;
   width: 200px;
   height: 55px;
-  left: 30vw;
+  left: 25vw;
+  scale: 0.8;
   margin: 60px 0;
   color: white;
   text-decoration: none;

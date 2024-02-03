@@ -19,11 +19,11 @@ const fadeOut = keyframes`
 `;
 
 type AnimatedSectionProps = {
-  fadeIn: boolean;
+  $fadein: boolean;  // 수정된 부분
 };
 
 const AnimatedSection = styled.section<AnimatedSectionProps>`
-  animation: ${(props) => (props.fadeIn ? fadeIn : fadeOut)} 300ms forwards;
+  animation: ${(props) => (props.$fadein ? fadeIn : fadeOut)} 300ms forwards; // 수정된 부분
 `;
 
 export { AnimatedSection /* ...other exports... */ };

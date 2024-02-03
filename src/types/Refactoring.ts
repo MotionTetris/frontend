@@ -30,7 +30,6 @@ export interface LobbyGameRoomCard {
 
 export interface CreateRoomCard {
   roomTitle: string;
-  creatorNickname: string;
   currentCount: number;
   maxCount: number;
   backgroundUrl: string;

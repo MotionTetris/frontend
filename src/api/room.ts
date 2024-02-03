@@ -2,7 +2,7 @@ import axios from "axios";
 import { CreateRoomCard, LobbyGameRoomCard } from "../types/Refactoring";
 
 // 방 생성 API 호출 함수
-export const createRoomAPI = async (roomData: CreateRoomCard):Promise<LobbyGameRoomCard> => {
+export const createRoomAPI = async (roomData: CreateRoomCard) => {
   const token = localStorage.getItem("token");
   const config = {
     headers: {
@@ -14,6 +14,7 @@ export const createRoomAPI = async (roomData: CreateRoomCard):Promise<LobbyGameR
     roomData,
     config,
   );
+  console.log("요청 성공")
   return response.data;
 };
 
@@ -30,8 +31,7 @@ export const requestRoomAPI = async ():Promise<LobbyGameRoomCard[]> => {
     "http://54.180.148.103:3000/room",
     config,
   );
-  console.log(response.data.message)
-  return response.data.message;
+  return response.data;
 };
 
 

@@ -17,12 +17,12 @@ export const homepageSlice = createSlice({
       action: PayloadAction<{
         nickname: string;
         email: string;
-        isAuthenticated: boolean;
+        // isAuthenticated: boolean;
       }>,
     ) => {
       state.nickname = action.payload.nickname;
       state.email = action.payload.email;
-      state.isAuthenticated = action.payload.isAuthenticated;
+      // state.isAuthenticated = action.payload.isAuthenticated;
     },
     setError: (state, action: PayloadAction<{ error: string }>) => {
       state.error = action.payload.error;

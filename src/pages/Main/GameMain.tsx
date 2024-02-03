@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import HeaderComponent from "@components/Header/Header";
 import RoomCardComponent from "@components/Room/RoomCardComponent";
 import {
   GameRoomGrid,
@@ -10,7 +9,7 @@ import {
 } from "./styles";
 import CreateRoom from "./Modal/CreateRoom/CreateRoom";
 import { LobbyGameRoomCard } from "../../types/Refactoring";
-import { useRoomSocket, RoomSocketEvent, roomSocket } from "../../context/roomSocket";
+import { useRoomSocket } from "../../context/roomSocket";
 import RoomInfo from "../Main/Modal/RoomInfo/RoomInfo";
 import { requestRoomAPI } from "@api/room";
 
@@ -59,21 +58,16 @@ const GameMain = () => {
     );
   };
 
-  const socket = roomSocket;
-  console.assert(socket, "socket is undefined");
+  const {roomSocket} = useRoomSocket();
+  console.assert(roomSocket, "socket is undefined");
 
   useEffect(() => {
     (async()=>{
-      setRooms(await requestRoomAPI()||[])
+      const rooms = await requestRoomAPI()
+      setRooms(rooms||[])
+      console.log(rooms)
     })();
-    // const handleRoomsUpdate = (updatedRooms: LobbyGameRoomCard[]) => {
-
-    //   setRooms(updatedRooms);
-    // };
-    
-    // socket?.on(RoomSocketEvent.ON_MODIFY_ROOM, handleRoomsUpdate);
     return () => {
-      // socket?.off(RoomSocketEvent.ON_MODIFY_ROOM, handleRoomsUpdate);
     };
   }, [rooms.length]);
 
@@ -84,7 +78,6 @@ const GameMain = () => {
 
   return (
     <GameContainer>
-      <HeaderComponent activePath={"/gamemain"} />
       <CreateRoomButton onClick={handleCreateRoomClick}>
         방 생성
       </CreateRoomButton>

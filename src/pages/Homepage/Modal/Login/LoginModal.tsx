@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import {
   AnimatedSection,
   HomepagesubTitle,
@@ -16,19 +16,21 @@ import {
   HomepageContainer,
 } from "./styles";
 import SignupModal from "@pages/Homepage/Modal/Signup/SignupModal";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../../../../redux/hompage/homepageSlice";
-import { useNavigate } from "react-router-dom";
 import { loginAPI } from "@api/auth";
 import { MdEmail } from "react-icons/md";
 import { RiLockPasswordFill } from "react-icons/ri";
-
-function LoginModal() {
+import { useNavigate } from "react-router-dom";
+import { createRoomSocket, useRoomSocket } from "../../../../context/roomSocket"
+import { RootState } from "@app/store";
+const LoginModal: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignupModalOpen, setSignupModalOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const {setRoomSocket} = useRoomSocket()
 
   const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -42,15 +44,17 @@ function LoginModal() {
     event.preventDefault();
     try {
       const response = await loginAPI(email, password);
+
       console.log(response.access_token);
       dispatch(
         setUser({
           nickname: response.nickname,
           email: response.email,
-          isAuthenticated: true,
+          // isAuthenticated: true,
         }),
       );
       localStorage.setItem("token", response.access_token);
+      setRoomSocket(createRoomSocket())
       navigate("/GameLobby");
     } catch (error) {
       console.log(error);
@@ -73,7 +77,7 @@ function LoginModal() {
 
   return (
     <HomepageDiv>
-      <AnimatedSection fadeIn={!isSignupModalOpen}>
+      <AnimatedSection $fadein={!isSignupModalOpen}>
         <HomepageContainer>
           <HomepageInnerContainer>
             <HomepageTitle>환영합니다!🎉</HomepageTitle>
@@ -117,7 +121,7 @@ function LoginModal() {
           </HomepageInnerContainer>
         </HomepageContainer>
       </AnimatedSection>
-      <AnimatedSection fadeIn={isSignupModalOpen}>
+      <AnimatedSection $fadein={isSignupModalOpen}>
         {isSignupModalOpen && <SignupModal onClose={closeSignupModal} />}
       </AnimatedSection>
     </HomepageDiv>

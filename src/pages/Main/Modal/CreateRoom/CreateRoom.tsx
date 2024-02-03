@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useRoomSocket, RoomSocketEvent } from "../../../../context/roomSocket";
 import { InGamePlayerCard, CreateRoomCard, LobbyGameRoomCard } from "../../../../types/Refactoring"
 import { createRoomAPI } from "@api/room";
-
+import {ROOM_BG1_URL,ROOM_BG2_URL,ROOM_BG3_URL,ROOM_BG4_URL,ROOM_BG5_URL} from "../../../../config"
 interface CreateCreateRoomProps {
   onClose: () => void;
 }
@@ -20,22 +20,21 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
   const navigate = useNavigate();
   const [roomName, setRoomName] = useState("");
   const [selectedOption, setSelectedOption] = useState(1);
-  const socket = useRoomSocket();
+  const {roomSocket} = useRoomSocket();
   const [createRooms, setCreateRooms] = useState<LobbyGameRoomCard[]>();
 
   const rodomData: CreateRoomCard = {
     roomTitle: roomName,
-    creatorNickname: "dasdas", //이거 좀이따 jwt decode형태
     currentCount: 1,
     maxCount: selectedOption,
-    backgroundUrl:"",
+    backgroundUrl: [ROOM_BG1_URL, ROOM_BG2_URL, ROOM_BG3_URL, ROOM_BG4_URL, ROOM_BG5_URL][Math.floor(Math.random() * 5)],
     roomStatus:"WAIT",
     isLock:"UNLOCK",
     password:""
   };
 
 
-  console.assert(socket, "socket is undefined");
+  console.assert(roomSocket, "socket is undefined");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRoomName(e.target.value);
@@ -47,11 +46,13 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
 
   const handleCreateRoom = async() => {
     const roomInfo = await createRoomAPI(rodomData)
+    
     setCreateRooms([...(createRooms || []), roomInfo]);
-    // socket?.emit(RoomSocketEvent.EMIT_CREATE_ROOM);
-    // socket?.on(RoomSocketEvent.ON_CREATE_ROOM);
+    console.log(roomInfo)
+    const {message:{roomId}} = roomInfo
+    roomSocket?.emit(RoomSocketEvent.EMIT_CREATE_ROOM,{roomId});
     onClose();
-    navigate("/rooms/:roomId");
+    navigate(`/rooms/${roomId}`);
   };
 
   return (

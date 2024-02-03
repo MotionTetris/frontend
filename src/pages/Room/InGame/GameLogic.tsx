@@ -14,9 +14,6 @@ import {  Container,SceneCanvas,MessageDiv,ScoreDiv,NextBlockContainer,NextBlock
   import { blockImages } from "./Tetris/BlockCreator";
   import { explodeParticleEffect,explodeImageEffect, generateParticleTexture, collisionParticleEffect, createRectangle, performRotateEffect, performPushEffect, createLineEffect } from "./Tetris/Effect";
   import {runPosenet} from "./Tetris/WebcamPosenet";
-  import { useRoomSocket,RoomSocketEvent } from "../../../context/roomSocket";
-  import { useNavigate } from "react-router-dom";
-  import { useParams } from 'react-router-dom';
 // CPU 백엔드로 강제 설정
 
 let nBTI: number; // 다음 블록 타입
@@ -33,26 +30,6 @@ const Ingame: React.FC = () => {
   const [playerScore, setPlayerScore] = useState(0);
   const [nextBlockTypeIdx, setNextBlockTypeIdx] = useState(0);
   const [nextFillStyleIdx, setNextFillStyleIdx] = useState(0);
-  const {roomSocket} = useRoomSocket();
-  const navigate =  useNavigate();
-  const { roomId: roomIdString } = useParams();
-  const roomId = Number(roomIdString); // 문자열을 숫자로 변환합니다. /// roomId 파라미터를 추출합니다.
-  useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      roomSocket?.emit(RoomSocketEvent.EMIT_EXIT, {roomId});
-      event.preventDefault();
-      event.returnValue = '';
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [roomSocket, roomId]); 
-  
-  const handleExitClick = () => {
-    roomSocket?.emit(RoomSocketEvent.EMIT_EXIT, {roomId});
-    navigate('/gamelobby');
-  };
 
    // 엔진 설정
   const engine = Engine.create({
@@ -294,7 +271,6 @@ const Ingame: React.FC = () => {
 
   return (
     <Container>
-      <button onClick={handleExitClick}>나가기</button>
       <ScoreDiv>score: {playerScore}</ScoreDiv>
       <MessageDiv>{message}</MessageDiv>
       <NextBlockContainer>

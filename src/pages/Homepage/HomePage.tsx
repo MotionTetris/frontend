@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { HomepageContainer, HomepageBackgroundVideo } from "./styles";
 import LoginModal from "@pages/Homepage/Modal/Login/LoginModal";
 
-function HomePage() {
+const HomePage: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {

@@ -56,13 +56,13 @@ export default class TetrisGame {
     this.wall.rigidBodies.forEach((value) => this.addToWorld(value));
     console.log(this.lines);
     Events.on(this.option.engine, "collisionStart", (event) =>
-      this.onCollisionStart(event),
+      this.onCollisionStart(event)
     );
     this._bgm = new Audio(backgroundSound);
     document.body.appendChild(this._bgm);
     console.log(this._bgm);
     this._bgm.addEventListener("timeupdate", function () {
-      const buffer = 0.25;
+      var buffer = 0.25;
       if (this.currentTime > this.duration - buffer) {
         this.currentTime = 0;
         this.play();
@@ -111,9 +111,9 @@ export default class TetrisGame {
     startY: number,
     endY: number,
     blockSize: number,
-    x: number = 10000,
+    x: number = 10000
   ) {
-    const lines: number[][][][] = [];
+    let lines: number[][][][] = [];
     for (let i = startY; i <= endY + blockSize; i += blockSize) {
       lines.push([
         [
@@ -155,7 +155,7 @@ export default class TetrisGame {
   }
 
   public removeFromWorld(body: Body) {
-    const block = this.blocks.get(body);
+    let block = this.blocks.get(body);
     if (block) {
       block.remove();
       this.blocks.delete(body);
@@ -248,7 +248,7 @@ export default class TetrisGame {
       const intersectionResult = intersection(poly, line);
       if (intersectionResult) {
         return this.calculateArea(
-          Mapper.geoJSONToVectors(intersectionResult[0]),
+          Mapper.geoJSONToVectors(intersectionResult[0])
         );
       }
       return 0;
@@ -274,16 +274,16 @@ export default class TetrisGame {
     }
 
     console.log("lineToRemove", lineToRemove);
-    const line = lineToRemove.at(0);
+    let line = lineToRemove.at(0);
     if (!line) {
       return;
     }
 
     for (let k = 0; k < lineToRemove.length; k++) {
-      const body = [...this.blocks.keys()];
+      let body = [...this.blocks.keys()];
       console.log(body.length);
       for (let j = 0; j < body.length; j++) {
-        const result = this.removeLines(body[j], lineToRemove[k]);
+        let result = this.removeLines(body[j], lineToRemove[k]);
         if (result) {
           this.removeFromWorld(body[j]);
           result.forEach((value) => {
@@ -298,7 +298,7 @@ export default class TetrisGame {
             console.log("여기냐");
             this.addToWorld(
               newBody,
-              new Tetromino(this, this.option, 0, 0, newBody),
+              new Tetromino(this, this.option, 0, 0, newBody)
             );
           });
         }
@@ -315,7 +315,7 @@ export default class TetrisGame {
       const geoJSON = Mapper.vectorsToGeoJSON(body);
       const diffResult = diff(geoJSON, line);
       const result = diffResult.map((r) =>
-        this.createRigidBody(r, body.render.fillStyle),
+        this.createRigidBody(r, body.render.fillStyle)
       );
 
       return result;
@@ -327,8 +327,8 @@ export default class TetrisGame {
       const diffResult = diff(geoJSON, line);
       diffResults.push(
         ...diffResult.map((r) =>
-          this.createRigidBody(r, body.parts[i].render.fillStyle),
-        ),
+          this.createRigidBody(r, body.parts[i].render.fillStyle)
+        )
       );
     }
 
@@ -340,10 +340,10 @@ export default class TetrisGame {
     const unionFind = new UnionFind(diffResults.length);
     for (let i = 0; i < diffResults.length; i++) {
       for (let j = i + 1; j < diffResults.length; j++) {
-        const shouldCombine = this.shouldCombine(
+        let shouldCombine = this.shouldCombine(
           diffResults[i].vertices,
           diffResults[j].vertices,
-          this.option.combineDistance,
+          this.option.combineDistance
         );
         if (shouldCombine) {
           unionFind.union(i, j);
@@ -353,7 +353,7 @@ export default class TetrisGame {
 
     const group = new Map<number, Body[]>();
     for (let i = 0; i < diffResults.length; i++) {
-      const root = unionFind.find(i);
+      let root = unionFind.find(i);
       if (group.get(root)) {
         group.get(root)?.push(diffResults[i]);
         continue;
@@ -365,7 +365,7 @@ export default class TetrisGame {
 
     const bodyToAdd: Body[] = [];
     group.forEach((value) => {
-      const body = Body.create({
+      let body = Body.create({
         parts: value,
       });
       bodyToAdd.push(body);
@@ -377,7 +377,7 @@ export default class TetrisGame {
   private shouldCombine(body1: Vector[], body2: Vector[], maxDistance: number) {
     for (let i = 0; i < body1.length; i++) {
       for (let j = 0; j < body2.length; j++) {
-        const distance = calculateDistance(body1[i], body2[j]);
+        let distance = calculateDistance(body1[i], body2[j]);
         if (distance <= maxDistance) {
           return true;
         }
@@ -385,8 +385,8 @@ export default class TetrisGame {
     }
 
     function calculateDistance(point1: Vector, point2: Vector) {
-      const dx = point1.x - point2.x;
-      const dy = point1.y - point2.y;
+      let dx = point1.x - point2.x;
+      let dy = point1.y - point2.y;
       return Math.sqrt(dx * dx + dy * dy);
     }
 
@@ -401,7 +401,7 @@ export default class TetrisGame {
       points,
       {
         render: { fillStyle: style },
-      },
+      }
     );
   }
   // #endregion
