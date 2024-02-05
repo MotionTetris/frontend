@@ -2,9 +2,10 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
 
 export default defineConfig({
-  plugins: [wasm(), react()],
+  plugins: [wasm(), topLevelAwait(), react()],
   resolve: {
     alias: {
       '@api': path.resolve(__dirname, './src/api'),

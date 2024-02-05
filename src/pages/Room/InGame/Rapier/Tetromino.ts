@@ -16,7 +16,7 @@ export class Tetromino {
     private _graphics: PIXI.Graphics[];
     private _context: PIXI.Container;
     private _world: RAPIER.World;
-
+    
     public constructor(option: TetrisOption, world: RAPIER.World, ctx: PIXI.Container, rigidBody?: RAPIER.RigidBody, blockColor?: number, blockType?: BlockType) {
         const spawnX = option.spawnX ?? 0;
         const spawnY = option.spawnY ?? 0;
@@ -60,6 +60,10 @@ export class Tetromino {
 
     public get rigidBody() {
         return this._rigidBody;
+    }
+
+    public get graphics() {
+        return this._graphics;
     }
 
     public remove() {

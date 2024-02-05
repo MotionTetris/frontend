@@ -5,7 +5,7 @@ import { BlockType, Tetromino } from "./Tetromino";
 import { createLines } from "./Line";
 import { calculateLineIntersectionArea } from "./BlockScore";
 import { removeLines as removeShapeWithLine } from "./BlockRemove";
-import { collisionParticleEffect, explodeParticleEffect, generateParticleTexture } from "./Effect";
+import { collisionParticleEffect, explodeParticleEffect, generateParticleTexture, removeGlow } from "./Effect";
 import { KeyFrameEvent, MultiPlayerContext } from "./Multiplay";
 import { BlockColorList } from "../Tetris/BlockCreator";
 import { valueAndGrad } from "@tensorflow/tfjs";
@@ -343,7 +343,7 @@ export class TetrisGame {
         if (this.isFalling(body1, body2) && !this.collideWithWall(body1, body2)) {
             this.tetrominos.add(this.fallingTetromino);
             this.fallingTetromino?.rigidBody.resetForces(true);
-            console.log("랜딩", this.fallingTetromino?.rigidBody.handle);
+            removeGlow(this.fallingTetromino);
             this.fallingTetromino = undefined;
             if (this.option.blockLandingCallback) {
                 this.option.blockLandingCallback({bodyA: collider1, bodyB: collider2});

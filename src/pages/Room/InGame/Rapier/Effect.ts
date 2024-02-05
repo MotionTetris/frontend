@@ -1,15 +1,47 @@
 import * as PIXI from "pixi.js";
 import {Viewport} from "pixi-viewport";
+import {GlowFilter} from '@pixi/filter-glow';
+import { Tetromino } from "./Tetromino";
 // 폭발 효과 함수 (정사각형 흩어지는 효과)
+// export const explodeParticleEffect = (x: number, y: number, viewport: Viewport) => {
+//   for (let i = 0; i < 100; i++) {
+//       const effectParticle = new PIXI.Sprite(PIXI.Texture.WHITE);
+//       effectParticle.tint = 0xff0000;
+//       effectParticle.width = effectParticle.height = Math.random() * 5 + 5;
+//       effectParticle.x = x + Math.random() * 320;
+//       effectParticle.y = y + Math.random() * 32;
+//       effectParticle.vx = Math.random() * 5 - 2.5;
+//       effectParticle.vy = Math.random() * 5 - 2.5;
+
+//       viewport.addChild(effectParticle);
+
+//       let ticker = new PIXI.Ticker();
+//       ticker.add(() => {
+//           effectParticle.x += effectParticle.vx;
+//           effectParticle.y += effectParticle.vy;
+//           effectParticle.alpha -= 0.01;
+//           effectParticle.scale.x = effectParticle.scale.y += 0.01;
+
+//           if (effectParticle.alpha <= 0) {
+//               viewport.removeChild(effectParticle);
+//               ticker.stop();
+//           }
+//       });
+
+//       ticker.start();
+//   }
+// };
+
 export const explodeParticleEffect = (x: number, y: number, viewport: Viewport) => {
+  const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
   for (let i = 0; i < 100; i++) {
       const effectParticle = new PIXI.Sprite(PIXI.Texture.WHITE);
-      effectParticle.tint = 0xff0000;
+      effectParticle.tint = colors[Math.floor(Math.random() * colors.length)];
       effectParticle.width = effectParticle.height = Math.random() * 5 + 5;
-      effectParticle.x = x + Math.random() * 320;
-      effectParticle.y = y + Math.random() * 32;
+      effectParticle.x = x + Math.random() * 32;
+      effectParticle.y = y + Math.random() * 320;
       effectParticle.vx = Math.random() * 5 - 2.5;
-      effectParticle.vy = Math.random() * 5 - 2.5;
+      effectParticle.vy = Math.random() * 10 - 5;  // 세로 방향으로 이동하는 속도를 두 배로 늘림
 
       viewport.addChild(effectParticle);
 
@@ -27,6 +59,48 @@ export const explodeParticleEffect = (x: number, y: number, viewport: Viewport) 
       });
 
       ticker.start();
+  }
+};
+
+
+
+
+export const starParticleEffect = (x: number, y: number, viewport: Viewport) => {
+  const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
+
+  for (let i = 0; i < 10; i++) {
+    const effectParticle = new PIXI.Sprite(PIXI.Texture.from('../src/assets/star.png')); // 별 모양 이미지로 스프라이트 생성
+    effectParticle.tint = colors[Math.floor(Math.random() * colors.length)]; // 무작위 색상 적용
+    const scale = Math.random() * 0.1 + 0.01; // 0.5 ~ 1.0 사이의 무작위 스케일
+    effectParticle.scale.set(scale);
+    effectParticle.x = x;
+    effectParticle.y = y;
+    effectParticle.vx = Math.random() * 1 - 0.1;
+    effectParticle.vy = -(Math.random() * 5 + 0.5);
+
+    const glowFilter = new GlowFilter({
+      distance: 15,
+      outerStrength: 20,
+      color: effectParticle.tint,
+    });
+    effectParticle.filters = [glowFilter];
+
+    viewport.addChild(effectParticle);
+
+    let ticker = new PIXI.Ticker();
+    ticker.add(() => {
+      effectParticle.x += effectParticle.vx;
+      effectParticle.y += effectParticle.vy;
+      effectParticle.alpha -= 0.01;
+      effectParticle.scale.x = effectParticle.scale.y += 0.0001;
+
+      if (effectParticle.alpha <= 0) {
+        viewport.removeChild(effectParticle);
+        ticker.stop();
+      }
+    });
+
+    ticker.start();
   }
 };
 
@@ -104,7 +178,7 @@ export function collisionParticleEffect(
   
 
   export function generateParticleTexture(renderer: PIXI.Renderer): PIXI.Sprite {
-    const radius = 5;
+    const radius = 2;
     const particleGraphics = new PIXI.Graphics();
     particleGraphics.beginFill(0xffb6c1);
     particleGraphics.drawCircle(radius, radius, radius); // 원의 중심 좌표를 (radius, radius)로 이동
@@ -246,4 +320,60 @@ export function showScore(viewport: Viewport, scoreList: number [], scoreTexts: 
     scoreTexts[i] = scoreText;
     viewport.addChild(scoreText);
   }
+}
+
+
+interface ShakeOptions {
+  viewport: Viewport;
+  strength: number;
+  duration: number;
+}
+
+export function startShake(options: ShakeOptions) {
+  const { viewport, strength, duration } = options;
+  
+  let remainingDuration = duration;
+  
+  const ticker = new PIXI.Ticker();
+  const originPosition = { x: viewport.position.x, y: viewport.position.y };
+
+  ticker.add(() => {
+    if (remainingDuration > 0) {
+      viewport.position.set(
+        originPosition.x + (Math.random() * strength * 2 - strength),
+        originPosition.y + (Math.random() * strength * 2 - strength)
+      );
+      remainingDuration -= ticker.deltaMS;
+    } else {
+      viewport.position.set(originPosition.x, originPosition.y);
+      ticker.stop();
+    }
+  });
+  
+  ticker.start();
+
+  return ticker; // 추후에 ticker를 멈추기 위해 반환합니다.
+}
+
+export function fallingBlockGlow(fallingBlock: Tetromino) {
+  
+  const glowFilter = new GlowFilter({ 
+    distance: 45, 
+    outerStrength: 2,
+    color: 0xffff 
+  });
+  
+  fallingBlock.graphics.forEach(graphic => {
+    graphic.filters = [...(graphic.filters || []), glowFilter];
+  });
+}
+
+
+export function removeGlow(fallingBlock: Tetromino) {
+  fallingBlock.graphics.forEach(graphic => {
+    if (graphic.filters) {
+      // GlowFilter 인스턴스를 찾아 제거
+      graphic.filters = graphic.filters.filter(filter => !(filter instanceof GlowFilter));
+    }
+  });
 }
