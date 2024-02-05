@@ -1,17 +1,11 @@
-import { useState } from 'react';
-import HeaderComponent from '@components/Header/HeaderComponent';
-import BannerComponent from '@components/Banner/BannerComponent';
-// import RankingComponent from '@components/Ranking/RankingComponent';
+import BannerComponent from "@components/Banner/Banner";
+import { LobbyContainer } from "./styles";
 
 const GameLobby = () => {
-    const [activePath] = useState('/gamelobby')
-    return (
-      <div>
-      <HeaderComponent activePath={activePath}/>
+  return (
+    <LobbyContainer>
       <BannerComponent />
-      {/* <RankingComponent/> */}
-      </div>
-    );
-  };
+    </LobbyContainer>
+  );
+};
 export default GameLobby;
-  

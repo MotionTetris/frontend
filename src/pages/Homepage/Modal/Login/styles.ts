@@ -1,4 +1,4 @@
-import styled , { keyframes } from 'styled-components';
+import styled, { keyframes } from "styled-components";
 
 const fadeIn = keyframes`
   0% {
@@ -19,36 +19,36 @@ const fadeOut = keyframes`
 `;
 
 type AnimatedSectionProps = {
-  fadeIn: boolean;
+  $fadein: boolean;  // 수정된 부분
 };
 
 const AnimatedSection = styled.section<AnimatedSectionProps>`
-  animation: ${props => props.fadeIn ? fadeIn : fadeOut} 300ms forwards;
+  animation: ${(props) => (props.$fadein ? fadeIn : fadeOut)} 300ms forwards; // 수정된 부분
 `;
 
-export { AnimatedSection, /* ...other exports... */ };
+export { AnimatedSection /* ...other exports... */ };
 
 export const HomepageTitle = styled.h1`
-  font-family: 'DNFBitBitv2', sans-serif;
-  font-style:light;
-  font-weight:100;
+  font-family: "DNFBitBitv2", sans-serif;
+  font-style: light;
+  font-weight: 100;
   position: relative;
   left: 1vw;
   bottom: 10vw;
-  font-size :42px;
+  font-size: 42px;
   color: white;
   letter-spacing: 3px;
 `;
 
-export const HomepagesubTitle= styled.h1`
+export const HomepagesubTitle = styled.h1`
   position: relative;
   right: 0vw;
   bottom: 10vw;
-  font-size :20px;
+  font-size: 20px;
   color: white;
-  font-family: 'JalnanGothic', sans-serif;
+  font-family: "JalnanGothic", sans-serif;
   letter-spacing: 1px;
-  font-weight:100;
+  font-weight: 100;
 `;
 
 export const HomepageBackgroundVideo = styled.video`
@@ -61,8 +61,7 @@ export const HomepageBackgroundVideo = styled.video`
   height: auto;
 `;
 
-
-export const EmailInputString = styled.label `
+export const EmailInputString = styled.label`
   position: absolute;
   top: 18vw;
   right: 3vw;
@@ -92,22 +91,23 @@ export const EmailInputField = styled.input`
   background: linear-gradient(145deg, #ffffff, #e6e6e6);
   transition: box-shadow 0.3s ease;
 
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     box-shadow: 0 0 10px #dcd6f7;
   }
   &::placeholder {
     position: relative;
     font-size: 16px;
-    top:2px;
+    top: 2px;
     color: rgba(128, 128, 128, 0.6);
-    font-family: 'JalnanGothic', sans-serif;
+    font-family: "JalnanGothic", sans-serif;
   }
 `;
 
-export const PasswordInputString = styled.label `
+export const PasswordInputString = styled.label`
   position: absolute;
   top: 23vw;
-  right:3vw;
+  right: 3vw;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -124,15 +124,16 @@ export const PasswordInputField = styled.input`
   background: linear-gradient(145deg, #ffffff, #e6e6e6);
 
   transition: box-shadow 0.3s ease;
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     box-shadow: 0 0 10px #dcd6f7;
   }
   &::placeholder {
     position: relative;
     font-size: 16px;
-    top:2px;
+    top: 2px;
     color: rgba(128, 128, 128, 0.6);
-    font-family: 'JalnanGothic', sans-serif;
+    font-family: "JalnanGothic", sans-serif;
   }
 `;
 
@@ -148,11 +149,11 @@ export const HomepageDiv = styled.div`
   height: 100%;
   bottom: 0vw;
   right: 0vw;
-  background: rgba( 255, 255, 255, 0.1 );
-  box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
-  backdrop-filter: blur( 10px );
-  -webkit-backdrop-filter: blur( 10px );
-  border: 1px solid rgba( 255, 255, 255, 0.18 );
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 `;
 export const HomepageInnerContainer = styled.div`
   position: absolute;
@@ -178,54 +179,51 @@ export const HomepageButton = styled.button`
   width: 60%;
   margin: 10px 0;
   transition: all 0.3s; // 모든 CSS 속성에 대해 0.3초의 트랜지션 효과 적용
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     box-shadow: 0 0 10px #dcd6f7;
     transform: scale(1.1); // scale을 transform 속성 내부에 지정
   }
 `;
 
-
 export const HomepageLoginButton = styled(HomepageButton)`
   position: relative;
-  left:1vw;
+  left: 1vw;
   top: 5vw;
   width: 330px;
-  font-family: 'JalnanGothic', sans-serif;
-  font-style:light;
-  font-weight:100;
+  font-family: "JalnanGothic", sans-serif;
+  font-style: light;
+  font-weight: 100;
   letter-spacing: 3px;
-  bottom : 15vw;
+  bottom: 15vw;
   right: 2vw;
   background-color: #007bff;
-
 `;
 
 export const HomepageGuestLoginButton = styled(HomepageButton)`
   position: relative;
-  left:1vw;
+  left: 1vw;
   top: 6vw;
   width: 330px;
-  font-family: 'JalnanGothic', sans-serif;
-  font-style:light;
-  font-weight:100;
+  font-family: "JalnanGothic", sans-serif;
+  font-style: light;
+  font-weight: 100;
   letter-spacing: 3px;
-  bottom : 11vw;
+  bottom: 11vw;
   right: 2vw;
   background-color: #6c757d;
-
 `;
 
 export const HomepageSignupButton = styled(HomepageButton)`
   position: relative;
-  left:1vw;
+  left: 1vw;
   top: 7vw;
   width: 330px;
-  font-family: 'JalnanGothic', sans-serif;
-  font-style:light;
-  font-weight:100;
+  font-family: "JalnanGothic", sans-serif;
+  font-style: light;
+  font-weight: 100;
   letter-spacing: 3px;
-  bottom : 7vw;
+  bottom: 7vw;
   right: 2vw;
   background-color: #28a745;
 `;
-

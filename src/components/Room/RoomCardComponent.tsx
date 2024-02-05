@@ -1,49 +1,42 @@
-import { useSelector, useDispatch } from 'react-redux';
-import { RoomCardComponentProps,RoomState } from '../../types/room';
-import { handleRoomStatusMessage} from '@util/room';
-import { RoomStatuses } from '../../types/room'
+import { LobbyGameRoomCard } from "../../types/Refactoring";
+import { RoomStatuses } from "../../types/RefactoringStatuses";
 import {
   RoomContainer,
   RoomBackground,
   RoomTitleContainer,
   RoomTitle,
   RoomStatus,
-  RoomCreateProfile,
   RoomCreateNickname,
   RoomCount,
-  RoomStatusMessage
-} from './styles';
+  RoomId,
+} from "./styles";
 
-const RoomCardComponent: React.FC<RoomCardComponentProps> = ({ roomData, onRoomClick }) => {
-  const dispatch = useDispatch();
-  const roomStatus = useSelector((state: RoomState) => state.roomStatus[roomData.title] || {showStatusMessage: false, statusMessage: ''});
+interface RoomCardComponentProps {
+  roomData: LobbyGameRoomCard;
+  onRoomClick: (roomData: LobbyGameRoomCard) => void;
+}
 
-  const handleClick = () => {
-    handleRoomStatusMessage(roomData, dispatch);
-    if (roomData.roomStatus === RoomStatuses.WAIT) {
-      onRoomClick(roomData);
-    }
-  };
-
+const RoomCardComponent: React.FC<RoomCardComponentProps> = ({
+  roomData,
+  onRoomClick,
+}) => {
   return (
-    <RoomContainer onClick={handleClick}>
-      <RoomBackground className="room-background" style={{ backgroundImage: `url(${roomData.backgroundUrl})` }} status={roomData.roomStatus} />
+    <RoomContainer onClick={() => onRoomClick(roomData)}>
+      <RoomBackground
+        className="room-background"
+        style={{ backgroundImage: `url(${roomData.backgroundUrl})` }}
+        status={roomData.roomStatus}
+      />
       <RoomTitleContainer>
-        <RoomTitle>{roomData.title}</RoomTitle>
-        <RoomStatus status={roomData.roomStatus}>{
-    roomData.roomStatus === 'WAIT' ? '대기 중' :
-    roomData.roomStatus === 'READY' ? '준비 중' :
-    roomData.roomStatus === 'START' ? '게임 중' :
-    '상태 정보 없음'
-  }</RoomStatus>
-        <RoomCreateProfile src={roomData.creatorProfilePic} alt={`${roomData.creatorNickname}'s profile`} />
+        <RoomId>{roomData.roomId}</RoomId>
+        <RoomTitle>{roomData.roomTitle}</RoomTitle>
+        <RoomStatus status={roomData.roomStatus}>
+          {RoomStatuses[roomData.roomStatus] || "상태 정보 없음"}
+        </RoomStatus>
         <RoomCreateNickname>{roomData.creatorNickname}</RoomCreateNickname>
-        <RoomCount>{roomData.currentCount}/{roomData.maxCount}</RoomCount>
-        {roomStatus.showStatusMessage && (
-          <RoomStatusMessage status={roomData.roomStatus} $show={roomStatus.showStatusMessage}>
-            {roomStatus.statusMessage}
-          </RoomStatusMessage>
-        )}
+        <RoomCount>
+          {roomData.currentCount}/{roomData.maxCount}
+        </RoomCount>
       </RoomTitleContainer>
     </RoomContainer>
   );

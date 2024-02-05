@@ -1,4 +1,3 @@
-
 export interface ApiResponse {
   rankings: {
     profilePic: string;
@@ -7,7 +6,7 @@ export interface ApiResponse {
   }[];
   totalPages: number;
 }
-  
+
 export interface StyledLinkProps {
   active: boolean;
   image: string; // 이미지 URL을 위한 속성 추가

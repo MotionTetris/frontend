@@ -1,11 +1,11 @@
-import { RoomData } from '../../types/room';
+import { RoomData } from "../../types/room";
 
-export const SET_SOCKET_STATUS = 'SET_SOCKET_STATUS';
-export const SOCKET_CONNECTED = 'SOCKET_CONNECTED';
-export const SOCKET_DISCONNECTED = 'SOCKET_DISCONNECTED';
-export const ROOM_CREATED = 'ROOM_CREATED';
-export const USER_JOINED = 'USER_JOINED';
-export const ROOM_INFORMATION = 'ROOM_INFORMATION'
+export const SET_SOCKET_STATUS = "SET_SOCKET_STATUS";
+export const SOCKET_CONNECTED = "SOCKET_CONNECTED";
+export const SOCKET_DISCONNECTED = "SOCKET_DISCONNECTED";
+export const ROOM_CREATED = "ROOM_CREATED";
+export const USER_JOINED = "USER_JOINED";
+export const ROOM_INFORMATION = "ROOM_INFORMATION";
 
 export const setSocketStatus = (status: boolean) => ({
   type: SET_SOCKET_STATUS,
@@ -30,9 +30,7 @@ export const userJoined = (data: RoomData) => ({
   payload: data,
 });
 
-
 export const roomInformation = (data: RoomData) => ({
-    type: ROOM_INFORMATION,
-    payload: data,
-  });
-  
+  type: ROOM_INFORMATION,
+  payload: data,
+});

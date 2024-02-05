@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import wasm from "vite-plugin-wasm";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [wasm(), react()],
   resolve: {
     alias: {
       '@api': path.resolve(__dirname, './src/api'),
@@ -23,7 +24,7 @@ export default defineConfig({
         target: "https://jeongminjo.shop",
         changeOrigin: true,
         rewrite: (path) => {
-          let newPath = path.replace(/^\/api/, '');
+          const newPath = path.replace(/^\/api/, '');
           console.log(newPath);
           return newPath
         }

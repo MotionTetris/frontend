@@ -1,81 +1,115 @@
-import { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '@app/store';
-import { RoomData } from '../../types/room';
-import { fetchRooms, setCurrentPage, openModal, closeModal } from '../../redux/game/gameSlice';
-import HeaderComponent from '@components/Header/HeaderComponent';
-import RoomCardComponent from '@components/Room/RoomCardComponent';
-import RoomModal from '@components/Room/Modal/RoomModal';
-import { GameRoomGrid, GamePagination, GameContainer , GamePaginationButton, CreateRoomButton } from './styles';
-import { useNavigate } from 'react-router-dom';
-// import { RoomsdataAPI } from '@api/room';
-import { goToPreviousPage, goToNextPage } from '@util/pagination';
-import { useSocketIO } from '../../api/WebSocket/useSocketIO'; // useSocketIO 훅 import
-import RoomCreate from '@components/Room/Modal/RoomCreate'
+import { useEffect, useState } from "react";
+import RoomCardComponent from "@components/Room/RoomCardComponent";
+import {
+  GameRoomGrid,
+  GamePagination,
+  GameContainer,
+  GamePaginationButton,
+  CreateRoomButton,
+} from "./styles";
+import CreateRoom from "./Modal/CreateRoom/CreateRoom";
+import { LobbyGameRoomCard } from "../../types/Refactoring";
+import { useRoomSocket } from "../../context/roomSocket";
+import RoomInfo from "../Main/Modal/RoomInfo/RoomInfo";
+import { requestRoomAPI } from "@api/room";
 
 const GameMain = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { rooms, currentPage, isModalOpen, selectedRoom } = useSelector((state: RootState) => state.game);
-  const [isCreateRoomModalOpen, setIsCreateRoomModalOpen] = useState(false);
-  const activePath = '/gamemain';
-  const roomsPerPage = 6;
-  const navigate = useNavigate();
+  const [rooms, setRooms] = useState<LobbyGameRoomCard[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [isCreateRoomModalOpen, setIsCreateRoomModalOpen] =
+    useState<boolean>(false);
+  const [selectedRoom, setSelectedRoom] = useState<LobbyGameRoomCard | null>(
+    null,
+  );
+  const [isRoomInfoModalOpen, setIsRoomInfoModalOpen] =
+    useState<boolean>(false);
+  const roomsPerPage = 6; // 한 페이지에 표시될 방의 개수
+  const currentRooms = rooms.slice(
+    (currentPage - 1) * roomsPerPage,
+    currentPage * roomsPerPage,
+  );
 
-  const {joinUser, createRoom} = useSocketIO('localhost:3001');
-
-   const handleCreateRoomClick = () => {
-    setIsCreateRoomModalOpen(true); 
+  const handleRoomCardClick = (room: LobbyGameRoomCard) => {
+    setSelectedRoom(room);
+    setIsRoomInfoModalOpen(true);
   };
-  
+
+  const handleCloseRoomInfoModal = () => {
+    setIsRoomInfoModalOpen(false);
+    setSelectedRoom(null);
+  };
+
+  const handleCreateRoomClick = () => {
+    setIsCreateRoomModalOpen(true);
+  };
+
   const handleCloseCreateRoomModal = () => {
     setIsCreateRoomModalOpen(false);
   };
 
-  
-  // useEffect(() => {
-  //   RoomsdataAPI(currentPage)
-  //   dispatch(fetchRooms(currentPage))
-  // }, [dispatch, currentPage]);
-
-  const handleRoomClick = (roomData: RoomData) => {
-    dispatch(openModal(roomData));
+  const goToPreviousPage = () => {
+    setCurrentPage((prevCurrentPage) => Math.max(prevCurrentPage - 1, 1));
   };
 
-  const handleRoomEnter = (roomData: RoomData) => {
-    console.log('Attempting to join room', roomData.roomId); 
-    navigate(`/rooms/${roomData.roomId}`);
-    joinUser(roomData);  // 'joinUser' 이벤트 발생
+  const goToNextPage = () => {
+    setCurrentPage((prevCurrentPage) =>
+      Math.min(prevCurrentPage + 1, totalPages),
+    );
   };
 
-  const handleCloseModal = () => {
-    dispatch(closeModal());
-  };
+  const {roomSocket} = useRoomSocket();
+  console.assert(roomSocket, "socket is undefined");
 
-const currentRooms = rooms.slice((currentPage - 1) * roomsPerPage, currentPage * roomsPerPage);
-  const totalPages = Math.ceil(rooms.length / roomsPerPage);
+  useEffect(() => {
+    (async()=>{
+      const rooms = await requestRoomAPI()
+      setRooms(rooms||[])
+      console.log(rooms)
+    })();
+    return () => {
+    };
+  }, [rooms.length]);
+
+  useEffect(() => {
+    const total = Math.ceil(rooms.length / roomsPerPage);
+    setTotalPages(total);
+  }, [rooms.length]);
 
   return (
     <GameContainer>
-      <HeaderComponent activePath={activePath}/>
-        <CreateRoomButton onClick={handleCreateRoomClick}>방 생성</CreateRoomButton>
+      <CreateRoomButton onClick={handleCreateRoomClick}>
+        방 생성
+      </CreateRoomButton>
       <GameRoomGrid>
-        {currentRooms.map((roomData, index) => (
+        {currentRooms.map((room) => (
           <RoomCardComponent
-            key={index}
-            roomData={roomData}
-            onRoomClick={handleRoomClick}
+            key={room.roomId}
+            roomData={room}
+            onRoomClick={handleRoomCardClick}
           />
         ))}
       </GameRoomGrid>
       {isCreateRoomModalOpen && (
-    <RoomCreate onOpen={handleCreateRoomClick} onClose={handleCloseCreateRoomModal} createRoom={createRoom}/>  // 방 생성 모달 추가
-)}
-      {isModalOpen && selectedRoom && (
-        <RoomModal roomData={selectedRoom} onClose={handleCloseModal} onRoomClick={handleRoomEnter}/>
+        <CreateRoom onClose={handleCloseCreateRoomModal} />
       )}
-        <GamePagination>
-        <GamePaginationButton direction="left" onClick={() => goToPreviousPage(currentPage, dispatch, setCurrentPage)} disabled={currentPage === 1} />
-        <GamePaginationButton direction="right" onClick={() => goToNextPage(currentPage, totalPages, dispatch, setCurrentPage)} disabled={currentPage === totalPages} />
+      {isRoomInfoModalOpen && selectedRoom && (
+        <RoomInfo
+          roomData={selectedRoom}
+          onCloseModal={handleCloseRoomInfoModal}
+        />
+      )}
+      <GamePagination>
+        <GamePaginationButton
+          direction="left"
+          onClick={() => goToPreviousPage()}
+          disabled={currentPage === 1}
+        />
+        <GamePaginationButton
+          direction="right"
+          onClick={() => goToNextPage()}
+          disabled={currentPage === totalPages}
+        />
       </GamePagination>
     </GameContainer>
   );
