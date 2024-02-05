@@ -1,29 +1,30 @@
 import { useEffect, useRef } from "react";
 import { HomepageContainer, HomepageBackgroundVideo } from "./styles";
 import LoginModal from "@pages/Homepage/Modal/Login/LoginModal";
+import { BlockComponents } from "../../BGtetris";
+import { BackgroundColor3, BackgroundColor1, BackgroundColor2, ShootingStar, Night } from "../../BGstyles";
 
 const HomePage: React.FC = () => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play();
-    }
-  }, []);
-
+  const shootingStars = Array(20).fill(null).map((_, index) => 
+  <ShootingStar 
+    style={{ 
+      left: `${Math.random() * 100}%`, 
+      top: `${Math.random() * 100}%`,
+      animationDelay: `${Math.random() * 5}s`
+    }} 
+    key={index} 
+  />);
   return (
-    <HomepageContainer>
+    <><HomepageContainer>
       <LoginModal />
-      {/* <HomepageBackgroundVideo
-        ref={videoRef}
-        autoPlay
-        loop
-        muted
-        src="./background.mp4"
-        onError={() => console.error("비디오를 로드하는데 실패했습니다.")}
-        onPlay={() => console.log("비디오가 재생되고 있습니다.")}
-      /> */}
     </HomepageContainer>
+    <BackgroundColor1>
+    <Night>
+          {shootingStars}
+        </Night>
+        {/* {BlockComponents} */}
+      </BackgroundColor1></>
+
   );
 }
 

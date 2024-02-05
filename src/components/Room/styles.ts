@@ -45,7 +45,7 @@ export const RoomContainer = styled.div`
 `;
 export const RoomTitleContainer = styled.div`
   position: relative;
-  top: 22vh;
+  top: 25vh;
   height: 37%;
   display: flex;
   flex-direction: column;
@@ -62,28 +62,33 @@ export const RoomTitleContainer = styled.div`
 
 export const RoomTitle = styled.h3`
   position: relative;
-  right: 1vw;
-  top: 2.5vh;
-  font-size: 24px;
+  right: 0vw;
+  top: 0.5vh;
+  font-size: 32px;
   color: white;
   margin-bottom: 10px;
 `;
 
 export const RoomId = styled.h3`
   position: relative;
-  right: 1vw;
-  top: 2.5vh;
-  font-size: 24px;
-  color: white;
-  margin-bottom: 10px;
+  right:4.5vw;
+  top: 5vh;
+  scale: 0.8;
+  font-size: 10px;
+  font-weight: 100;
+  position: relative;
+  color: #666;
+  background-color: white;
+  padding: 7px 10px;
+  border-radius: 50px;
 `;
 
 export const RoomStatus = styled.div<{ status: "READY" | "START" | "WAIT" }>`
   display: inline-block;
   position: relative;
-  top: 1.8vh;
-  scale: 0.7;
-  left: 3.2vw;
+  top: 0.4vh;
+  scale: 0.8;
+  right: 1vw;
   padding: 5px 10px;
   border-radius: 20px;
   color: #666;
@@ -114,10 +119,11 @@ export const RoomCreateProfile = styled.img`
 
 export const RoomCreateNickname = styled.div`
   position: relative;
-  right: 0.7vw;
-  bottom: 3.3vh;
+  left: 4.9vw;
+  bottom: 14.25vh;
+  scale:0.8;
   color: #666;
-  font-size: 12px;
+  font-size: 10px;
   background-color: white;
   padding: 7px 10px;
   border-radius: 50px;
@@ -132,12 +138,12 @@ export const GameMainContainer = styled.div`
 
 export const RoomCount = styled.div`
   position: relative;
-  left: 3vw;
-  bottom: 6vh;
+  left: 2vw;
+  bottom: 7.3vh;
   color: #666;
-  font-size: 12px;
+  font-size: 10px;
   background-color: white;
-  padding: 8px 10px;
+  padding: 6px 10px;
   border-radius: 50px;
 `;
 

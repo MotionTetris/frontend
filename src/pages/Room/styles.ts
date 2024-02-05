@@ -1,6 +1,6 @@
 // StyledComponents.ts
 import styled from "styled-components";
-
+import { IoPlayBackSharp } from "react-icons/io5";
 interface PlayerStatusProps {
   playerstatus: "WAIT" | "READY" | "START";
 }
@@ -13,14 +13,26 @@ export const RoomContainer = styled.div`
   position: relative; // 상대적 위치
 `;
 
-export const TetrisBackButton = styled.button`
+export const FaBackspaced = styled(IoPlayBackSharp)`
   position: absolute;
-  top: 2%;
-  right: 80%;
-  width: 20%;
+  top: 3vh;
+  left: 0vw;
+  width: 10%;
   height: 10%;
-  background: lightgray;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  color: lightblue;
+  transform: scale(0.4);
+  border-radius: 40px; // 버튼 모서리 둥글게
+  transition: all 0.3s ease; // transition 효과 추가
+  &:hover {
+    box-shadow: 0 0 10px #ffffff; // hover 효과 추가
+  }
 `;
+
+
 
 export const GameRoomId = styled.span`
   position: absolute;

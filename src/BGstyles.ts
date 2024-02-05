@@ -350,6 +350,97 @@ export const Span = styled.span`
 }
 `;
 
-//
+// 별똥별
 
+/*
+const shootingStars = Array(20).fill(null).map((_, index) => 
+<ShootingStar 
+  style={{ 
+    left: `${Math.random() * 100}%`, 
+    top: `${Math.random() * 100}%`,
+    animationDelay: `${Math.random() * 5}s`
+  }} 
+  key={index} 
+/>);
+<BackgroundColor1>
+<Night>
+      {shootingStars}
+    </Night>
+  </BackgroundColor1></>
+*/
+
+const tail = keyframes`
+  0% {
+    width: 0;
+  }
+  
+  30% {
+    width: 100px;
+  }
+  
+  100% {
+    width: 0;
+  }
+`;
+
+const shining = keyframes`
+  0% {
+    width: 0;
+  }
+  
+  50% {
+    width: 30px;
+  }
+  
+  100% {
+    width: 0;
+  }
+`;
+
+const shooting = keyframes`
+  0% {
+    transform: translateX(0);
+  }
+  
+  100% {
+    transform: translateX(300px);
+  }
+`;
+
+export const Night = styled.div`
+  position: relative;
+  top:-5vw;
+  right:20vw;
+  width: 100%;
+  height: 100%;
+  transform: rotateZ(45deg);
+`;
+
+export const ShootingStar = styled.div`
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 2px;
+  background: linear-gradient(-45deg, rgba(95, 145, 255, 1), rgba(0, 0, 255, 0));
+  border-radius: 999px;
+  filter: drop-shadow(0 0 6px rgba(105, 155, 255, 1));
+  animation: ${tail} 3000ms ease-in-out infinite, ${shooting} 3000ms ease-in-out infinite;
+  
+  &:before,
+  &:after {
+    content: '';
+    position: absolute;
+    top: calc(50% - 1px);
+    right: 0;
+    height: 2px;
+    background: linear-gradient(-45deg, rgba(0, 0, 255, 0), rgba(95, 145, 255, 1), rgba(0, 0, 255, 0));
+    transform: translateX(50%) rotateZ(45deg);
+    border-radius: 100%;
+    animation: ${shining} 3000ms ease-in-out infinite;
+  }
+
+  &:after {
+    transform: translateX(50%) rotateZ(-45deg);
+  }
+`;
 
