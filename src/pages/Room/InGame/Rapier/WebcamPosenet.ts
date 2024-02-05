@@ -2,8 +2,12 @@ import { RefObject } from 'react';
 import * as posenet from "@tensorflow-models/posenet";
 import * as PIXI from "pixi.js";
 import { performPushEffect, performRotateEffect } from './Effect';
-import { Engine, Render, Runner, Body } from "matter-js";
-import TetrisGame from './TetrisGame';
+import { TetrisGame } from './TetrisGame';
+import { Graphics } from './Graphics';
+import { math } from '@tensorflow/tfjs';
+
+
+
 // webcam.ts
 
 export async function setupWebcam(videoRef: RefObject<HTMLVideoElement>) {
@@ -25,7 +29,7 @@ export async function setupWebcam(videoRef: RefObject<HTMLVideoElement>) {
 }
 
 export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRef: RefObject<HTMLCanvasElement>,
-    hasCollidedRef: RefObject<boolean>, app: PIXI.Application, GAME: TetrisGame, ...rectangles: PIXI.Graphics[]) {
+    game: TetrisGame) {
     const net = await posenet.load();
     const video = await setupWebcam(videoRef);
     const canvas = canvasRef.current;
@@ -48,14 +52,16 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
     let leftAngleDelta = 0;
     let rightAngleDelta = 0;
     let noseX = 0;
-
-    const [rectangleLeft, rectangleRight, rectangleLeftRotate, rectangleRightRotate] = rectangles;
+    game.graphics.ticker.start();
+    //const [rectangleLeft, rectangleRight, rectangleLeftRotate, rectangleRightRotate] = rectangles;
 
     setInterval(async () => {
       const pose = await net.estimateSinglePose(video, {
         flipHorizontal: true,
       });
+    
       if (ctx && canvas) {
+        
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         pose.keypoints.forEach((keypoint) => {
@@ -94,10 +100,7 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
           }
         });
         
-        //모션인식 키고싶으면 !block으로 할것
-        if (!GAME.fallingBlock || hasCollidedRef.current) {
-          return;
-        }
+
         let leftShoulderKeypoint = pose.keypoints.find(
           (keypoint) => keypoint.part === "leftShoulder"
         );
@@ -167,11 +170,18 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
             leftAngleInDegrees > prevLeftAngle &&
             leftWristX < prevLeftWristX - 20
           ) {
-            if (GAME.fallingBlock) {
+            console.log("왼회전")
+            //console.log("is", game.graphics.rectangles[2]);
+            performRotateEffect(game.graphics.rectangles[2], game.graphics.ticker, 0xff00c0);
+            let rotation = game.fallingTetromino?.rigidBody.rotation();
+            //game.fallingTetromino?.rigidBody.setRotation(rotation + 90/180 * Math.PI, false);
+            game.fallingTetromino?.rigidBody.applyTorqueImpulse(1000000, false);
+            
+            //if (GAME.fallingBlock) {
               // block이 존재하는지 확인
-              Body.rotate(GAME.fallingBlock, -Math.PI / 4); // 45도 회전
-              performRotateEffect(rectangleLeftRotate, app, 0xff0000);
-            }
+            //Body.rotate(GAME.fallingBlock, -Math.PI / 4); // 45도 회전
+            //performRotateEffect(rectangleLeftRotate, app, 0xff0000);
+            //}
           }
         } else {
           if (
@@ -179,11 +189,16 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
             rightAngleInDegrees > prevRightAngle &&
             rightWristX - 20 > prevRightWristX
           ) {
-            if (GAME.fallingBlock) {
-              // block이 존재하는지 확인
-              Body.rotate(GAME.fallingBlock, Math.PI / 4); // 45도 회전
-              performRotateEffect(rectangleRightRotate, app, 0xff0000);
-            }
+            console.log("우회전")
+            performRotateEffect(game.graphics.rectangles[3], game.graphics.ticker, 0xff00c0);
+            let rotation = game.fallingTetromino?.rigidBody.rotation();
+            game.fallingTetromino?.rigidBody.applyTorqueImpulse(-1000000, false);
+            //game.fallingTetromino?.rigidBody.setRotation(rotation + -90/180 * Math.PI, false);
+            // if (GAME.fallingBlock) {
+            //   // block이 존재하는지 확인
+            //   Body.rotate(GAME.fallingBlock, Math.PI / 4); // 45도 회전
+            //   performRotateEffect(rectangleRightRotate, app, 0xff0000);
+            // }
           }
         }
 
@@ -199,29 +214,22 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
           : null;
 
         if (noseX && centerX) {
-          let forceMagnitude = Math.abs(noseX - centerX) / (centerX * 100); // 중앙에서 얼마나 떨어져 있는지에 비례하는 힘의 크기를 계산합니다.
-          forceMagnitude = Math.min(forceMagnitude, 1); // 힘의 크기가 너무 커지지 않도록 1로 제한합니다.
+          let forceMagnitude = Math.abs(noseX - centerX) / (centerX); // 중앙에서 얼마나 떨어져 있는지에 비례하는 힘의 크기를 계산합니다.
+          //forceMagnitude = Math.min(forceMagnitude, 1); // 힘의 크기가 너무 커지지 않도록 1로 제한합니다.
 
           // noseX와 centerX의 차이에 따라 alpha 값을 결정
           let alpha = Math.min(Math.abs(noseX - centerX) / 300, 1); // 100은 정규화를 위한 값이며 조절 가능
 
-          if (GAME.fallingBlock) {
+        //   if (GAME.fallingBlock) {
             if (noseX < centerX) {
-              // 코의 x 좌표가 캔버스 중앙보다 왼쪽에 있다면, 블록에 왼쪽으로 힘을 가합니다.
-              Body.applyForce(GAME.fallingBlock, GAME.fallingBlock.position, {
-                x: -forceMagnitude,
-                y: 0,
-              });
-              performPushEffect(rectangleLeft, rectangleRight,  alpha, 0x00ff00);
+              //game.fallingTetromino?.rigidBody.setTranslation({x: 100, y: 0}, false);
+              game.fallingTetromino?.rigidBody.applyImpulse({x:-forceMagnitude * 100000,y:0}, true);
+              performPushEffect(game.graphics.rectangles[0], game.graphics.rectangles[1],  alpha, 0x00ff00);
             } else {
-              // 코의 x 좌표가 캔버스 중앙보다 오른쪽에 있다면, 블록에 오른쪽으로 힘을 가합니다.
-              Body.applyForce(GAME.fallingBlock, GAME.fallingBlock.position, {
-                x: forceMagnitude,
-                y: 0,
-              });
-              performPushEffect(rectangleRight, rectangleLeft, alpha, 0x00ff00);
+              game.fallingTetromino?.rigidBody.applyImpulse({x: forceMagnitude * 100000,y:0}, true);
+              performPushEffect(game.graphics.rectangles[1], game.graphics.rectangles[0], alpha, 0x00ff00);
             }
-          }
+          //}
         }
 
         prevLeftAngle = leftAngleInDegrees;
@@ -231,10 +239,6 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
       }
     }, 250);
   }
-
-
-
-
 
 
 interface Point {
