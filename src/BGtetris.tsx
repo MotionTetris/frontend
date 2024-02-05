@@ -8,17 +8,21 @@ type Block = {
   left: string;
   animationDelay: string;
   animationDuration: string;
-  width: string; // 추가
-  height: string; // 추가
+  width: string;
+  height: string;
+  animationIndex: number;
+  top: string; 
 };
 
 interface BlockProps {
   position: string;
   left: string;
-  width: string; // 추가
-  height: string; // 추가
+  width: string;
+  height: string;
   animationDelay: string;
   animationDuration: string;
+  animationIndex: number;
+  top: string; 
 }
 
 
@@ -35,7 +39,9 @@ const blocks: Block[] = [
        height: '80px',
        left: '50px',
        animationDelay: '0s',
-       animationDuration: '3s'
+       animationDuration: '3s',
+       animationIndex: 0,
+       top: '-200px'
   },
   {
   // stick
@@ -49,7 +55,9 @@ const blocks: Block[] = [
        width: '150px',
        height: '150px',
        animationDelay: '0s',
-       animationDuration: '15s'
+       animationDuration: '15s',
+       animationIndex: 1,
+       top: '-200px',
   },
   {
   // z
@@ -63,7 +71,9 @@ const blocks: Block[] = [
        width: '40px',
        height: '40px',
        animationDelay: '0s',
-       animationDuration: '30s'
+       animationDuration: '30s',
+       animationIndex: 2,
+       top: '-200px',
   },
   {
   // T
@@ -77,7 +87,9 @@ const blocks: Block[] = [
        width: '80px',
        height: '80px',
        animationDelay: '0s',
-       animationDuration: '3s'
+       animationDuration: '3s',
+       animationIndex: 3,
+       top: '-200px',
   },
   {
   // s
@@ -91,7 +103,9 @@ const blocks: Block[] = [
        width: '180px',
        height: '180px',
        animationDelay: '0s',
-       animationDuration: '34s'
+       animationDuration: '34s',
+       animationIndex: 4,
+       top: '-200px',
   },
   {
   // backwards L
@@ -105,7 +119,9 @@ const blocks: Block[] = [
         width: '60px',
         height: '60px',
         animationDelay: '0s',
-        animationDuration: '23s'
+        animationDuration: '23s',
+        animationIndex: 5,
+        top: '-200px',
   },
   {
   // L
@@ -119,19 +135,44 @@ const blocks: Block[] = [
        width: '80px',
        height: '80px',
        animationDelay: '0s',
-       animationDuration: '30s'
+       animationDuration: '30s',
+       animationIndex: 6,
+       top: '-200px',
   },
 ];
 
 
 // 블록이 떨어지는 애니메이션을 정의합니다.
-const fall = keyframes`
-   0% { transform: translate(0, 0); }
-  25% { transform: translate(100px, 50px); }
-  50% { transform: translate(50px, 100px) rotate(80deg); }
-  75% { transform: translate(-50px, -50px) rotate(-80deg); }
-  100% { transform: translate(0, 0); }
-`;
+const animations = [
+  keyframes`
+    0% { transform: translateY(0%); }
+    100% { transform: translateY(1200%); }
+  `,
+  keyframes`
+    0% { transform: translateY(0); }
+    100% { transform: translateY(1400%); }
+  `,
+  keyframes`
+    0% { transform: translateY(0); }
+    100% { transform: translateY(1500%); }
+  `,
+  keyframes`
+    0% { transform: translateY(0%); }
+    100% { transform: translateY(1600%); }
+  `,
+  keyframes`
+    0% { transform: translateY(0%); }
+    100% { transform: translateY(1800%); }
+  `,
+  keyframes`
+    0% { transform: translateY(0%); }
+    100% { transform: translateY(1400%); }
+  `,
+  keyframes`
+    0% { transform: translateY(0%); }
+    100% { transform: translateY(1300%); }
+  `,
+];
 
 const BlockComponent = styled.div<BlockProps>`
   position: ${props => props.position};
@@ -139,9 +180,10 @@ const BlockComponent = styled.div<BlockProps>`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(4, 1fr);
-  width: ${props => props.width}; // 수정
-  height: ${props => props.height}; // 수정
-  animation: ${fall} ${props => props.animationDuration} linear ${props => props.animationDelay} infinite;
+  width: ${props => props.width};
+  height: ${props => props.height};
+  top: ${props => props.top};
+  animation: ${props => animations[props.animationIndex % animations.length]} ${props => props.animationDuration} linear ${props => props.animationDelay} infinite;
 `;
 
 // 각 블록을 구성하는 작은 사각형을 렌더링하는 컴포넌트를 정의합니다.
@@ -149,9 +191,9 @@ const CellComponent = styled.div`
   background-color: ${props => props.color};
   border: 1px solid white;
 `;
-const renderBlock = (block: Block, props: BlockProps) => {
+const renderBlock = (block: Block, props: BlockProps, index: number) => {
   return (
-    <BlockComponent {...props}>
+    <BlockComponent {...props} animationIndex={index}>
       {block.data.map((row, rowIndex) => 
         row.map((cell, cellIndex) => 
           cell === 1 ? 
@@ -166,6 +208,4 @@ const renderBlock = (block: Block, props: BlockProps) => {
   );
 };
 
-
-
-export const BlockComponents = blocks.map(block => renderBlock(block, block));
+export const BlockComponents = blocks.map((block, index) => renderBlock(block, block, index));

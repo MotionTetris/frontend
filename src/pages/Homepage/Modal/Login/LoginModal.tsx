@@ -19,12 +19,15 @@ import SignupModal from "@pages/Homepage/Modal/Signup/SignupModal";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../../../../redux/hompage/homepageSlice";
 import { loginAPI } from "@api/auth";
+import { FaUserAlt } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+
 import { RiLockPasswordFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { createRoomSocket, useRoomSocket } from "../../../../context/roomSocket"
 import { RootState } from "@app/store";
 const LoginModal: React.FC = () => {
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignupModalOpen, setSignupModalOpen] = useState(false);
@@ -90,10 +93,10 @@ const LoginModal: React.FC = () => {
                   type="text"
                   value={email}
                   onChange={handleUsernameChange}
-                  placeholder="이메일"
+                  placeholder="닉네임"
                 />
                 <Icon>
-                  <MdEmail />
+                  <FaUserAlt />
                 </Icon>
               </EmailInputString>
               <PasswordInputString>

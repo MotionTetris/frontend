@@ -11,6 +11,7 @@ import Tetris from "@pages/Room/InGame/Tetris";
 import { RoomSocketContext,createRoomSocket } from "./context/roomSocket";
 import Header from "./components/Header/Header";
 import * as io from "socket.io-client";
+import GameRoom from "@pages/Room/GameRoom";
 
 
 const WithHeader: React.FC<{ component: React.ComponentType }> = ({ component: Component }) => (
@@ -30,7 +31,7 @@ const App: React.FC = () => {
           <Route path="/gamemain" element={<WithHeader component={GameMain} />} />
           <Route path="/gamelobby" element={<WithHeader component={GameLobby} />} />
           <Route path="/gamedashboard" element={<WithHeader component={GameDashBoard} />} />
-          <Route path="/rooms/:roomId" element={<Tetris />} />
+          <Route path="/rooms/:roomId" element={<GameRoom/>} />
           <Route path="/gameplay" element={<Tetris />} />
           <Route path="/" element={<HomePage />} />
         </Routes>

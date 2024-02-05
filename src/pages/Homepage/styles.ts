@@ -86,6 +86,7 @@ export const PasswordInputString = styled.label`
   color: white;
 `;
 
+
 export const PasswordInputField = styled.input`
   position: relative;
   width: 340px;
@@ -114,6 +115,7 @@ export const HomepageContainer = styled.div`
   top: 0;
   bottom: 0;
   right: 0;
+  z-index: 10;
 `;
 
 export const HomepageInnerContainer = styled.div`
