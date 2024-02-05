@@ -28,7 +28,7 @@ const RoomCardComponent: React.FC<RoomCardComponentProps> = ({
         status={roomData.roomStatus}
       />
       <RoomTitleContainer>
-        <RoomId>{roomData.roomId}</RoomId>
+        <RoomId>방 번호:{roomData.roomId}</RoomId>
         <RoomTitle>{roomData.roomTitle}</RoomTitle>
         <RoomStatus status={roomData.roomStatus}>
           {RoomStatuses[roomData.roomStatus] || "상태 정보 없음"}

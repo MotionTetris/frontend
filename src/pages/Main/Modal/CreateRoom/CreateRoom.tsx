@@ -46,13 +46,13 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
 
   const handleCreateRoom = async() => {
     const roomInfo = await createRoomAPI(rodomData)
-    
     setCreateRooms([...(createRooms || []), roomInfo]);
-    console.log(roomInfo)
-    const {message:{roomId}} = roomInfo
+    const {message:{roomId}} = roomInfo;
+    console.log("방생성했따ㅏ아아: ", roomInfo);
     roomSocket?.emit(RoomSocketEvent.EMIT_CREATE_ROOM,{roomId});
     onClose();
-    navigate(`/rooms/${roomId}`);
+    navigate(`/rooms/${roomId}`, { state: { roomInfo: roomInfo.message } });
+    
   };
 
   return (

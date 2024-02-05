@@ -8,10 +8,10 @@ export const Container = styled.div`
     overflow: hidden;
 `;
 
-export const SceneCanvas = styled.div`
+export const SceneCanvas = styled.canvas`
     width: 600px;
     height: 800px;
-    left: 0%;
+    right: 500px;
     top: 0%;
     position: absolute;
 `;
@@ -26,7 +26,7 @@ export const EffectCanvas = styled.canvas`
 
 export const VideoContainer = styled.div`
   top: 400px;
-  left: 20%;
+  left:50%;
   position: relative;
   width: 480px;
   height: 320px;
