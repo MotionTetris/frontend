@@ -54,6 +54,10 @@ export class TetrisGame {
         this.preTimestepAction = action;
     }
 
+    public dispose() {
+        this.world?.free();
+    }
+
     public setWorld(world: RAPIER.World) {
         document.onkeyup = null;
         document.onkeydown = null;

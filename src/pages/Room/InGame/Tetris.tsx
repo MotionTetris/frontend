@@ -106,7 +106,9 @@ const Tetris: React.FC = () => {
     game.spawnBlock(0xFF0000, "T", true);
     fallingBlockGlow(game.fallingTetromino!);
 
-  return () => {}}, []);
+  return () => {
+    game.dispose();
+  }}, []);
 
   return (
     <Container>
