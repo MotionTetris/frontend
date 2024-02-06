@@ -51,7 +51,7 @@ export class TetrisMultiplayView extends TetrisGame {
         if (event?.keyframe > this.stepId) {
             this.world.step(this.events);
             this.stepId++;
-            this.graphics.render(this.world, false);
+            this.graphics.render(this.world);
             this.events.drainCollisionEvents((handle1: number, handle2: number, started: boolean) => {
                 if (!started) {
                     return;
@@ -112,7 +112,7 @@ export class TetrisMultiplayView extends TetrisGame {
             return;
         }
 
-        this.graphics.render(this.world, false);
+        this.graphics.render(this.world);
         this.runKeyFrameEvent();
         requestAnimationFrame(() => this.render());
     }
