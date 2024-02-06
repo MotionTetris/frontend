@@ -11,14 +11,14 @@ export function initWorld(RAPIER: RAPIER_API, option: TetrisOption) {
         const bodyDesc = RAPIER.RigidBodyDesc
                              .fixed()
                              .setTranslation(ground.x,ground.y)
-                             .setUserData({type: ground.label});
+                             .setUserData({type: ground.label, color: option.wallColor, alpha: option.wallAlpha});
 
         const body = world.createRigidBody(bodyDesc);
 
         const colliderDesc = RAPIER.ColliderDesc
                                  .cuboid(ground.hx, ground.hy)
-                                 .setRestitution(0)
-                                 .setFriction(1);
+                                 .setRestitution(option.blockRestitution)
+                                 .setFriction(option.blockFriction);
         if (ground.label === "ground") {
             colliderDesc.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
         }
