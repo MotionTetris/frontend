@@ -6,6 +6,7 @@ import {
   CreateRoomButton,
   CreateRoomInput,
   CreateRoomSelect,
+  OutlinedInputWrapper,
 } from "./styles";
 import { useNavigate } from "react-router-dom";
 import { useRoomSocket, RoomSocketEvent } from "../../../../context/roomSocket";
@@ -48,17 +49,19 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
     const roomInfo = await createRoomAPI(rodomData)
     setCreateRooms([...(createRooms || []), roomInfo]);
     const {message:{roomId}} = roomInfo;
-    console.log("방생성했따ㅏ아아: ", roomInfo);
+    console.debug("방생성했따ㅏ아아: ", roomInfo);
     roomSocket?.emit(RoomSocketEvent.EMIT_CREATE_ROOM,{roomId});
     onClose();
-    navigate(`/rooms/${roomId}`, { state: { roomInfo: roomInfo.message } });
-    
+    navigate(`/rooms/${roomId}`, { state: { roomInfo: roomInfo.message, isCreator: true } });  
   };
 
   return (
     <CreateRoomBackground>
       <CreateRoomContainer>
-        <CreateRoomInput value={roomName} onChange={handleInputChange} />
+      <OutlinedInputWrapper>
+      <input value={roomName} onChange={handleInputChange} />
+      <label>방 제목</label>
+    </OutlinedInputWrapper>
         <CreateRoomSelect value={selectedOption} onChange={handleSelectChange}>
           <option value="1">1</option>
           <option value="2">2</option>

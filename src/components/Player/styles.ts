@@ -1,4 +1,3 @@
-// StyledComponents.ts
 import styled from "styled-components";
 
 export const PlayerContainer = styled.div`
@@ -10,64 +9,31 @@ export const PlayerContainer = styled.div`
   border: 2px solid black;
   border-top-left-radius: 50px;
   border-top-right-radius: 50px;
-  background: lightgray;
-  scale: 0.8;
+  background-color: white;
+  transform: scale(0.8);
 `;
 
 export const PlayerNickName = styled.span`
   position: absolute;
-  top: 3.3vh;
-  left: 7.5vw;
+  top: 2.8vh;
+  left: 8vw;
   padding: 0.5em 1em;
-  border: 2px solid #ffffff;
+  border: 2px solid gray;
   border-radius: 20px;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: transparent;
   transition: box-shadow 0.3s;
-
+  display: flex; // 추가
+  align-items: center; // 추가
+  transform: scale(1.2);
   &:hover {
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 3px black;
   }
 `;
 
-export const PlayerBackground = styled.img`
-  position: absolute;
-  bottom: 0vh;
-  left: 0vh;
-  width: 30vw;
-  opacity: 0.8;
-  height: 10vh;
-  border-top-left-radius: 50px;
-  border-top-right-radius: 50px;
-  background: lightgray;
-`;
+export const PlayerBackground = styled.div`
+  width: 100%;
+  height: 100%;
 
-export const PlayerProficture = styled.img`
-  position: absolute;
-  top: 1.5vh;
-  left: 3vw;
-  scale: 0.9;
-`;
-
-export const PlayerStatus = styled.span`
-  position: absolute;
-  top: 2.5vh;
-  right: 4vw;
-  width: 20%;
-  height: 5%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "DNFBitBitv2", sans-serif;
-  font-style: light;
-  font-weight: 100;
-  font-size: 24px;
-  background-color: gray;
-  color: white;
-  border-radius: 50px;
-  padding: 20px 10px;
-  transition:
-    background-color 0.3s,
-    transform 0.3s;
 `;
 
 export const VideoContainer = styled.video`
@@ -79,4 +45,16 @@ export const VideoContainer = styled.video`
   border: 2px solid black;
   border-radius: 0px;
   object-fit: cover;
+`;
+
+export const Badge = styled.span`
+  position: absolute;
+  bottom: 1.2vw;
+  right: 3vw;
+  background-color: red;
+  color: white;
+  padding: 10px 10px;
+  margin-left: 5px;
+  border-radius: 5px;
+  font-size: 1em;
 `;

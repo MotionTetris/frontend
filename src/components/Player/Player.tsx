@@ -4,15 +4,21 @@ import {
   PlayerBackground,
   VideoContainer,
   PlayerNickName,
+  Badge,
 } from "./styles";
-import { InGamePlayerCard } from "../../types/Refactoring";
-interface PlayerCardProps {
-  playerCard: InGamePlayerCard;
+
+interface PlayerProps {
+  nickname: string;
+  isCreator: boolean;
+  scale: number;
+  position: string;
+  top: string;
+  left: string;
 }
 
-/* TODO : GameRoom에 입장했을 때 받은 정보 'RoomInfo' 중 creatorNickname, playersNickname 을 받아서 사용 */
-const Player: React.FC<PlayerCardProps> = ({ playerCard }) => {
+const Player: React.FC<PlayerProps> = ({ nickname, isCreator, scale, position, top, left }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  
   useEffect(() => {
     const connectWebcam = async () => {
       try {
@@ -30,9 +36,10 @@ const Player: React.FC<PlayerCardProps> = ({ playerCard }) => {
   }, []);
 
   return (
-    <PlayerContainer>
-      <PlayerBackground alt="Background" />
-      <PlayerNickName> {playerCard.creatorNickname} </PlayerNickName>
+    <PlayerContainer style={{ transform: `scale(${scale})`, position, top, left }}>
+      <PlayerBackground/>
+      <PlayerNickName>{nickname}</PlayerNickName>
+      {isCreator && <Badge>방장</Badge>}
       <VideoContainer ref={videoRef} autoPlay playsInline />
     </PlayerContainer>
   );

@@ -20,7 +20,7 @@ const Banner: React.FC = () => {
   const navigate = useNavigate();
 
   const navigateTo = () => {
-    navigate("/rooms/:roomId");
+    navigate("/gameplay");
   };
 
   useEffect(() => {
