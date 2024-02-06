@@ -18,6 +18,7 @@ const Tetris: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [message, setMessage] = useState("");
   const [playerScore, setPlayerScore] = useState(0);
+  const scoreTexts = useRef<PIXI.Text[]>([]);
   useEffect(() => {
 
     if (!!!sceneRef.current) {
@@ -27,11 +28,9 @@ const Tetris: React.FC = () => {
     
     sceneRef.current.width = 600;
     sceneRef.current.height = 800;
-
-    let scoreTexts: PIXI.Text[] = [];
     //fallingBlockGlow(game.fallingTetromino!);
     const CollisionEvent = ({game, bodyA, bodyB}: any) => {
-      
+    
     }
 
     const preLandingEvent = ({game, bodyA, bodyB}: any) => {
@@ -49,8 +48,8 @@ const Tetris: React.FC = () => {
         return;
       }
       
-      collisionParticleEffect(bodyA.translation().x, -bodyB.translation().y, game.graphics.viewport, game.graphics.renderer);
-      collisionParticleEffect(bodyB.translation().x, -bodyB.translation().y, game.graphics.viewport, game.graphics.renderer);
+      collisionParticleEffect(bodyA.translation().x, -bodyB.translation().y, game.graphics);
+      collisionParticleEffect(bodyB.translation().x, -bodyB.translation().y, game.graphics);
       
       const checkResult = game.checkLine(eraseThreshold);
       const scoreList = checkResult.scoreList;
@@ -65,8 +64,8 @@ const Tetris: React.FC = () => {
       if (game.removeLines(checkResult.lines)) {
         startShake({ viewport: game.graphics.viewport, strength: 15, duration: 500 });
         loadStarImage().then((starTexture: PIXI.Texture) => {
-          starParticleEffect(0, 600, game.graphics.viewport, starTexture);
-          starParticleEffect(450, 600, game.graphics.viewport, starTexture);
+          starParticleEffect(0, 600, game.graphics ,starTexture);
+          starParticleEffect(450, 600, game.graphics, starTexture);
         }).catch((error: any) => {
           console.error(error);
         });
@@ -75,8 +74,13 @@ const Tetris: React.FC = () => {
       //make lineGrids score
       createScoreBasedGrid(game.graphics.viewport, checkResult.scoreList);
       
-    
-      //showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts);
+      scoreTexts.current.forEach((text) => {
+        if (game.graphics.viewport.children.includes(text)) {
+          game.graphics.viewport.removeChild(text);
+        }
+      });
+
+      scoreTexts.current = showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts.current, eraseThreshold); // 수정
       game.spawnBlock(0xFF0000, "O", true);
       fallingBlockGlow(game.fallingTetromino!);
     }
