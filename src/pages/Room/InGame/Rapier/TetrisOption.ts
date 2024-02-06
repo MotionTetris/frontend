@@ -6,6 +6,7 @@ export interface BlockCollisionCallbackParam {
 export interface TetrisOption {
     blockCollisionCallback?: (result: BlockCollisionCallbackParam) => void;
     blockLandingCallback?: (result: BlockCollisionCallbackParam) => void;
+    preBlockLandingCallback?: (result: BlockCollisionCallbackParam) => void;
     blockFriction: number;
     blockRestitution: number;
     blockSize: number;
@@ -13,4 +14,6 @@ export interface TetrisOption {
     spawnY?: number;
     combineDistance: number;
     view: HTMLCanvasElement;
+    worldWidth: number;
+    worldHeight: number;
 }

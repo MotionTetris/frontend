@@ -9,8 +9,8 @@ export default class UnionFind {
     }
 
     public union(a: number, b: number): void {
-        let rootA = this.find(a);
-        let rootB = this.find(b);
+        const rootA = this.find(a);
+        const rootB = this.find(b);
 
         if (rootA === rootB) return;
 

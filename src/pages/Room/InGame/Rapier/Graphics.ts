@@ -2,13 +2,14 @@ import * as PIXI from "pixi.js";
 import {Viewport} from "pixi-viewport";
 import type * as RAPIER from "@dimforge/rapier2d";
 import { createLineEffect, createRectangle} from "./Effect";
+import { TetrisOption } from "./TetrisOption";
 
 type RAPIER_API = typeof import("@dimforge/rapier2d");
 
 const BOX_INSTANCE_INDEX = 0;
 const BALL_INSTANCE_INDEX = 1;
 
-var kk = 0;
+let kk = 0;
 
 export class Graphics {
     coll2gfx: Map<number, PIXI.Graphics>;
@@ -21,7 +22,7 @@ export class Graphics {
     lines: PIXI.Graphics;
     rectangles: Array<PIXI.Graphics>;
     ticker: PIXI.Ticker;
-    constructor(canvas: HTMLCanvasElement) {
+    constructor(canvas: HTMLCanvasElement, option: TetrisOption) {
         // High pixel Ratio make the rendering extremely slow, so we cap it.
         // const pixelRatio = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 1.5) : 1;
 
@@ -43,8 +44,8 @@ export class Graphics {
         this.viewport = new Viewport({
             screenWidth: window.innerWidth,
             screenHeight: window.innerHeight,
-            worldWidth: canvas.width,
-            worldHeight: canvas.height,
+            worldWidth: option.worldWidth,
+            worldHeight: option.worldHeight,
             interaction: this.renderer.plugins.interaction,
         });
       
@@ -59,7 +60,7 @@ export class Graphics {
         this.ticker = new PIXI.Ticker();
         
 
-        let me = this;
+        const me = this;
 
         function onWindowResize() {
             //me.renderer.resize(window.innerWidth, window.innerHeight);
@@ -81,7 +82,7 @@ export class Graphics {
         this.instanceGroups = [];
         this.instanceGroups.push(
             this.colorPalette.map((color) => {
-                let graphics = new PIXI.Graphics();
+                const graphics = new PIXI.Graphics();
                 graphics.beginFill(color);
                 graphics.drawRect(-1.0, 1.0, 2.0, -2.0);
                 graphics.endFill();
@@ -91,7 +92,7 @@ export class Graphics {
 
         this.instanceGroups.push(
             this.colorPalette.map((color) => {
-                let graphics = new PIXI.Graphics();
+                const graphics = new PIXI.Graphics();
                 graphics.beginFill(color);
                 graphics.drawCircle(0.0, 0.0, 1.0);
                 graphics.endFill();
@@ -100,7 +101,7 @@ export class Graphics {
         );
     }
 
-    render(world: RAPIER.World, debugRender: Boolean) {
+    render(world: RAPIER.World, debugRender: boolean) {
         kk += 1;
         if (!this.lines) {
             this.lines = new PIXI.Graphics();
@@ -108,14 +109,14 @@ export class Graphics {
         }
 
         if (debugRender) {
-            let buffers = world.debugRender();
-            let vtx = buffers.vertices;
-            let cls = buffers.colors;
+            const buffers = world.debugRender();
+            const vtx = buffers.vertices;
+            const cls = buffers.colors;
 
             this.lines.clear();
 
             for (let i = 0; i < vtx.length / 4; i += 1) {
-                let color = PIXI.utils.rgb2hex([
+                const color = PIXI.utils.rgb2hex([
                     cls[i * 8],
                     cls[i * 8 + 1],
                     cls[i * 8 + 2],
@@ -141,11 +142,11 @@ export class Graphics {
 
     updatePositions(world: RAPIER.World) {
         world.forEachCollider((elt) => {
-            let gfx = this.coll2gfx.get(elt.handle);
-            let translation = elt.translation();
-            let rotation = elt.rotation();
+            const gfx = this.coll2gfx.get(elt.handle);
+            const translation = elt.translation();
+            const rotation = elt.rotation();
 
-            if (!!gfx) {
+            if (gfx) {
                 gfx.position.x = translation.x;
                 gfx.position.y = -translation.y;
                 gfx.rotation = -rotation;
@@ -169,15 +170,15 @@ export class Graphics {
         color?: number
     ) {
         let i;
-        let parent = collider.parent();
+        const parent = collider.parent();
         let instance;
         let graphics;
         let vertices;
-        let instanceId = parent.isFixed() ? 0 : this.colorIndex + 1;
+        const instanceId = parent.isFixed() ? 0 : this.colorIndex + 1;
 
         switch (collider.shapeType()) {
             case RAPIER.ShapeType.Cuboid:
-                let hext = collider.halfExtents();
+                const hext = collider.halfExtents();
                 instance = this.instanceGroups[BOX_INSTANCE_INDEX][instanceId];
                 graphics = instance.clone();
                 graphics.scale.x = hext.x;
@@ -185,7 +186,7 @@ export class Graphics {
                 this.viewport.addChild(graphics);
                 break;
             case RAPIER.ShapeType.Ball:
-                let rad = collider.radius();
+                const rad = collider.radius();
                 instance = this.instanceGroups[BALL_INSTANCE_INDEX][instanceId];
                 graphics = instance.clone();
                 graphics.scale.x = rad;
@@ -206,9 +207,9 @@ export class Graphics {
                 this.viewport.addChild(graphics);
                 break;
             case RAPIER.ShapeType.HeightField:
-                let heights = Array.from(collider.heightfieldHeights());
-                let scale = collider.heightfieldScale();
-                let step = scale.x / (heights.length - 1);
+                const heights = Array.from(collider.heightfieldHeights());
+                const scale = collider.heightfieldScale();
+                const step = scale.x / (heights.length - 1);
 
                 graphics = new PIXI.Graphics();
                 graphics
@@ -241,8 +242,8 @@ export class Graphics {
                 break;
         }
 
-        let t = collider.translation();
-        let r = collider.rotation();
+        const t = collider.translation();
+        const r = collider.rotation();
         //        dummy.position.set(t.x, t.y, t.z);
         //        dummy.quaternion.set(r.x, r.y, r.z, r.w);
         //        dummy.scale.set(instanceDesc.scale.x, instanceDesc.scale.y, instanceDesc.scale.z);

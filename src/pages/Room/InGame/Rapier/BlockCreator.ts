@@ -30,7 +30,7 @@ export class BlockCreator {
             coords[i] -= center[0];
             coords[i + 1] -= center[1];
         }
-        console.log(`collide center= ${x} ${y}`);
+        
         return RAPIER.ColliderDesc.convexHull(new Float32Array(coords))?.setTranslation(x, y);
     }
 
@@ -48,58 +48,58 @@ export class BlockCreator {
     }
 
     public static createO(rad: number) {
-        let colliderDesc1 = this.createRectangle(rad)!.setTranslation(2 * rad, 0);
-        let colliderDesc2 = this.createRectangle(rad)!.setTranslation(0, 2 * rad);
-        let colliderDesc3 = this.createRectangle(rad)!.setTranslation(2 * rad, 2 * rad);
-        let colliderDesc4 = this.createRectangle(rad)!.setTranslation(0, 0);
+        const colliderDesc1 = this.createRectangle(rad)!.setTranslation(2 * rad, 0);
+        const colliderDesc2 = this.createRectangle(rad)!.setTranslation(0, 2 * rad);
+        const colliderDesc3 = this.createRectangle(rad)!.setTranslation(2 * rad, 2 * rad);
+        const colliderDesc4 = this.createRectangle(rad)!.setTranslation(0, 0);
         return [colliderDesc1, colliderDesc2, colliderDesc3, colliderDesc4];
     }
 
     public static createI(rad: number) {
-        let colliderDesc1 = this.createRectangle(rad)!.setTranslation(0, 0);
-        let colliderDesc2 = this.createRectangle(rad)!.setTranslation(0, 1 * 2 * rad);
-        let colliderDesc3 = this.createRectangle(rad)!.setTranslation(0, 2 * 2 * rad);
-        let colliderDesc4 = this.createRectangle(rad)!.setTranslation(0, 3 * 2 * rad);
+        const colliderDesc1 = this.createRectangle(rad)!.setTranslation(0, 0);
+        const colliderDesc2 = this.createRectangle(rad)!.setTranslation(0, 1 * 2 * rad);
+        const colliderDesc3 = this.createRectangle(rad)!.setTranslation(0, 2 * 2 * rad);
+        const colliderDesc4 = this.createRectangle(rad)!.setTranslation(0, 3 * 2 * rad);
         return [colliderDesc1, colliderDesc2, colliderDesc3, colliderDesc4];
     }
 
     public static createT(rad: number) {
-        let colliderDesc1 = this.createRectangle(rad)!.setTranslation(0, 0).setRestitution(0.1).setFriction(1.0);
-        let colliderDesc2 = this.createRectangle(rad)!.setTranslation(2 * rad, 0).setRestitution(0.1).setFriction(1.0);
-        let colliderDesc3 = this.createRectangle(rad)!.setTranslation(-2 * rad, 0).setRestitution(0.1).setFriction(1.0);
-        let colliderDesc4 = this.createRectangle(rad)!.setTranslation(0, 2 * rad).setRestitution(0.1).setFriction(1.0);
+        const colliderDesc1 = this.createRectangle(rad)!.setTranslation(0, 0).setRestitution(0.1).setFriction(1.0);
+        const colliderDesc2 = this.createRectangle(rad)!.setTranslation(2 * rad, 0).setRestitution(0.1).setFriction(1.0);
+        const colliderDesc3 = this.createRectangle(rad)!.setTranslation(-2 * rad, 0).setRestitution(0.1).setFriction(1.0);
+        const colliderDesc4 = this.createRectangle(rad)!.setTranslation(0, 2 * rad).setRestitution(0.1).setFriction(1.0);
         return [colliderDesc1, colliderDesc2, colliderDesc3, colliderDesc4];
     }
 
     public static createS(rad: number) {
-        let colliderDesc1 = this.createRectangle(rad)!.setTranslation(0, 0);
-        let colliderDesc2 = this.createRectangle(rad)!.setTranslation(-2 * rad, 0);
-        let colliderDesc3 = this.createRectangle(rad)!.setTranslation(2 * rad, 2 * rad);
-        let colliderDesc4 = this.createRectangle(rad)!.setTranslation(0, 2 * rad);
+        const colliderDesc1 = this.createRectangle(rad)!.setTranslation(0, 0);
+        const colliderDesc2 = this.createRectangle(rad)!.setTranslation(-2 * rad, 0);
+        const colliderDesc3 = this.createRectangle(rad)!.setTranslation(2 * rad, 2 * rad);
+        const colliderDesc4 = this.createRectangle(rad)!.setTranslation(0, 2 * rad);
         return [colliderDesc1, colliderDesc2, colliderDesc3, colliderDesc4];
     }
 
     public static createZ(rad: number) {
-        let colliderDesc1 = this.createRectangle(rad)!.setTranslation(0, 0);
-        let colliderDesc2 = this.createRectangle(rad)!.setTranslation(2 * rad, 0);
-        let colliderDesc3 = this.createRectangle(rad)!.setTranslation(-2 * rad, 2 * rad);
-        let colliderDesc4 = this.createRectangle(rad)!.setTranslation(0, 2 * rad);
+        const colliderDesc1 = this.createRectangle(rad)!.setTranslation(0, 0);
+        const colliderDesc2 = this.createRectangle(rad)!.setTranslation(2 * rad, 0);
+        const colliderDesc3 = this.createRectangle(rad)!.setTranslation(-2 * rad, 2 * rad);
+        const colliderDesc4 = this.createRectangle(rad)!.setTranslation(0, 2 * rad);
         return [colliderDesc1, colliderDesc2, colliderDesc3, colliderDesc4];
     }
 
     public static createL(rad: number) {
-        let colliderDesc1 = this.createRectangle(rad)!.setTranslation(2 * rad, 2 * rad);
-        let colliderDesc2 = this.createRectangle(rad)!.setTranslation(0, 1 * 2 * rad);
-        let colliderDesc3 = this.createRectangle(rad)!.setTranslation(0, 2 * 2 * rad);
-        let colliderDesc4 = this.createRectangle(rad)!.setTranslation(0, 3 * 2 * rad);
+        const colliderDesc1 = this.createRectangle(rad)!.setTranslation(2 * rad, 2 * rad);
+        const colliderDesc2 = this.createRectangle(rad)!.setTranslation(0, 1 * 2 * rad);
+        const colliderDesc3 = this.createRectangle(rad)!.setTranslation(0, 2 * 2 * rad);
+        const colliderDesc4 = this.createRectangle(rad)!.setTranslation(0, 3 * 2 * rad);
         return [colliderDesc1, colliderDesc2, colliderDesc3, colliderDesc4];
     }
 
     public static createJ(rad: number) {
-        let colliderDesc1 = this.createRectangle(rad)!.setTranslation(-2 * rad, 2 * rad);
-        let colliderDesc2 = this.createRectangle(rad)!.setTranslation(0, 1 * 2 * rad);
-        let colliderDesc3 = this.createRectangle(rad)!.setTranslation(0, 2 * 2 * rad);
-        let colliderDesc4 = this.createRectangle(rad)!.setTranslation(0, 3 * 2 * rad);
+        const colliderDesc1 = this.createRectangle(rad)!.setTranslation(-2 * rad, 2 * rad);
+        const colliderDesc2 = this.createRectangle(rad)!.setTranslation(0, 1 * 2 * rad);
+        const colliderDesc3 = this.createRectangle(rad)!.setTranslation(0, 2 * 2 * rad);
+        const colliderDesc4 = this.createRectangle(rad)!.setTranslation(0, 3 * 2 * rad);
         return [colliderDesc1, colliderDesc2, colliderDesc3, colliderDesc4];
     }
 }
