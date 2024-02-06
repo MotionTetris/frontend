@@ -27,7 +27,7 @@ export class TetrisGame {
     sequence: number;
     userId: string;
     running: boolean;
-
+    private readonly defaultWallColor = 0x222929
     public constructor(option: TetrisOption, userId: string) {
         if (!option.view) {
             throw new Error("Canvas is null");
@@ -68,9 +68,15 @@ export class TetrisGame {
         this.stepId = 0;
 
         world.forEachCollider((coll) => {
-            this.graphics.addCollider(RAPIER, world, coll);
+            // @ts-ignore
+            if (coll.parent() && coll.parent()?.userData.color) {
+                // @ts-ignore
+                this.graphics.addCollider(coll, coll.parent()?.userData.color, coll.parent()?.userData.alpha);
+                return;
+            }
+            this.graphics.addCollider(coll);
         });
-        this.graphics.render(this.world, false);
+        this.graphics.render(this.world);
         this.lastMessageTime = new Date().getTime();
     }
 
@@ -129,7 +135,7 @@ export class TetrisGame {
 
         this.world.step(this.events);
         this.stepId += 1;
-        this.graphics.render(this.world, false);
+        this.graphics.render(this.world);
         this.events.drainCollisionEvents((handle1: number, handle2: number, started: boolean) => {
             if (!started) {
                 return;
@@ -170,7 +176,7 @@ export class TetrisGame {
 
         const newBody = new Tetromino(this.option, this.world, this.graphics.viewport, undefined, color, blockType);
         for (let i = 0; i < newBody.rigidBody.numColliders(); i++) {
-            const graphics = this.graphics.addCollider(RAPIER, this.world, newBody.rigidBody.collider(i));
+            const graphics = this.graphics.addCollider(newBody.rigidBody.collider(i));
             if (graphics) {
                 newBody.addGraphics(graphics);
             }
@@ -214,7 +220,7 @@ export class TetrisGame {
         const newBody = this.world.createRigidBody(rigidBodyDesc);
         const tetromino = new Tetromino(this.option, this.world, this.graphics.viewport, newBody, color);
         for (let i = 0; i < tetromino.rigidBody.numColliders(); i++) {
-            this.graphics.addCollider(RAPIER, this.world, tetromino.rigidBody.collider(i));
+            this.graphics.addCollider(tetromino.rigidBody.collider(i));
             tetromino.rigidBody.collider(i).setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
         }
 
@@ -252,7 +258,7 @@ export class TetrisGame {
 
         for (const shape of shapes) {
             for (let i = 0; i < shape.rigidBody.numColliders(); i++) {
-                const graphics = this.graphics.addCollider(RAPIER, this.world, shape.rigidBody.collider(i));
+                const graphics = this.graphics.addCollider(shape.rigidBody.collider(i));
                 if (graphics) {
                     shape.addGraphics(graphics);
                 }
@@ -298,7 +304,6 @@ export class TetrisGame {
             return false;
         }
 
-        lineToRemove = [lineToRemove.pop()!];
         // TODO: Shape-cast and remove without removing and re-create all shapes in the world
         for (const line of lineToRemove) {
             const shapes = [...this.tetrominos];

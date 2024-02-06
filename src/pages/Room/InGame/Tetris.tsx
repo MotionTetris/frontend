@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "./Rapier/TetrisGame.ts";
 import { initWorld } from "./Rapier/World.ts";
-import { calculatePosition, removeLines } from "./Rapier/BlockRemove.ts";
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score } from "./style.tsx";
 import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake } from "./Rapier/Effect.ts";
 import * as PIXI from "pixi.js";
@@ -93,7 +92,11 @@ const Tetris: React.FC = () => {
       blockLandingCallback: LandingEvent,
       preBlockLandingCallback: preLandingEvent,
       worldHeight: 800,
-      worldWidth: 600
+      worldWidth: 600,
+      wallColor: 0xFF0000,
+      wallAlpha: 0.1,
+      backgroundColor: 0x222929,
+      backgroundAlpha: 1
     };
 
     const game = new TetrisGame(TetrisOption, "user");

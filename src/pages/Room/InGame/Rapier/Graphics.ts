@@ -46,7 +46,7 @@ export class Graphics {
      
         this.viewport.drag().pinch().wheel().decelerate();
         this.ticker = new PIXI.Ticker();
-
+        
         function onContextMenu(event: UIEvent) {
             event.preventDefault();
         }
@@ -59,7 +59,6 @@ export class Graphics {
     }
 
     initInstances() {
-        this.instanceGroups = [];
         this.instanceGroups.push(
             this.colorPalette.map((color) => {
                 const graphics = new PIXI.Graphics();
@@ -115,18 +114,111 @@ export class Graphics {
         this.colorIndex = 0;
     }
 
-    addCollider(
-        RAPIER: RAPIER_API,
-        world: RAPIER.World,
-        collider: RAPIER.Collider,
-        color?: number
-    ) {
-        let i;
+    addCollider(collider: RAPIER.Collider, color?: number, alpha?: number): PIXI.Graphics | undefined
+    addCollider(collider: RAPIER.Collider): PIXI.Graphics | undefined
+    addCollider(collider: RAPIER.Collider, color?: number, alpha?: number): PIXI.Graphics | undefined {
+        if (!color) {
+            return this.addColliderWithDefualtColor(collider);
+        }
+
+        return this.addColliderWithColor(collider, color, alpha);
+    }
+
+    private addColliderWithColor(collider: RAPIER.Collider, color: number, alpha: number = 1.0) {
+        let graphics = new PIXI.Graphics();
+        let vertices;
+
+        if (!graphics) {
+            console.error("Failed to create graphics");
+            return;
+        }
+        
+        if (alpha < 0 && alpha > 1) {
+            console.error(`Invalid alpha ${alpha}`);
+            return;
+        }
+
+        switch (collider.shapeType()) {
+            case RAPIER.ShapeType.Cuboid:
+                const hext = collider.halfExtents();
+                graphics.beginFill(color, alpha);
+                graphics.drawRect(-1.0, 1.0, 2.0, -2.0);
+                graphics.endFill();
+                graphics.scale.x = hext.x;
+                graphics.scale.y = hext.y;
+                this.viewport.addChild(graphics);
+                break;
+            case RAPIER.ShapeType.Ball:
+                const rad = collider.radius();
+                graphics.beginFill(color, alpha);
+                graphics.drawRect(-1.0, 1.0, 2.0, -2.0);
+                graphics.endFill();
+                graphics.scale.x = rad;
+                graphics.scale.y = rad;
+                this.viewport.addChild(graphics);
+                break;
+            case RAPIER.ShapeType.Polyline:
+                vertices = Array.from(collider.vertices());
+                graphics.lineStyle(0.2, color, alpha).moveTo(vertices[0], -vertices[1]);
+
+                for (let i = 2; i < vertices.length; i += 2) {
+                    graphics.lineTo(vertices[i], -vertices[i + 1]);
+                }
+
+                this.viewport.addChild(graphics);
+                break;
+            case RAPIER.ShapeType.HeightField:
+                const heights = Array.from(collider.heightfieldHeights());
+                const scale = collider.heightfieldScale();
+                const step = scale.x / (heights.length - 1);
+
+                graphics = new PIXI.Graphics();
+                graphics.lineStyle(0.2, color, alpha).moveTo(-scale.x / 2.0, -heights[0] * scale.y);
+
+                for (let i = 1; i < heights.length; i += 1) {
+                    graphics.lineTo(
+                        -scale.x / 2.0 + i * step,
+                        -heights[i] * scale.y,
+                    );
+                }
+
+                this.viewport.addChild(graphics);
+                break;
+            case RAPIER.ShapeType.ConvexPolygon:
+                vertices = Array.from(collider.vertices());
+                graphics = new PIXI.Graphics();
+                graphics.beginFill(color, alpha);
+                graphics.moveTo(vertices[0], -vertices[1]);
+
+                for (let i = 2; i < vertices.length; i += 2) {
+                    graphics.lineTo(vertices[i], -vertices[i + 1]);
+                }
+
+                this.viewport.addChild(graphics);
+                break;
+            default:
+                console.log("Unknown shape to render.");
+                break;
+        }
+
+        const translation = collider.translation();
+        const rotation = collider.rotation();
+        graphics.position.x = translation.x;
+        graphics.position.y = -translation.y;
+        graphics.rotation = rotation;
+
+        this.coll2gfx.set(collider.handle, graphics);
+        this.colorIndex = (this.colorIndex + 1) % (this.colorPalette.length - 1);
+        
+        return graphics;
+    }
+
+    private addColliderWithDefualtColor(collider: RAPIER.Collider) {
         const parent = collider.parent();
         let instance;
         let graphics;
         let vertices;
-        const instanceId = parent.isFixed() ? 0 : this.colorIndex + 1;
+        const instanceId = parent!.isFixed() ? 0 : this.colorIndex + 1;
 
         switch (collider.shapeType()) {
             case RAPIER.ShapeType.Cuboid:
@@ -152,7 +244,7 @@ export class Graphics {
                     .lineStyle(0.2, this.colorPalette[instanceId])
                     .moveTo(vertices[0], -vertices[1]);
 
-                for (i = 2; i < vertices.length; i += 2) {
+                for (let i = 2; i < vertices.length; i += 2) {
                     graphics.lineTo(vertices[i], -vertices[i + 1]);
                 }
 
@@ -168,7 +260,7 @@ export class Graphics {
                     .lineStyle(0.2, this.colorPalette[instanceId])
                     .moveTo(-scale.x / 2.0, -heights[0] * scale.y);
 
-                for (i = 1; i < heights.length; i += 1) {
+                for (let i = 1; i < heights.length; i += 1) {
                     graphics.lineTo(
                         -scale.x / 2.0 + i * step,
                         -heights[i] * scale.y,
@@ -183,7 +275,7 @@ export class Graphics {
                 graphics.beginFill(this.colorPalette[instanceId], 1.0);
                 graphics.moveTo(vertices[0], -vertices[1]);
 
-                for (i = 2; i < vertices.length; i += 2) {
+                for (let i = 2; i < vertices.length; i += 2) {
                     graphics.lineTo(vertices[i], -vertices[i + 1]);
                 }
 
@@ -194,22 +286,20 @@ export class Graphics {
                 break;
         }
 
-        const t = collider.translation();
-        const r = collider.rotation();
-        //        dummy.position.set(t.x, t.y, t.z);
-        //        dummy.quaternion.set(r.x, r.y, r.z, r.w);
-        //        dummy.scale.set(instanceDesc.scale.x, instanceDesc.scale.y, instanceDesc.scale.z);
-        //        dummy.updateMatrix();
-        //        instance.setMatrixAt(instanceDesc.elementId, dummy.matrix);
-        //        instance.instanceMatrix.needsUpdate = true;
-        graphics.position.x = t.x;
-        graphics.position.y = -t.y;
-        graphics.rotation = r;
+        if (!graphics) {
+            console.error("Failed to create graphics");
+            return;
+        }
+
+        const translation = collider.translation();
+        const rotation = collider.rotation();
+        graphics.position.x = translation.x;
+        graphics.position.y = -translation.y;
+        graphics.rotation = rotation;
 
         this.coll2gfx.set(collider.handle, graphics);
-        this.colorIndex =
-            (this.colorIndex + 1) % (this.colorPalette.length - 1);
-
+        this.colorIndex = (this.colorIndex + 1) % (this.colorPalette.length - 1);
+        
         return graphics;
     }
 }
