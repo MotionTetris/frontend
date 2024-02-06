@@ -36,17 +36,62 @@ export const CreateRoomButton = styled.button`
 
   margin-left: 10px;
 `;
-
 export const CreateRoomInput = styled.input`
   display: block;
-  width: 100%;
+  width: 80%;
   padding: 10px;
   margin-bottom: 10px;
+  border: 1px solid #000;
+  border-radius: 5px;
+  position: relative;
+  outline: none;
+  transition: all 0.3s;
+
+  &:hover,
+  &:focus {
+    border-color: lightblue;
+  }
+
+  &::placeholder {
+    color: #000;
+  }
 `;
+
 
 export const CreateRoomSelect = styled.select`
   display: block;
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
+`;
+
+export const OutlinedInputWrapper = styled.div`
+  display: inline-block;
+  margin-bottom: 10px;
+  width: 100%;
+  position: relative;
+
+  &:hover,
+    &:focus {
+      border-color: red;
+    }
+  & input {
+    border: none;
+    padding: 10px;
+    width: 90%;
+    border: 1px solid #000;
+    border-radius: 10px;
+  }
+  
+  & label {
+    position: absolute;
+    left: 10px;
+    top: -10px;
+    background: #fff;
+    padding: 0 5px;
+    font-size: 0.75em;
+    pointer-events: none;
+    transition: 0.2s;
+    color: #000;
+  }
 `;

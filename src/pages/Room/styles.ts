@@ -1,6 +1,6 @@
-// StyledComponents.ts
 import styled from "styled-components";
 import { IoPlayBackSharp } from "react-icons/io5";
+import Player from "@components/Player/Player";
 interface PlayerStatusProps {
   playerstatus: "WAIT" | "READY" | "START";
 }
@@ -45,7 +45,7 @@ export const GameRoomId = styled.span`
 
 export const GameRoomTitle = styled.span`
   position: absolute;
-  top: 2%;
+  top: 5%;
   right: 2%;
   width: 10%;
   height: 5%;
@@ -242,3 +242,24 @@ export const ReadyButton = styled.span`
     background-color: "darkgreen";
   }
 `;
+
+export const PlayerContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+export const StyledPlayer = styled(Player)<{ scale: number, position: string, top: string, left: string }>`
+  position: ${props => props.position} !important;
+  top: ${props => props.top} !important;
+  left: ${props => props.left} !important;
+  transform: scale(${props => props.scale}) !important;
+`;
+
+export const playerStyles = [
+  { scale: 0.8, position: 'absolute', top: '10%', left: '10%' },
+  { scale: 0.3, position: 'absolute', top: '47%', left: '55%' },
+  { scale: 0.5, position: 'absolute', top: '30%', left: '30%' },
+  { scale: 0.5, position: 'absolute', top: '40%', left: '40%' },
+];

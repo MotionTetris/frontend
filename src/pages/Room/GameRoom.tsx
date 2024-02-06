@@ -8,7 +8,10 @@ import {
   ReadyButton,
   GameRoomId,
   GameRoomTitle,
-  FaBackspaced
+  FaBackspaced,
+  PlayerContainer,
+  StyledPlayer,
+  playerStyles
 } from "./styles";
 import Player from "@components/Player/Player";
 import { useRoomSocket, RoomSocketEvent } from "../../context/roomSocket";
@@ -18,25 +21,17 @@ import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../app/store';
 
-
 const GameRoom: React.FC = () => {
   const navigate = useNavigate();
   const [inGameCard, setInGameCard] = useState<InGamePlayerCard | null>(null);
-  const [inGameCards, setInGameCards] = useState<InGamePlayerCard[]>([]);
   const {roomSocket} = useRoomSocket();
   const { roomId: roomIdString } = useParams<{ roomId: string }>();
   const roomId = parseInt(roomIdString || "");
   const location = useLocation();
-  const roomInfo = location.state as { roomInfo: InGamePlayerCard } | undefined;
+  const roomInfo = location.state as { roomInfo: InGamePlayerCard, isCreator: boolean } | undefined;
   const [isReady, setIsReady] = useState(false);
   const currentPlayerNickname = useSelector((state: RootState) => state.homepage.nickname);
-  if (isNaN(roomId)) {
-    console.error('Invalid roomId');
-    navigate('/error');
-    return;
-  }
-
-  console.assert(roomSocket, "socket is undefined");
+  const [players, setPlayers] = useState<string[]>([]);
 
   const shootingStars = Array(20).fill(null).map((_, index) => 
 <ShootingStar 
@@ -48,19 +43,42 @@ const GameRoom: React.FC = () => {
   key={index} 
 />);
 
-
 useEffect(() => {
   if (roomInfo) {
     setInGameCard(roomInfo.roomInfo);
-    console.log("inGameCard.roomId: ", roomInfo.roomInfo.roomId);
-    console.log("inGameCard.roomTitle: ", roomInfo.roomInfo.roomTitle);
-    console.log("플레이어닉네임배열이냐?: ", roomInfo.roomInfo.playersNickname);
-    console.log("만든닉네임이냐?: ", roomInfo.roomInfo.creatorNickname);
+    const playersNickname = Array.from(roomInfo.roomInfo.playersNickname || []);
+    const creatorNickname = roomInfo.roomInfo.creatorNickname;
+    const otherPlayers = playersNickname.filter(nickname => nickname !== currentPlayerNickname && nickname !== creatorNickname);
+
+    if (roomInfo.isCreator) {
+      setPlayers([currentPlayerNickname, ...otherPlayers]);
+      console.log("플레이어 배정 (방 생성): ", [currentPlayerNickname, ...otherPlayers]);
+    }
+    else {
+      setPlayers([creatorNickname, currentPlayerNickname, ...otherPlayers]);
+      console.log("플레이어 배정 (방 참가): ", [creatorNickname, currentPlayerNickname, ...otherPlayers]);
+    }
   }
 
-}, [roomInfo]);
+  // 새로운 사용자가 방에 들어온 경우
+  roomSocket?.on('joinUser', (users) => {
+    setPlayers(users);
+  });
 
-  const isCreator = inGameCard?.creatorNickname === currentPlayerNickname;
+  // 사용자가 방을 떠난 경우
+  roomSocket?.on('leaveRoom', (users) => {
+    setPlayers(users);
+  });
+
+  return () => {
+    // 컴포넌트가 unmount 될 때 이벤트 리스너를 제거
+    roomSocket?.off('joinUser');
+    roomSocket?.off('leaveRoom');
+  };
+}, [roomInfo, currentPlayerNickname, roomSocket]);
+
+
+const isCreator = inGameCard?.creatorNickname === currentPlayerNickname;
 
   const handleReadyClick = () => {
     setIsReady(!isReady);
@@ -76,10 +94,6 @@ useEffect(() => {
       <GameRoomId>{inGameCard?.roomId}</GameRoomId>
       <GameRoomTitle>{inGameCard?.roomTitle}</GameRoomTitle>
       <FaBackspaced onClick={handleBackButtonClick} />
-      {inGameCards.map((card, index) => {
-        console.log("Player card: ", card); // Player로 전달되는 card 값 로깅
-        return <Player key={index} playerCard={card} />;
-      })}
       {isCreator ? (
         <StartButton onClick={() => {
           roomSocket?.emit(RoomSocketEvent.EMIT_GAME_START);
@@ -88,6 +102,31 @@ useEffect(() => {
       ) : (
         isReady && <ReadyButton onClick={handleReadyClick}>{isReady ? '대기 중' : '준비 중'}</ReadyButton>
       )}
+     <PlayerContainer>
+       {players.map((player, index) => {
+    const isCreator = player === inGameCard?.creatorNickname;
+
+    // StyledPlayer에 전달되는 속성 값들을 콘솔에 출력
+    console.log('Player props:', {
+      scale: playerStyles[index].scale,
+      position: playerStyles[index].position,
+      top: playerStyles[index].top,
+      left: playerStyles[index].left,
+    });
+
+    return (
+      <Player 
+        key={index} 
+        nickname={player} 
+        isCreator={isCreator} 
+        scale={playerStyles[index].scale} 
+        position={playerStyles[index].position} 
+        top={playerStyles[index].top}
+        left={playerStyles[index].left}
+      />
+    );
+  })}
+    </PlayerContainer>
 
       <BackgroundColor1>
         <Night>
