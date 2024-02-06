@@ -37,10 +37,12 @@ export enum RoomSocketEvent {
   EMIT_EXIT = "leaveRoom",
   EMIT_MODIFY_ROOM = "modifyRoomInfo",
   EMIT_CREATE_ROOM = "createRoom",
+  EMIT_GAME_READY = "gameReady",
   EMIT_GAME_START = "gameStart",
   ON_ERROR = "error",
   ON_JOIN_ROOM = "joinUser",
   ON_MODIFY_ROOM = "modifyRoomInfo",
   ON_CREATE_ROOM = "createRoom",
-  ON_GAME_START = "gameStart"
+  ON_GAME_START = "gameStart",
+  ON_GAME_ALLREADY = "allReady",
 }

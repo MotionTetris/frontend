@@ -58,18 +58,23 @@ export const CreateRoomButton = styled.button`
   position: absolute;
   top: 16vh;
   right: 8vw;
-  width: 80px;
-  height: 50px;
-  background-color: lightgreen;
-  color: white;
-  font-size: 18px;
-  border: none;
+  width: 90px;
+  height: 35px;
+  background-color: white; 
+  color: #8A2BE2;
+  font-size: 14px;
+  border: 1px solid #8A2BE2;;
   border-radius: 5px;
   transition:
     background-color 0.3s,
-    box-shadow 0.3s;
+    box-shadow 0.3s,
+    color 0.3s,
+    border-color 0.3s;
   &:hover {
-    background-color: green;
+    background-color: #9370DB;
+    color: white;
+    border-color: #9370DB;
     box-shadow: 0 0 15px rgba(255, 0, 0, 0.1);
   }
 `;
+

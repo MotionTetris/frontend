@@ -79,7 +79,7 @@ const GameMain = () => {
   return (
     <GameContainer>
       <CreateRoomButton onClick={handleCreateRoomClick}>
-        방 생성
+        + 방 생성
       </CreateRoomButton>
       <GameRoomGrid>
         {currentRooms.map((room) => (
