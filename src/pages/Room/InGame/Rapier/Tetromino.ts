@@ -51,6 +51,10 @@ export class Tetromino {
         this._graphics.push(graphics);
     }
 
+    public get graphics() {
+        return this._graphics;
+    }
+    
     public set graphics(graphics: PIXI.Graphics[]) {
         this._graphics = graphics;
     }
