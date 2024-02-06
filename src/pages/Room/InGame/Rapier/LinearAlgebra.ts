@@ -13,7 +13,7 @@ export class LinearAlgebra {
     }
 
     public static rotate(coords: Float32Array | Array<number>, radian: number) {
-        let ret = coords.slice();
+        const ret = coords.slice();
         for (let i = 0; i < coords.length; i += 2) {
             const x = coords[i];
             const y = coords[i+1];
@@ -25,7 +25,7 @@ export class LinearAlgebra {
     }
 
     public static translate(coords: Float32Array | Array<number>, x: number, y: number) {
-        let ret = coords.slice();
+        const ret = coords.slice();
         for (let i = 0; i < coords.length; i += 2) {
             ret[i] += x;
             ret[i + 1] += y;
@@ -35,10 +35,10 @@ export class LinearAlgebra {
     }
 
     public static rotateInplace(coords: Float32Array | Array<number>, radian: number) {
-        let center = this.center(coords);
-        let origin = this.translate(coords, -center[0], -center[1]);
-        let rotate = this.rotate(origin, radian);
-        let ret = this.translate(rotate, center[0], center[1]);
+        const center = this.center(coords);
+        const origin = this.translate(coords, -center[0], -center[1]);
+        const rotate = this.rotate(origin, radian);
+        const ret = this.translate(rotate, center[0], center[1]);
         return ret;
     }
 }

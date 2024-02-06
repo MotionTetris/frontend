@@ -14,7 +14,7 @@ export function removeLines(body: RAPIER.RigidBody, line: Geometry) {
         const geoJSON = Mapper.colliderToGeoJSON(collider);
         const diffResult = diff(geoJSON, line);
         const result = diffResult.map((position) => {
-            let vector = Mapper.geoJSONToVectors(position);
+            const vector = Mapper.geoJSONToVectors(position);
             return new Float32Array(vector);
         });
 
@@ -38,7 +38,7 @@ export function removeLines(body: RAPIER.RigidBody, line: Geometry) {
     const unionFind = new UnionFind(diffResults.length);
     for (let i = 0; i < diffResults.length; i++) {
         for (let j = i + 1; j < diffResults.length; j++) {
-            let combine = shouldCombine(diffResults[i], diffResults[j], 1);
+            const combine = shouldCombine(diffResults[i], diffResults[j], 1);
             if (combine) {
                 unionFind.union(i, j);
             }
@@ -47,7 +47,7 @@ export function removeLines(body: RAPIER.RigidBody, line: Geometry) {
 
     const group = new Map<number, Float32Array[]>();
     for (let i = 0; i < diffResults.length; i++) {
-        let root = unionFind.find(i);
+        const root = unionFind.find(i);
         if (group.get(root)) {
             group.get(root)?.push(diffResults[i]);
             continue;
@@ -59,10 +59,10 @@ export function removeLines(body: RAPIER.RigidBody, line: Geometry) {
 
     const coliderToAdd: RAPIER.ColliderDesc[][] = [];
     group.forEach((value) => {
-        let colliderDescs = [];
+        const colliderDescs = [];
         for (let i = 0; i < value.length; i++) {
-            let center = LinearAlgebra.center(value[i]);
-            let colliderDesc = BlockCreator.createPolygon(center[0], center[1], value[i]);
+            const center = LinearAlgebra.center(value[i]);
+            const colliderDesc = BlockCreator.createPolygon(center[0], center[1], value[i]);
             
             if (colliderDesc) {
                 colliderDescs.push(colliderDesc);
@@ -73,21 +73,21 @@ export function removeLines(body: RAPIER.RigidBody, line: Geometry) {
         }
         coliderToAdd.push(colliderDescs);
     });
+
     return coliderToAdd;
 }
 
 export function calculatePosition(collider: RAPIER.Collider) {
-    let coords = collider.vertices();
-    let rotation = LinearAlgebra.rotate(coords, collider.rotation());
-    let transition = LinearAlgebra.translate(rotation, collider.translation().x, collider.translation().y);
+    const coords = collider.vertices();
+    const rotation = LinearAlgebra.rotate(coords, collider.rotation());
+    const transition = LinearAlgebra.translate(rotation, collider.translation().x, collider.translation().y);
     return transition;
 }
 
 function shouldCombine(body1: Float32Array, body2: Float32Array, maxDistance: number) {
-
     for (let i = 0; i < body1.length; i += 2) {
         for (let j = 0; j < body2.length; j += 2) {
-            let distance = calculateDistance(body1[i], body1[i + 1], body2[j], body2[j + 1]);
+            const distance = calculateDistance(body1[i], body1[i + 1], body2[j], body2[j + 1]);
             if (distance <= maxDistance) {
                 return true;
             }
@@ -95,15 +95,15 @@ function shouldCombine(body1: Float32Array, body2: Float32Array, maxDistance: nu
     }
 
     function calculateDistance(x1: number, y1: number, x2: number, y2: number) {
-        let dx = x1 - x2;
-        let dy = y1 - y2;
+        const dx = x1 - x2;
+        const dy = y1 - y2;
         return Math.sqrt(dx * dx + dy * dy);
     }
 
     return false;
 }
 
-/* Prevent crashing engine */
+/* Prevent engine crash */
 function checkShape(vertices: Float32Array) {
     if (calculateArea(vertices) > 50) {
         return true;

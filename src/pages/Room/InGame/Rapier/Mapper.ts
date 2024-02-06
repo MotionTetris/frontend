@@ -5,14 +5,14 @@ export default class GeoJSONMapper {
     private constructor() {}
 
     public static geoJSONToVectors(geometry: number[][] | number[][][]) {
-        let ret = geometry.flat(4)!;
+        const ret = geometry.flat(4)!;
         ret.pop();
         ret.pop();
         return ret;
     }
 
     public static colliderToGeoJSON(collider: RAPIER.Collider): number[][][] {
-        let vertices = collider.vertices();
+        const vertices = collider.vertices();
         if (vertices.length % 2 !== 0) {
             throw new Error("Invalid vertices: # of vertices is odd");
         }
@@ -21,7 +21,7 @@ export default class GeoJSONMapper {
             throw new Error("Invalid vertices: # of vertices is zero");
         }
 
-        let position = calculatePosition(collider);
+        const position = calculatePosition(collider);
         const result = [];
         for (let i = 0; i < position.length; i += 2) {
             const pair = [position[i], position[i + 1]];

@@ -2,7 +2,7 @@
 
 /* Create lines. startX must be lower than endY. */
 export function createLines(startY: number, endY: number, thickness: number, x: number = 10000) {
-    let lines: number[][][][] = [];
+    const lines: number[][][][] = [];
     let first = true;
     if (startY >= endY) {
         throw new Error("startX must be lower than endY");
