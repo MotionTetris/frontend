@@ -1,10 +1,7 @@
 import * as PIXI from "pixi.js";
-import {Viewport} from "pixi-viewport";
-import type * as RAPIER from "@dimforge/rapier2d";
-import { createLineEffect, createRectangle} from "./Effect";
+import { Viewport } from "pixi-viewport";
+import * as RAPIER from "@dimforge/rapier2d";
 import { TetrisOption } from "./TetrisOption";
-
-type RAPIER_API = typeof import("@dimforge/rapier2d");
 
 const BOX_INSTANCE_INDEX = 0;
 const BALL_INSTANCE_INDEX = 1;
@@ -19,12 +16,10 @@ export class Graphics {
     scene: PIXI.Container; 
     viewport: Viewport;
     instanceGroups: Array<Array<PIXI.Graphics>>;
-    lines: PIXI.Graphics;
-    rectangles: Array<PIXI.Graphics>;
     ticker: PIXI.Ticker;
     constructor(option: TetrisOption) {
         // High pixel Ratio make the rendering extremely slow, so we cap it.
-        // const pixelRatio = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 1.5) : 1;
+        const pixelRatio = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 1.5) : 1;
 
         this.coll2gfx = new Map();
         this.colorIndex = 0;
@@ -32,15 +27,13 @@ export class Graphics {
         this.renderer = new PIXI.Renderer({
             backgroundColor: 0x222929,
             antialias: true,
-            // resolution: pixelRatio,
+            resolution: pixelRatio,
             width: option.view.width,
             height: option.view.height,
             view: option.view
         });
 
         this.scene = new PIXI.Container();
-
-        //this.particleContainer = new PIXI.ParticleContainer(100, { alpha: true, scale: true });
         this.viewport = new Viewport({
             screenWidth: window.innerWidth,
             screenHeight: window.innerHeight,
@@ -52,19 +45,7 @@ export class Graphics {
         this.scene.addChild(this.viewport);
      
         this.viewport.drag().pinch().wheel().decelerate();
-        this.rectangles = [];
-        this.rectangles.push(createRectangle(this.scene, 50, 350, 10, 0));
-        this.rectangles.push(createRectangle(this.scene, 50, 350, 550, 0));
-        this.rectangles.push(createRectangle(this.scene, 50, 350, 10, 370));
-        this.rectangles.push(createRectangle(this.scene, 50, 350, 550, 370));
         this.ticker = new PIXI.Ticker();
-        
-
-        const me = this;
-
-        function onWindowResize() {
-            //me.renderer.resize(window.innerWidth, window.innerHeight);
-        }
 
         function onContextMenu(event: UIEvent) {
             event.preventDefault();
@@ -73,8 +54,7 @@ export class Graphics {
         document.oncontextmenu = onContextMenu;
         document.body.oncontextmenu = onContextMenu;
         this.viewport.setTransform(0, 100);
-        window.addEventListener("resize", onWindowResize, false);
-        
+        this.instanceGroups = [];
         this.initInstances();   
     }
 
@@ -101,38 +81,10 @@ export class Graphics {
         );
     }
 
-    render(world: RAPIER.World, debugRender: boolean) {
+    render(world: RAPIER.World) {
         kk += 1;
-        if (!this.lines) {
-            this.lines = new PIXI.Graphics();
-            this.viewport.addChild(this.lines);
-        }
-
-        if (debugRender) {
-            const buffers = world.debugRender();
-            const vtx = buffers.vertices;
-            const cls = buffers.colors;
-
-            this.lines.clear();
-
-            for (let i = 0; i < vtx.length / 4; i += 1) {
-                const color = PIXI.utils.rgb2hex([
-                    cls[i * 8],
-                    cls[i * 8 + 1],
-                    cls[i * 8 + 2],
-                ]);
-                this.lines.lineStyle(1.0, color, cls[i * 8 + 3], 0.5, true);
-                this.lines.moveTo(vtx[i * 4], -vtx[i * 4 + 1]);
-                this.lines.lineTo(vtx[i * 4 + 2], -vtx[i * 4 + 3]);
-            }
-        } else {
-            this.lines.clear();
-        }
-
         this.updatePositions(world);
-        
         this.renderer.render(this.scene);
-        
     }
 
     lookAt(pos: {zoom: number; target: {x: number; y: number}}) {
