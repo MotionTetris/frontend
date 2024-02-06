@@ -2,40 +2,16 @@ import * as PIXI from "pixi.js";
 import {Viewport} from "pixi-viewport";
 import {GlowFilter} from '@pixi/filter-glow';
 import { Tetromino } from "./Tetromino";
-import { start } from "repl";
-// 폭발 효과 함수 (정사각형 흩어지는 효과)
-// export const explodeParticleEffect = (x: number, y: number, viewport: Viewport) => {
-//   for (let i = 0; i < 100; i++) {
-//       const effectParticle = new PIXI.Sprite(PIXI.Texture.WHITE);
-//       effectParticle.tint = 0xff0000;
-//       effectParticle.width = effectParticle.height = Math.random() * 5 + 5;
-//       effectParticle.x = x + Math.random() * 320;
-//       effectParticle.y = y + Math.random() * 32;
-//       effectParticle.vx = Math.random() * 5 - 2.5;
-//       effectParticle.vy = Math.random() * 5 - 2.5;
+import { gsap } from 'gsap';
+import { Graphics } from "./Graphics";
 
-//       viewport.addChild(effectParticle);
 
-//       let ticker = new PIXI.Ticker();
-//       ticker.add(() => {
-//           effectParticle.x += effectParticle.vx;
-//           effectParticle.y += effectParticle.vy;
-//           effectParticle.alpha -= 0.01;
-//           effectParticle.scale.x = effectParticle.scale.y += 0.01;
-
-//           if (effectParticle.alpha <= 0) {
-//               viewport.removeChild(effectParticle);
-//               ticker.stop();
-//           }
-//       });
-
-//       ticker.start();
-//   }
-// };
-
-export const explodeParticleEffect = (x: number, y: number, viewport: Viewport) => {
+export const explodeParticleEffect = (x: number, y: number, graphics: Graphics ) => {
   const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
-  
+  const viewport = graphics.viewport;
+  const ticker = graphics.ticker;
+  const particles: Array<() => void> = []; // 추가
+
   for (let i = 0; i < 100; i++) {
       const effectParticle = new PIXI.Sprite(PIXI.Texture.WHITE);
       effectParticle.tint = colors[Math.floor(Math.random() * colors.length)];
@@ -47,8 +23,7 @@ export const explodeParticleEffect = (x: number, y: number, viewport: Viewport) 
 
       viewport.addChild(effectParticle);
 
-      let ticker = new PIXI.Ticker();
-      ticker.add(() => {
+      const updateParticle = () => { // 수정
           effectParticle.x += effectParticle.vx;
           effectParticle.y += effectParticle.vy;
           effectParticle.alpha -= 0.01;
@@ -56,21 +31,33 @@ export const explodeParticleEffect = (x: number, y: number, viewport: Viewport) 
 
           if (effectParticle.alpha <= 0) {
               viewport.removeChild(effectParticle);
-              ticker.stop();
+              ticker.remove(updateParticle); // 수정
+              const index = particles.indexOf(updateParticle); // 추가
+              if (index !== -1) {
+                particles.splice(index, 1); // 추가
+              }
           }
-      });
+      };
 
-      ticker.start();
+      particles.push(updateParticle); // 추가
+  }
+
+  particles.forEach((particle) => ticker.add(particle)); // 수정
+
+  if (!ticker.started) {
+    ticker.start();
   }
 };
 
 
 
 
-let ticker = new PIXI.Ticker();
-
-export const starParticleEffect = (x: number, y: number, viewport: Viewport, starTexture: PIXI.Texture) => {
+export const starParticleEffect = (x: number, y: number, graphics: Graphics,  starTexture: PIXI.Texture) => {
   const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
+  const viewport = graphics.viewport;
+  const ticker = graphics.ticker;
+  const particles: Array<() => void> = []; // 추가
+
   for (let i = 0; i < 10; i++) {
     const effectParticle = new PIXI.Sprite(starTexture);
     effectParticle.tint = colors[Math.floor(Math.random() * colors.length)];
@@ -91,16 +78,23 @@ export const starParticleEffect = (x: number, y: number, viewport: Viewport, sta
       if (effectParticle.alpha <= 0) {
         viewport.removeChild(effectParticle);
         ticker.remove(updateParticle);
+        const index = particles.indexOf(updateParticle); // 추가
+        if (index !== -1) {
+          particles.splice(index, 1); // 추가
+        }
       }
     };
 
-    ticker.add(updateParticle);
+    particles.push(updateParticle); // 추가
   }
+
+  particles.forEach((particle) => ticker.add(particle)); // 수정
 
   if (!ticker.started) {
     ticker.start();
   }
 };
+
 
 
 
@@ -140,40 +134,44 @@ export function explodeImageEffect(
 
 
 export function collisionParticleEffect(
-    x: number,
-    y: number, 
-    viewport: Viewport,
-    renderer: PIXI.Renderer
-  ): void {
-    for (let i = 0; i < 10; i++) {
-  
-        const particle = generateParticleTexture(renderer);
-  
-        particle.position.set(
-          x, y
-        ); // 파티클 위치
-  
-        particle.speed = Math.random() * 5; // 파티클 속도
-        particle.direction = Math.random() * Math.PI * 2; // 파티클 방향
-        particle.alpha = 1; // 파티클 초기 투명도
-        viewport.addChild(particle);
-  
-        // 파티클 움직임과 소멸
-        let ticker = new PIXI.Ticker();
-        ticker.add(() => {
-          particle.x += Math.cos(particle.direction) * particle.speed;
-          particle.y += Math.sin(particle.direction) * particle.speed;
-          particle.alpha -= 0.01; // 점차 투명도 감소
-          if (particle.alpha <= 0) {
-            // 투명도가 0이 되면 파티클 제거
-            viewport.removeChild(particle);
-            ticker.stop();
+  x: number,
+  y: number,
+  graphics: Graphics
+): void {
+  const viewport = graphics.viewport;
+  const ticker = graphics.ticker;
+  const particles: Array<() => void> = []; // 추가
+
+  for (let i = 0; i < 10; i++) {
+      const particle = generateParticleTexture(graphics.renderer);
+      particle.position.set(x, y); 
+      particle.speed = Math.random() * 5; 
+      particle.direction = Math.random() * Math.PI * 2; 
+      particle.alpha = 1; 
+      viewport.addChild(particle);
+
+      const updateParticle = () => {
+        particle.x += Math.cos(particle.direction) * particle.speed;
+        particle.y += Math.sin(particle.direction) * particle.speed;
+        particle.alpha -= 0.01; 
+
+        if (particle.alpha <= 0) {
+          viewport.removeChild(particle);
+          ticker.remove(updateParticle); // 수정
+          const index = particles.indexOf(updateParticle); // 추가
+          if (index !== -1) {
+            particles.splice(index, 1); // 추가
           }
-        });
-        ticker.start();
-    }
+        }
+      };
+      particles.push(updateParticle); // 추가
   }
-  
+  particles.forEach((particle) => ticker.add(particle)); // 수정
+  if (!ticker.started) {
+      ticker.start();
+  }
+}
+
 
   export function generateParticleTexture(renderer: PIXI.Renderer): PIXI.Sprite {
     const radius = 2;
@@ -291,42 +289,59 @@ export function createScoreBasedGrid(viewport: Viewport, scoreList: number []) {
     let line = lineGrids[i];
     line.clear(); // 이전 라인 스타일 제거
   
-    if (alpha >= 0.5) {
-      line.beginFill(0xff0000, 0.3);
-    } else {
-      line.beginFill(0xff00f0, alpha/4);
-    }
-  
+    line.beginFill(0xff00f0, alpha/4);
+    line.filters = null; // glow 효과 제거
+    
     line.drawRect(100, -i * 32 + 588, 410, 32); // 32픽셀 간격으로 높이를 설정
     line.endFill();
   }
   
 }
 
-export function showScore(viewport: Viewport, scoreList: number [], scoreTexts: PIXI.Text[]) {
-  
-  // 기존에 추가된 PIXI.Text 객체들을 제거
+export function showScore(viewport: Viewport, scoreList: number [], scoreTexts : PIXI.Text[], threshold: number): PIXI.Text[] {
+  console.log("length", scoreTexts.length);
   for (let i = 0; i < scoreTexts.length; i++) {
-    if (scoreTexts[i]) {
+    if (viewport.children.includes(scoreTexts[i])) {
       viewport.removeChild(scoreTexts[i]);
-      //scoreTexts[i] = undefined; // 참조 제거
     }
   }
   
-  // scoreTexts 배열 초기화
-  scoreTexts = [];
+  let newScoreTexts: PIXI.Text[] = []; // 새로운 배열 생성
   
   for (let i = 0; i < scoreList.length; i++) {
-    let alpha = scoreList[i]/10000;
+    console.log("들어옴?");
+    let alpha = scoreList[i]/threshold;
     let scoreText: PIXI.Text;
     scoreText = new PIXI.Text((alpha * 100).toFixed(2), {fontFamily : 'Arial', fontSize: 20, fill : 0xffffff, align : 'center'}); 
     scoreText.x = 60;
     scoreText.y = 600 - 32*i;
-    scoreTexts[i] = scoreText;
+    newScoreTexts[i] = scoreText; // 새로운 배열에 추가
     viewport.addChild(scoreText);
-  }
-}
 
+    // alpha가 0.95보다 크면, 폭파직전! 이라는 노란색 움직이는 글씨를 띄워준다.
+    if (alpha > 0.55) {
+      let warningText: PIXI.Text;
+      warningText = new PIXI.Text('폭파 직전!', {fontFamily : 'Arial', fontSize: 20, fill : 0xffff00, align : 'center'}); // 노란색
+      warningText.x = 600;
+      warningText.y = 560 - 32*i; // scoreText 위에 위치
+      viewport.addChild(warningText);
+      
+      // GSAP 애니메이션 추가
+      gsap.fromTo(warningText.scale, {
+        x: 1,
+        y: 1
+      }, {
+        x: 1.1,
+        y: 1.1,
+        duration: 0.3, // 0.3초 동안
+        repeat: -1, // 무한 반복
+        yoyo: true // 원래 크기로 돌아옴
+      });
+    }
+  }
+
+  return newScoreTexts; // 새로운 배열 반환
+}
 
 interface ShakeOptions {
   viewport: Viewport;

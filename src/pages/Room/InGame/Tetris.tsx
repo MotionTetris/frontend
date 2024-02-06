@@ -10,7 +10,7 @@ import { TetrisOption } from "./Rapier/TetrisOption.ts";
 import { TetrisMultiplayView } from "./Rapier/TetrisMultiplayView.ts";
 import * as io from 'socket.io-client';
 
-const eraseThreshold = 5000;
+const eraseThreshold = 10000;
 const RAPIER = await import('@dimforge/rapier2d')
 const Tetris: React.FC = () => {
   const sceneRef = useRef<HTMLCanvasElement>(null);  //게임화면
@@ -20,6 +20,7 @@ const Tetris: React.FC = () => {
   const [message, setMessage] = useState("");
   const socket = useRef<io.Socket>()
   const [playerScore, setPlayerScore] = useState(0);
+  const scoreTexts = useRef<PIXI.Text[]>([]);
   const [user, setUser] = useState<string>('')
   const [other, setOther] = useState<string>('')
 
@@ -50,8 +51,6 @@ const Tetris: React.FC = () => {
     }
   },[])
 
-
-
   useEffect(() => {
 
     if (!!!sceneRef.current) {
@@ -64,7 +63,6 @@ const Tetris: React.FC = () => {
     }
     sceneRef.current.width = 600;
     sceneRef.current.height = 800;
-
     otherSceneRef.current.width = 600;
     otherSceneRef.current.height = 800;
 
@@ -98,7 +96,7 @@ const Tetris: React.FC = () => {
     let scoreTexts: PIXI.Text[] = [];
     //fallingBlockGlow(game.fallingTetromino!);
     const CollisionEvent = ({game, bodyA, bodyB}: any) => {
-      
+    
     }
 
     const CollisionEvent1 = ({otherGame, bodyA, bodyB}: any) => {
@@ -124,8 +122,8 @@ const Tetris: React.FC = () => {
         return;
       }
       
-      collisionParticleEffect(bodyA.translation().x, -bodyB.translation().y, game.graphics.viewport, game.graphics.renderer);
-      collisionParticleEffect(bodyB.translation().x, -bodyB.translation().y, game.graphics.viewport, game.graphics.renderer);
+      collisionParticleEffect(bodyA.translation().x, -bodyB.translation().y, game.graphics);
+      collisionParticleEffect(bodyB.translation().x, -bodyB.translation().y, game.graphics);
       
       const checkResult = game.checkLine(eraseThreshold);
       const scoreList = checkResult.scoreList;
@@ -138,8 +136,8 @@ const Tetris: React.FC = () => {
       if (game.removeLines(checkResult.lines)) {
         startShake({ viewport: game.graphics.viewport, strength: 15, duration: 500 });
         loadStarImage().then((starTexture: PIXI.Texture) => {
-          starParticleEffect(0, 600, game.graphics.viewport, starTexture);
-          starParticleEffect(450, 600, game.graphics.viewport, starTexture);
+          starParticleEffect(0, 600, game.graphics ,starTexture);
+          starParticleEffect(450, 600, game.graphics, starTexture);
         }).catch((error: any) => {
           console.error(error);
         });
@@ -147,8 +145,14 @@ const Tetris: React.FC = () => {
 
       //make lineGrids score
       createScoreBasedGrid(game.graphics.viewport, checkResult.scoreList);
-    
-      //showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts);
+      
+      scoreTexts.current.forEach((text) => {
+        if (game.graphics.viewport.children.includes(text)) {
+          game.graphics.viewport.removeChild(text);
+        }
+      });
+
+      scoreTexts.current = showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts.current, eraseThreshold); // 수정
       game.spawnBlock(0xFF0000, "O", true);
       fallingBlockGlow(game.fallingTetromino!);
     }
@@ -167,9 +171,7 @@ const Tetris: React.FC = () => {
       otherGame.removeLines(checkResult.lines)
       otherGame.spawnBlock(0xFF0000, "O", true);
     }
-
-
-
+    
     const TetrisOption: TetrisOption = {
       blockFriction: 1.0,
       blockSize: 32,
@@ -188,8 +190,7 @@ const Tetris: React.FC = () => {
       backgroundColor: 0x222929,
       backgroundAlpha: 1
     };
-
-
+    
     const game = new TetrisGame(TetrisOption, "user");
     game.setWorld(initWorld(RAPIER, TetrisOption));
     game.running = true;
