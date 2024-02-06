@@ -6,6 +6,7 @@ import { createLines } from "./Line";
 import { calculateLineIntersectionArea } from "./BlockScore";
 import { removeLines as removeShapeWithLine } from "./BlockRemove";
 import { KeyFrameEvent, PlayerEventType } from "./Multiplay";
+import { removeGlow } from "./Effect";
 
 type Line = number[][][]
 export class TetrisGame {
@@ -32,7 +33,7 @@ export class TetrisGame {
             throw new Error("Canvas is null");
         }
 
-        this.graphics = new Graphics(option.view);
+        this.graphics = new Graphics(option);
         this.inhibitLookAt = false;
         this.demoToken = 0;
         this.events = new RAPIER.EventQueue(true);
@@ -363,19 +364,23 @@ export class TetrisGame {
         if (this.isFalling(body1, body2) && !this.collideWithWall(body1, body2)) {
             this.tetrominos.add(this.fallingTetromino!);
             if (this.option.preBlockLandingCallback) {
-                this.option.preBlockLandingCallback({bodyA: collider1, bodyB: collider2});
+                try {
+                    this.option.preBlockLandingCallback({game: this, bodyA: collider1, bodyB: collider2});
+                } catch (error) {
+                    console.log(error);
+                }
             }
             
             this.fallingTetromino = undefined;
             if (this.option.blockLandingCallback) {
-                this.option.blockLandingCallback({bodyA: collider1, bodyB: collider2});
+                this.option.blockLandingCallback({game: this, bodyA: collider1, bodyB: collider2});
             }
             
             return;
         }
 
         if (this.option.blockCollisionCallback) {
-            this.option.blockCollisionCallback({bodyA: collider1, bodyB: collider2});
+            this.option.blockCollisionCallback({game: this, bodyA: collider1, bodyB: collider2});
         }
     }
 

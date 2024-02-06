@@ -2,6 +2,7 @@ import * as PIXI from "pixi.js";
 import {Viewport} from "pixi-viewport";
 import {GlowFilter} from '@pixi/filter-glow';
 import { Tetromino } from "./Tetromino";
+import { start } from "repl";
 // 폭발 효과 함수 (정사각형 흩어지는 효과)
 // export const explodeParticleEffect = (x: number, y: number, viewport: Viewport) => {
 //   for (let i = 0; i < 100; i++) {
@@ -34,6 +35,7 @@ import { Tetromino } from "./Tetromino";
 
 export const explodeParticleEffect = (x: number, y: number, viewport: Viewport) => {
   const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
+  
   for (let i = 0; i < 100; i++) {
       const effectParticle = new PIXI.Sprite(PIXI.Texture.WHITE);
       effectParticle.tint = colors[Math.floor(Math.random() * colors.length)];
@@ -65,30 +67,22 @@ export const explodeParticleEffect = (x: number, y: number, viewport: Viewport) 
 
 
 
-export const starParticleEffect = (x: number, y: number, viewport: Viewport) => {
-  const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
+let ticker = new PIXI.Ticker();
 
+export const starParticleEffect = (x: number, y: number, viewport: Viewport, starTexture: PIXI.Texture) => {
+  const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
   for (let i = 0; i < 10; i++) {
-    const effectParticle = new PIXI.Sprite(PIXI.Texture.from('../src/assets/star.png')); // 별 모양 이미지로 스프라이트 생성
-    effectParticle.tint = colors[Math.floor(Math.random() * colors.length)]; // 무작위 색상 적용
-    const scale = Math.random() * 0.1 + 0.01; // 0.5 ~ 1.0 사이의 무작위 스케일
+    const effectParticle = new PIXI.Sprite(starTexture);
+    effectParticle.tint = colors[Math.floor(Math.random() * colors.length)];
+    const scale = Math.random() * 0.5 + 0.01;
     effectParticle.scale.set(scale);
     effectParticle.x = x;
     effectParticle.y = y;
     effectParticle.vx = Math.random() * 1 - 0.1;
     effectParticle.vy = -(Math.random() * 5 + 0.5);
-
-    const glowFilter = new GlowFilter({
-      distance: 15,
-      outerStrength: 20,
-      color: effectParticle.tint,
-    });
-    effectParticle.filters = [glowFilter];
-
     viewport.addChild(effectParticle);
 
-    let ticker = new PIXI.Ticker();
-    ticker.add(() => {
+    const updateParticle = () => {
       effectParticle.x += effectParticle.vx;
       effectParticle.y += effectParticle.vy;
       effectParticle.alpha -= 0.01;
@@ -96,10 +90,14 @@ export const starParticleEffect = (x: number, y: number, viewport: Viewport) => 
 
       if (effectParticle.alpha <= 0) {
         viewport.removeChild(effectParticle);
-        ticker.stop();
+        ticker.remove(updateParticle);
       }
-    });
+    };
 
+    ticker.add(updateParticle);
+  }
+
+  if (!ticker.started) {
     ticker.start();
   }
 };
@@ -292,10 +290,17 @@ export function createScoreBasedGrid(viewport: Viewport, scoreList: number []) {
     console.log("alpha", alpha);
     let line = lineGrids[i];
     line.clear(); // 이전 라인 스타일 제거
-    line.beginFill(0xff00f0, alpha/4); 
+  
+    if (alpha >= 0.5) {
+      line.beginFill(0xff0000, 0.3);
+    } else {
+      line.beginFill(0xff00f0, alpha/4);
+    }
+  
     line.drawRect(100, -i * 32 + 588, 410, 32); // 32픽셀 간격으로 높이를 설정
     line.endFill();
   }
+  
 }
 
 export function showScore(viewport: Viewport, scoreList: number [], scoreTexts: PIXI.Text[]) {
@@ -374,6 +379,25 @@ export function removeGlow(fallingBlock: Tetromino) {
     if (graphic.filters) {
       // GlowFilter 인스턴스를 찾아 제거
       graphic.filters = graphic.filters.filter(filter => !(filter instanceof GlowFilter));
+    }
+  });
+}
+
+
+export function loadStarImage() {
+  return new Promise((resolve, reject) => {
+    if (PIXI.Loader.shared.resources['src/assets/whitestar.png']) {
+      // 이미 로드된 이미지라면 즉시 resolve를 호출합니다.
+      resolve(PIXI.Loader.shared.resources['src/assets/whitestar.png'].texture);
+    } else {
+      PIXI.Loader.shared.add('src/assets/whitestar.png').load((loader, resources) => {
+        if (resources['src/assets/whitestar.png']) {
+          console.log("스타 이미지 로드 성공");
+          resolve(resources['src/assets/whitestar.png'].texture);
+        } else {
+          reject("스타 이미지 로드 실패");
+        }
+      });
     }
   });
 }

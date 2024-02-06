@@ -22,7 +22,7 @@ export class Graphics {
     lines: PIXI.Graphics;
     rectangles: Array<PIXI.Graphics>;
     ticker: PIXI.Ticker;
-    constructor(canvas: HTMLCanvasElement, option: TetrisOption) {
+    constructor(option: TetrisOption) {
         // High pixel Ratio make the rendering extremely slow, so we cap it.
         // const pixelRatio = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 1.5) : 1;
 
@@ -33,9 +33,9 @@ export class Graphics {
             backgroundColor: 0x222929,
             antialias: true,
             // resolution: pixelRatio,
-            width: canvas.width,
-            height: canvas.height,
-            view: canvas
+            width: option.view.width,
+            height: option.view.height,
+            view: option.view
         });
 
         this.scene = new PIXI.Container();

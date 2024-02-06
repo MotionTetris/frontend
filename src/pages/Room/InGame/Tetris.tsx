@@ -3,10 +3,11 @@ import { TetrisGame } from "./Rapier/TetrisGame.ts";
 import { initWorld } from "./Rapier/World.ts";
 import { calculatePosition, removeLines } from "./Rapier/BlockRemove.ts";
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score } from "./style.tsx";
-import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, removeGlow, showScore, starParticleEffect, startShake } from "./Rapier/Effect.ts";
+import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake } from "./Rapier/Effect.ts";
 import * as PIXI from "pixi.js";
 import { runPosenet } from "./Rapier/WebcamPosenet.ts";
 import "@tensorflow/tfjs";
+import { TetrisOption } from "./Rapier/TetrisOption.ts";
 
 
 const eraseThreshold = 5000;
@@ -29,17 +30,22 @@ const Tetris: React.FC = () => {
 
     let scoreTexts: PIXI.Text[] = [];
     //fallingBlockGlow(game.fallingTetromino!);
-    const CollisionEvent = ({bodyA, bodyB}: any) => {
+    const CollisionEvent = ({game, bodyA, bodyB}: any) => {
       
     }
 
-    const LandingEvent = ({bodyA, bodyB}: any) => {
+    const preLandingEvent = ({game, bodyA, bodyB}: any) => {
+      game.fallingTetromino?.rigidBody.resetForces(true);
+      removeGlow(game.fallingTetromino);
+    }
+
+    const LandingEvent = ({game, bodyA, bodyB}: any) => {
       let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
       let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
       
       if (bodyA.translation().y > 0 && bodyB.translation().y > 0) {
         setMessage("게임오버")
-        game.stop();
+        game.pause();
         return;
       }
       
@@ -57,9 +63,13 @@ const Tetris: React.FC = () => {
       //   explodeParticleEffect(140, -checkResult.lineIndices[i]*32 + 600, game.graphics.viewport);
       // }
       if (game.removeLines(checkResult.lines)) {
-        startShake({ viewport: game.graphics.viewport, strength: 10, duration: 500 });
-        starParticleEffect(0, 600, game.graphics.viewport );
-        starParticleEffect(550, 600, game.graphics.viewport );
+        startShake({ viewport: game.graphics.viewport, strength: 15, duration: 500 });
+        loadStarImage().then((starTexture: PIXI.Texture) => {
+          starParticleEffect(0, 600, game.graphics.viewport, starTexture);
+          starParticleEffect(450, 600, game.graphics.viewport, starTexture);
+        }).catch((error: any) => {
+          console.error(error);
+        });
       }
 
       //make lineGrids score
@@ -71,7 +81,7 @@ const Tetris: React.FC = () => {
       fallingBlockGlow(game.fallingTetromino!);
     }
 
-    const game = new TetrisGame({
+    const TetrisOption: TetrisOption = {
       blockFriction: 1.0,
       blockSize: 32,
       blockRestitution: 0.0,
@@ -80,26 +90,22 @@ const Tetris: React.FC = () => {
       spawnX: sceneRef.current.width / 2,
       spawnY: 200,
       blockCollisionCallback: CollisionEvent,
-      blockLandingCallback: LandingEvent
-    }, false);
+      blockLandingCallback: LandingEvent,
+      preBlockLandingCallback: preLandingEvent,
+      worldHeight: 800,
+      worldWidth: 600
+    };
 
-    game.setWorld(initWorld(RAPIER, {
-      blockFriction: 1.0,
-      blockSize: 32,
-      blockRestitution: 0.0,
-      combineDistance: 1,
-      view: sceneRef.current,
-      spawnX: sceneRef.current.width / 2,
-      spawnY: 200,
-      blockCollisionCallback: CollisionEvent,
-      blockLandingCallback: LandingEvent
-    }));
+    const game = new TetrisGame(TetrisOption, "user");
+
+    game.setWorld(initWorld(RAPIER, TetrisOption));
     
     runPosenet(videoRef, canvasRef, game);
     game.running = true;
     game.run();
     game.spawnBlock(0xFF0000, "T", true);
     fallingBlockGlow(game.fallingTetromino!);
+
   return () => {}}, []);
 
   return (

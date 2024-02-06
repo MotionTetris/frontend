@@ -1,4 +1,7 @@
+import { TetrisGame } from "./TetrisGame";
+
 export interface BlockCollisionCallbackParam {
+    game: TetrisGame,
     bodyA: any;
     bodyB: any;
 }
