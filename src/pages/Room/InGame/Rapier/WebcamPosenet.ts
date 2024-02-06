@@ -174,7 +174,6 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
           ) {
             console.log("왼회전")
             performRotateEffect(game.graphics.rectangles[2], game.graphics.ticker, 0xff00c0);
-            game.fallingTetromino?.rigidBody.applyTorqueImpulse(1000000, false);
             const event = game.onRotateLeft();
             socket.emit('eventOn',event);
           
@@ -187,9 +186,8 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
           ) {
             console.log("우회전")
             performRotateEffect(game.graphics.rectangles[3], game.graphics.ticker, 0xff00c0);
-            game.fallingTetromino?.rigidBody.applyTorqueImpulse(-1000000, false);
             const event = game.onRotateRight();
-            socket.emit('eventOn',event);
+            socket.emit('eventOn', event);
           }
         }
 
@@ -212,13 +210,11 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
 
         //   if (GAME.fallingBlock) {
             if (noseX < centerX) {
-              game.fallingTetromino?.rigidBody.applyImpulse({x:-forceMagnitude * 100000,y:0}, true);
               performPushEffect(game.graphics.rectangles[0], game.graphics.rectangles[1],  alpha, 0x00ff00);
               const event = game.onMoveLeft(forceMagnitude);
               socket.emit('eventOn',event);
               
             } else {
-              game.fallingTetromino?.rigidBody.applyImpulse({x: forceMagnitude * 100000,y:0}, true);
               performPushEffect(game.graphics.rectangles[1], game.graphics.rectangles[0], alpha, 0x00ff00);
               const event = game.onMoveRight(forceMagnitude);
               socket.emit('eventOn',event);

@@ -44,6 +44,7 @@ export interface InGamePlayerCard {
   playersNickname: Set<string>; // 얘가 소켓에서 받아온 정보에 있으면 Ready 버튼 보임, 누르면 socket에 ready 눌렀다고 보내야함
   roomId: number;
   roomTitle: string;
+  maxCount: number;
 }
 
 // 게임 시작했을 떄 정보 type  (안씀  나중에)

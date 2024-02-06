@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "./Rapier/TetrisGame.ts";
 import { initWorld } from "./Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score } from "./style.tsx";
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer } from "./style.tsx";
 import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake } from "./Rapier/Effect.ts";
 import * as PIXI from "pixi.js";
 import { runPosenet } from "./Rapier/WebcamPosenet.ts";
@@ -9,7 +9,8 @@ import "@tensorflow/tfjs";
 import { TetrisOption } from "./Rapier/TetrisOption.ts";
 import { TetrisMultiplayView } from "./Rapier/TetrisMultiplayView.ts";
 import * as io from 'socket.io-client';
-
+import  {useLocation} from "react-router-dom"
+import { GAME_SOCKET_URL } from "config.ts";
 const eraseThreshold = 10000;
 const RAPIER = await import('@dimforge/rapier2d')
 const Tetris: React.FC = () => {
@@ -23,11 +24,14 @@ const Tetris: React.FC = () => {
   const scoreTexts = useRef<PIXI.Text[]>([]);
   const [user, setUser] = useState<string>('')
   const [other, setOther] = useState<string>('')
-
+  const location = useLocation()
   useEffect(()=>{ 
     // eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0bWFuIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxODE2MjM5MDIyfQ.Fx5xKjtPQHjYZWTcXkgLBYPL5BXFWELQx-rzAon_5vQ
+    const queryParams = new URLSearchParams(location.search);
+    const roomId = queryParams.get('roomId')
+    const max = queryParams.get('max')
     const token = localStorage.getItem('token')
-    socket.current = io.connect('ws://15.164.166.146:3001?roomId=5',{
+    socket.current = io.connect(`ws://15.164.166.146:3001?roomId=${roomId}&max=${max}`,{
       auth:{
         token:`Bearer ${token}`
       }
@@ -130,18 +134,18 @@ const Tetris: React.FC = () => {
     }
 
 
-    const LandingEvent1 = ({otherGame, bodyA, bodyB}: any) => {
+    const LandingEvent1 = ({game, bodyA, bodyB}: any) => {
       let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
       let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
       
       if (bodyA.translation().y > 0 && bodyB.translation().y > 0) {
         setMessage("게임오버")
-        otherGame.pause();
+        game.pause();
         return;
       }
-      const checkResult = otherGame.checkLine(eraseThreshold);
-      otherGame.removeLines(checkResult.lines)
-      otherGame.spawnBlock(0xFF0000, "O", true);
+      const checkResult = game.checkLine(eraseThreshold);
+      game.removeLines(checkResult.lines)
+      game.spawnBlock(0xFF0000, "O", true);
     }
     
     const TetrisOption: TetrisOption = {
@@ -169,42 +173,51 @@ const Tetris: React.FC = () => {
     game.spawnBlock(0xFF0000, "T", true);
     fallingBlockGlow(game.fallingTetromino!);
 
-    // const otherGameOption = {
-    //   blockFriction: 1.0,
-    //   blockSize: 32,
-    //   blockRestitution: 0.0,
-    //   combineDistance: 1,
-    //   view: otherSceneRef.current,
-    //   spawnX: otherSceneRef.current.width / 2,
-    //   spawnY: 200,
-    //   blockCollisionCallback: CollisionEvent1,
-    //   blockLandingCallback: LandingEvent1,
-    //   preBlockLandingCallback: preLandingEvent1,
-    //   worldHeight: 800,
-    //   worldWidth: 600
-    // };
+    const otherGameOption = {
+      blockFriction: 1.0,
+      blockSize: 32,
+      blockRestitution: 0.0,
+      combineDistance: 1,
+      view: otherSceneRef.current,
+      spawnX: otherSceneRef.current.width / 2,
+      spawnY: 200,
+      blockCollisionCallback: CollisionEvent1,
+      blockLandingCallback: LandingEvent1,
+      preBlockLandingCallback: preLandingEvent1,
+      worldHeight: 800,
+      worldWidth: 600,
+      wallColor: 0xFF0000,
+      wallAlpha: 0.1,
+      backgroundColor: 0x222929,
+      backgroundAlpha: 1
+    };
 
-    // const userId = other;
-    // const otherGame = new TetrisMultiplayView(otherGameOption, userId);
-    // otherGame.running = false;
-    // otherGame.setWorld(initWorld(RAPIER, otherGameOption));
-    // otherGame.spawnBlock(0xFF0000, "S", true);
+    const userId = other;
+    const otherGame = new TetrisMultiplayView(otherGameOption, userId);
+    otherGame.running = false;
+    otherGame.setWorld(initWorld(RAPIER, otherGameOption));
+    otherGame.spawnBlock(0xFF0000, "T", true);
 
     runPosenet(videoRef, canvasRef, game, socket.current);
-    // socket.current?.on('eventOn',(event:any)=>{
-    //   otherGame.receiveKeyFrameEvent(event)
-    // })
-    socket.current?.on('gameStart',(data:string)=>{
-      console.log(data)
-      game.run(); 
-      // otherGame.run();
+    
+
+    socket.current?.on('go',(data:string)=>{
+      console.log("시작!");
+      otherGame.run();
+      game.run();  
+      socket.current?.on('eventOn',(event:any)=>{
+        otherGame.receiveKeyFrameEvent(event)
+      });
     })
-    game.run(); 
+    
+    
+    //game.run(); 
   return () => {
     game.dispose();
+    otherGame.dispose();
   }}, []);
 
-  return (
+  return (<>
     <Container>
       <SceneContainer>
         <UserNickName> 유저닉: </UserNickName>
@@ -217,9 +230,14 @@ const Tetris: React.FC = () => {
         <Video ref={videoRef} autoPlay/>
         <VideoCanvas ref={canvasRef}/>
       </VideoContainer>
-
+    
+    <MultiplayContainer>
       <SceneCanvas id="otherGame" ref={otherSceneRef}> </SceneCanvas>
+    </MultiplayContainer>
     </Container>
+
+    
+    </>
   );
 };
 

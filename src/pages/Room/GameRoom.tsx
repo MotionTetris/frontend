@@ -82,7 +82,7 @@ useEffect(() => {
   });
 
   roomSocket?.on(RoomSocketEvent.ON_GAME_START, () => {
-    navigate('/gameplay');
+    navigate(`/gameplay?roomId=${roomInfo?.roomInfo.roomId}&max=${roomInfo?.roomInfo.maxCount}`);
   });
 
   return () => {

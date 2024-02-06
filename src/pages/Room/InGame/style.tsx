@@ -39,6 +39,15 @@ export const SceneContainer = styled.div`
   background: #4e9cad;
 `;
 
+export const MultiplayContainer = styled.div`
+  top: 0%;
+  left: 65%;
+  width: 600px;
+  height: 900px;
+  position: absolute;
+  background: #423eee;
+`
+
 export const SceneCanvas = styled.canvas`
     width: 600px;
     height: 800px;
