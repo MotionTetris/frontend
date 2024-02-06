@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import { Viewport } from "pixi-viewport";
 import * as RAPIER from "@dimforge/rapier2d";
 import { TetrisOption } from "./TetrisOption";
-
+import { createRectangle } from "./Effect";
 const BOX_INSTANCE_INDEX = 0;
 const BALL_INSTANCE_INDEX = 1;
 
@@ -16,6 +16,7 @@ export class Graphics {
     scene: PIXI.Container; 
     viewport: Viewport;
     instanceGroups: Array<Array<PIXI.Graphics>>;
+    rectangles: Array<PIXI.Graphics>;
     ticker: PIXI.Ticker;
     constructor(option: TetrisOption) {
         // High pixel Ratio make the rendering extremely slow, so we cap it.
@@ -41,10 +42,15 @@ export class Graphics {
             worldHeight: option.worldHeight,
             interaction: this.renderer.plugins.interaction,
         });
-      
+
         this.scene.addChild(this.viewport);
-     
+    
         this.viewport.drag().pinch().wheel().decelerate();
+        this.rectangles = [];
+        this.rectangles.push(createRectangle(this.scene, 50, 350, 10, 0));
+        this.rectangles.push(createRectangle(this.scene, 50, 350, 550, 0));
+        this.rectangles.push(createRectangle(this.scene, 50, 350, 10, 370));
+        this.rectangles.push(createRectangle(this.scene, 50, 350, 550, 370));
         this.ticker = new PIXI.Ticker();
         
         function onContextMenu(event: UIEvent) {

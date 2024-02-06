@@ -66,40 +66,12 @@ const Tetris: React.FC = () => {
     otherSceneRef.current.width = 600;
     otherSceneRef.current.height = 800;
 
-    const createLandingEvent = (game: TetrisGame, isView: boolean) => {
-      return ({bodyA, bodyB}: any) => {
-        let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
-        let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
-        if (bodyA.translation().y > -400 || bodyB.translation().y > -400) {
-          setMessage("게임오버")
-          game.pause();
-          if (isView) {
-            socket.current?.emit('gameOver',true)
-          }
-          return // 잘림 동기화 : 상대가 오버 당해도 내 화면에서 상대 블럭이 잘리는 현상 방지.
-        }
-        
-        //collisionParticleEffect(collisionX, -collisionY, game.graphics.viewport, game.graphics.renderer);
-        collisionParticleEffect(bodyA.translation().x, -bodyB.translation().y, game.graphics.viewport, game.graphics.renderer);
-        collisionParticleEffect(bodyB.translation().x, -bodyB.translation().y, game.graphics.viewport, game.graphics.renderer);
-        const checkResult = game.checkLine(5000);
-        // for (let i = 0; i < checkResult.lineIndices.length; i++) {
-        //   explodeParticleEffect(game.graphics.viewport, game.graphics.scene, 140, checkResult.lineIndices[i]);
-        // }
-        game.removeLines(checkResult.lines);
-        game.spawnBlock(0xFF0000, "O", true);
-      }
-    }
-
-
-
-    let scoreTexts: PIXI.Text[] = [];
     //fallingBlockGlow(game.fallingTetromino!);
     const CollisionEvent = ({game, bodyA, bodyB}: any) => {
     
     }
 
-    const CollisionEvent1 = ({otherGame, bodyA, bodyB}: any) => {
+    const CollisionEvent1 = ({game, bodyA, bodyB}: any) => {
 
     }
 
@@ -108,7 +80,7 @@ const Tetris: React.FC = () => {
       removeGlow(game.fallingTetromino);
     }
 
-    const preLandingEvent1 = ({otherGame, bodyA, bodyB}: any) => {
+    const preLandingEvent1 = ({game, bodyA, bodyB}: any) => {
       game.fallingTetromino?.rigidBody.resetForces(true);
     }
 
@@ -132,7 +104,7 @@ const Tetris: React.FC = () => {
           setPlayerScore(prevScore => Math.round(prevScore + scoreList[i]));
         }
       }
-     
+    
       if (game.removeLines(checkResult.lines)) {
         startShake({ viewport: game.graphics.viewport, strength: 15, duration: 500 });
         loadStarImage().then((starTexture: PIXI.Texture) => {
