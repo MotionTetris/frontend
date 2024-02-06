@@ -5,6 +5,8 @@ import { performPushEffect, performRotateEffect } from './Effect';
 import { TetrisGame } from './TetrisGame';
 import { Graphics } from './Graphics';
 import { math } from '@tensorflow/tfjs';
+import { socketConnected } from '@redux/socket/socketActions';
+import { Socket } from 'socket.io-client';
 
 
 
@@ -29,7 +31,7 @@ export async function setupWebcam(videoRef: RefObject<HTMLVideoElement>) {
 }
 
 export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRef: RefObject<HTMLCanvasElement>,
-    game: TetrisGame) {
+    game: TetrisGame, socket: Socket) {
     const net = await posenet.load();
     const video = await setupWebcam(videoRef);
     const canvas = canvasRef.current;
@@ -171,17 +173,11 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
             leftWristX < prevLeftWristX - 20
           ) {
             console.log("왼회전")
-            //console.log("is", game.graphics.rectangles[2]);
             performRotateEffect(game.graphics.rectangles[2], game.graphics.ticker, 0xff00c0);
-            let rotation = game.fallingTetromino?.rigidBody.rotation();
-            //game.fallingTetromino?.rigidBody.setRotation(rotation + 90/180 * Math.PI, false);
             game.fallingTetromino?.rigidBody.applyTorqueImpulse(1000000, false);
-            
-            //if (GAME.fallingBlock) {
-              // block이 존재하는지 확인
-            //Body.rotate(GAME.fallingBlock, -Math.PI / 4); // 45도 회전
-            //performRotateEffect(rectangleLeftRotate, app, 0xff0000);
-            //}
+            const event = game.onRotateLeft();
+            socket.emit('eventOn',event);
+          
           }
         } else {
           if (
@@ -191,14 +187,9 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
           ) {
             console.log("우회전")
             performRotateEffect(game.graphics.rectangles[3], game.graphics.ticker, 0xff00c0);
-            let rotation = game.fallingTetromino?.rigidBody.rotation();
             game.fallingTetromino?.rigidBody.applyTorqueImpulse(-1000000, false);
-            //game.fallingTetromino?.rigidBody.setRotation(rotation + -90/180 * Math.PI, false);
-            // if (GAME.fallingBlock) {
-            //   // block이 존재하는지 확인
-            //   Body.rotate(GAME.fallingBlock, Math.PI / 4); // 45도 회전
-            //   performRotateEffect(rectangleRightRotate, app, 0xff0000);
-            // }
+            const event = game.onRotateRight();
+            socket.emit('eventOn',event);
           }
         }
 
@@ -215,21 +206,23 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
 
         if (noseX && centerX) {
           let forceMagnitude = Math.abs(noseX - centerX) / (centerX); // 중앙에서 얼마나 떨어져 있는지에 비례하는 힘의 크기를 계산합니다.
-          //forceMagnitude = Math.min(forceMagnitude, 1); // 힘의 크기가 너무 커지지 않도록 1로 제한합니다.
 
           // noseX와 centerX의 차이에 따라 alpha 값을 결정
           let alpha = Math.min(Math.abs(noseX - centerX) / 300, 1); // 100은 정규화를 위한 값이며 조절 가능
 
         //   if (GAME.fallingBlock) {
             if (noseX < centerX) {
-              //game.fallingTetromino?.rigidBody.setTranslation({x: 100, y: 0}, false);
               game.fallingTetromino?.rigidBody.applyImpulse({x:-forceMagnitude * 100000,y:0}, true);
               performPushEffect(game.graphics.rectangles[0], game.graphics.rectangles[1],  alpha, 0x00ff00);
+              const event = game.onMoveLeft(forceMagnitude);
+              socket.emit('eventOn',event);
+              
             } else {
               game.fallingTetromino?.rigidBody.applyImpulse({x: forceMagnitude * 100000,y:0}, true);
               performPushEffect(game.graphics.rectangles[1], game.graphics.rectangles[0], alpha, 0x00ff00);
+              const event = game.onMoveRight(forceMagnitude);
+              socket.emit('eventOn',event);
             }
-          //}
         }
 
         prevLeftAngle = leftAngleInDegrees;
