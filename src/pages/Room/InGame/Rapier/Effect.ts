@@ -317,11 +317,31 @@ export function showScore(viewport: Viewport, scoreList: number [], scoreTexts :
     scoreText.y = 600 - 32*i;
     newScoreTexts[i] = scoreText; // 새로운 배열에 추가
     viewport.addChild(scoreText);
+
+    // alpha가 0.95보다 크면, 폭파직전! 이라는 노란색 움직이는 글씨를 띄워준다.
+    if (alpha > 0.55) {
+      let warningText: PIXI.Text;
+      warningText = new PIXI.Text('폭파 직전!', {fontFamily : 'Arial', fontSize: 20, fill : 0xffff00, align : 'center'}); // 노란색
+      warningText.x = 600;
+      warningText.y = 560 - 32*i; // scoreText 위에 위치
+      viewport.addChild(warningText);
+      
+      // GSAP 애니메이션 추가
+      gsap.fromTo(warningText.scale, {
+        x: 1,
+        y: 1
+      }, {
+        x: 1.1,
+        y: 1.1,
+        duration: 0.3, // 0.3초 동안
+        repeat: -1, // 무한 반복
+        yoyo: true // 원래 크기로 돌아옴
+      });
+    }
   }
 
   return newScoreTexts; // 새로운 배열 반환
 }
-
 
 interface ShakeOptions {
   viewport: Viewport;

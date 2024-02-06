@@ -10,7 +10,7 @@ import "@tensorflow/tfjs";
 import { TetrisOption } from "./Rapier/TetrisOption.ts";
 
 
-const eraseThreshold = 5000;
+const eraseThreshold = 10000;
 const RAPIER = await import('@dimforge/rapier2d')
 const Tetris: React.FC = () => {
   const sceneRef = useRef<HTMLCanvasElement>(null);  //게임화면
