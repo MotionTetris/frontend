@@ -222,24 +222,27 @@ export const StartButton = styled.button`
 `;
 
 export const ReadyButton = styled.span`
-  position: absolute;
-  bottom: 10vh;
+   position: absolute;
+  bottom: 20vh;
   right: 6vw;
   width: 8%;
   height: 5%;
-  background-color: gray;
+  background-color: #ff4d4d; // 찐한 빨간색 대신 조금 더 부드러운 색상 사용
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 1em;
-  cursor: pointer;
-  border: none;
-  border-radius: 5px;
-  transition: background-color 0.3s;
+  color: white; // 텍스트 색상 설정
+  font-size: 1em; // 텍스트 크기 설정
+  cursor: pointer; // 마우스 오버시 커서 변경
+  border: none; // 테두리 제거
+  border-radius: 5px; // 버튼 모서리 둥글게
+  transition:
+    background-color 0.3s,
+    box-shadow 0.3s; // 배경색 및 그림자 변화에 애니메이션 효과
 
   &:hover {
-    background-color: "darkgreen";
+    background-color: #ff6666; // 호버 시 색상을 더 부드럽게 변경
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.1); // 호버 시 빨간색 glow 효과
   }
 `;
 
@@ -259,7 +262,7 @@ export const StyledPlayer = styled(Player)<{ scale: number, position: string, to
 
 export const playerStyles = [
   { scale: 0.8, position: 'absolute', top: '10%', left: '10%' },
-  { scale: 0.3, position: 'absolute', top: '47%', left: '55%' },
-  { scale: 0.5, position: 'absolute', top: '30%', left: '30%' },
+  { scale: 0.4, position: 'absolute', top: '10%', left: '55%' },
+  { scale: 0.4, position: 'absolute', top: '10%', left: '40%' },
   { scale: 0.5, position: 'absolute', top: '40%', left: '40%' },
 ];

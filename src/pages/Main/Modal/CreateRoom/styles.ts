@@ -14,10 +14,13 @@ export const CreateRoomBackground = styled.div`
 `;
 
 export const CreateRoomContainer = styled.div`
+  position: relative;
+  top: 0vh;
+  right: 0;
   background: white;
-  padding: 20px;
   border-radius: 10px;
-  width: 50%;
+  width: 30%;
+  height: 45%;
   max-width: 600px;
 `;
 
@@ -31,12 +34,42 @@ export const CreateRoomActions = styled.div`
   margin-top: 20px;
 `;
 
-export const CreateRoomButton = styled.button`
-  padding: 10px 20px;
-
-  margin-left: 10px;
+export const CreateRoomYesButton = styled.button`
+  position: absolute;
+  bottom: 3vh;
+  right: 2vw;
+  background-color: blue;
+  color: white;
+  border: 2px solid #0000FF;
+  border-radius: 5px;
+  transition: box-shadow 0.3s;
+  width: 80px;
+  height: 30px;
+  &:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 255, 0.2);
+  }
 `;
+
+export const CreateRoomNoButton = styled.button`
+  position: absolute;
+  bottom: 3vh;
+  right: 10vw;
+  background-color: transparent;
+  border-radius: 5px;
+  color: blue;
+  border: none;
+  transition: box-shadow 0.3s;
+  width: 80px;
+  height: 30px;
+  &:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 255, 0.2);
+  }
+`;
+
 export const CreateRoomInput = styled.input`
+  position: absolute;
+  bottom: 0vh;
+  right: 8vw;
   display: block;
   width: 80%;
   padding: 10px;
@@ -65,11 +98,20 @@ export const CreateRoomSelect = styled.select`
   margin-bottom: 10px;
 `;
 
+export const CreateRoomMain = styled.span`
+  position: absolute;
+  top: 4vh;
+  right:10vw;
+  font-size: 40px;
+`;
+
 export const OutlinedInputWrapper = styled.div`
   display: inline-block;
   margin-bottom: 10px;
-  width: 100%;
-  position: relative;
+  width: 90.4%;
+  position: absolute;
+  top: 18vh;
+  right: 1.1vw;
 
   &:hover,
     &:focus {
@@ -86,7 +128,7 @@ export const OutlinedInputWrapper = styled.div`
   & label {
     position: absolute;
     left: 10px;
-    top: -10px;
+    top: -5px;
     background: #fff;
     padding: 0 5px;
     font-size: 0.75em;
@@ -95,3 +137,45 @@ export const OutlinedInputWrapper = styled.div`
     color: #000;
   }
 `;
+
+export const OutlinedSelectWrapper = styled.div`
+  display: inline-block;
+  margin-bottom: 10px;
+  width: 94%;
+  position: absolute;
+  top:27vh;
+  right: 0vw;
+
+  & select {
+    border: 1px solid #000;
+    padding: 10px;
+    width: calc(100% - 22px); /* padding과 border를 고려하여 너비 조정 */
+    border-radius: 10px;
+    -webkit-appearance: none; /* 브라우저 기본 스타일 제거 */
+    -moz-appearance: none; /* 브라우저 기본 스타일 제거 */
+    appearance: none; /* 브라우저 기본 스타일 제거 */
+    position: relative;
+    background-color: white;
+  }
+
+  &:hover,
+  &:focus-within {
+    border-color: red;
+  }
+
+  & label {
+    position: absolute;
+    left: 10px;
+    top: 0px;
+    z-index: 10;
+    background: #fff;
+    padding: 0 5px;
+    font-size: 0.75em;
+    pointer-events: none;
+    transition: 0.2s;
+    color: #000;
+    transform: translate(0, -50%);
+  }
+`;
+
+

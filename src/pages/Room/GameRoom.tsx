@@ -1,6 +1,6 @@
 // src/components/GameRoom.tsx
 import { useEffect, useState } from "react";
-import { useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import {
   RoomContainer,
@@ -32,6 +32,7 @@ const GameRoom: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
   const currentPlayerNickname = useSelector((state: RootState) => state.homepage.nickname);
   const [players, setPlayers] = useState<string[]>([]);
+  const [isGameALLReady, setIsGameALLReady] = useState(false);
 
   const shootingStars = Array(20).fill(null).map((_, index) => 
 <ShootingStar 
@@ -44,45 +45,73 @@ const GameRoom: React.FC = () => {
 />);
 
 useEffect(() => {
+  let timeoutId: NodeJS.Timeout;
+
   if (roomInfo) {
     setInGameCard(roomInfo.roomInfo);
     const playersNickname = Array.from(roomInfo.roomInfo.playersNickname || []);
     const creatorNickname = roomInfo.roomInfo.creatorNickname;
-    const otherPlayers = playersNickname.filter(nickname => nickname !== currentPlayerNickname && nickname !== creatorNickname);
-
+    
     if (roomInfo.isCreator) {
-      setPlayers([currentPlayerNickname, ...otherPlayers]);
-      console.log("플레이어 배정 (방 생성): ", [currentPlayerNickname, ...otherPlayers]);
+      const otherPlayers = playersNickname.filter(nickname => nickname !== currentPlayerNickname);
+      setPlayers([currentPlayerNickname, ...randomizePlayers(otherPlayers)]);
+
+      roomSocket?.on(RoomSocketEvent.ON_GAME_ALLREADY, () => {
+        setIsGameALLReady(true);
+      });
     }
     else {
-      setPlayers([creatorNickname, currentPlayerNickname, ...otherPlayers]);
-      console.log("플레이어 배정 (방 참가): ", [creatorNickname, currentPlayerNickname, ...otherPlayers]);
+      const otherPlayers = playersNickname.filter(nickname => nickname !== creatorNickname && nickname !== currentPlayerNickname);
+      setPlayers([currentPlayerNickname, ...randomizePlayers(otherPlayers)]);
     }
   }
 
-  // 새로운 사용자가 방에 들어온 경우
-  roomSocket?.on('joinUser', (users) => {
-    setPlayers(users);
+  roomSocket?.on(RoomSocketEvent.ON_JOIN_ROOM, (users) => {
+    const otherUsers = users.filter((user: string) => user !== currentPlayerNickname);
+    setPlayers([currentPlayerNickname, ...shufflePlayers(otherUsers)]);
+  });
+  
+  roomSocket?.on(RoomSocketEvent.EMIT_EXIT, () => {
+    timeoutId = setTimeout(() => {
+      roomSocket?.emit(RoomSocketEvent.EMIT_EXIT, currentPlayerNickname);
+    }, 60000);
   });
 
-  // 사용자가 방을 떠난 경우
-  roomSocket?.on('leaveRoom', (users) => {
-    setPlayers(users);
+  roomSocket?.on(RoomSocketEvent.EMIT_JOIN, () => {
+    clearTimeout(timeoutId);
+  });
+
+  roomSocket?.on(RoomSocketEvent.ON_GAME_START, () => {
+    navigate('/gameplay');
   });
 
   return () => {
-    // 컴포넌트가 unmount 될 때 이벤트 리스너를 제거
-    roomSocket?.off('joinUser');
-    roomSocket?.off('leaveRoom');
+    clearTimeout(timeoutId);
+    roomSocket?.off(RoomSocketEvent.ON_JOIN_ROOM);
+    roomSocket?.off(RoomSocketEvent.EMIT_EXIT);
+    roomSocket?.off(RoomSocketEvent.EMIT_JOIN);
+
+    if (roomInfo?.isCreator) {
+      roomSocket?.off(RoomSocketEvent.ON_GAME_ALLREADY);
+    }
   };
 }, [roomInfo, currentPlayerNickname, roomSocket]);
 
+function randomizePlayers(players: string[]) {
+  return players.sort(() => Math.random() - 0.5);
+}
+
+function shufflePlayers(players: string[]) {
+  const otherPlayers = players.filter(player => player !== currentPlayerNickname);
+  const shuffledPlayers = randomizePlayers(otherPlayers);
+  return shuffledPlayers;
+}
 
 const isCreator = inGameCard?.creatorNickname === currentPlayerNickname;
 
   const handleReadyClick = () => {
     setIsReady(!isReady);
-    roomSocket?.emit(RoomSocketEvent.EMIT_GAME_START, !isReady);
+    roomSocket?.emit(RoomSocketEvent.EMIT_GAME_READY, {roomId});
   };
 
   const handleBackButtonClick = () => {
@@ -95,24 +124,20 @@ const isCreator = inGameCard?.creatorNickname === currentPlayerNickname;
       <GameRoomTitle>{inGameCard?.roomTitle}</GameRoomTitle>
       <FaBackspaced onClick={handleBackButtonClick} />
       {isCreator ? (
-        <StartButton onClick={() => {
-          roomSocket?.emit(RoomSocketEvent.EMIT_GAME_START);
-          navigate('/gameplay');
-        }}>Start Game</StartButton>
-      ) : (
-        isReady && <ReadyButton onClick={handleReadyClick}>{isReady ? '대기 중' : '준비 중'}</ReadyButton>
-      )}
+  <StartButton 
+  disabled={!isGameALLReady}
+  onClick={() => {
+    roomSocket?.emit(RoomSocketEvent.EMIT_GAME_START);
+  }}
+>
+  Start Game
+</StartButton>
+) : (
+  <ReadyButton onClick={handleReadyClick}>{isReady ? '대기 중' : '준비 중'}</ReadyButton>
+)}
      <PlayerContainer>
        {players.map((player, index) => {
     const isCreator = player === inGameCard?.creatorNickname;
-
-    // StyledPlayer에 전달되는 속성 값들을 콘솔에 출력
-    console.log('Player props:', {
-      scale: playerStyles[index].scale,
-      position: playerStyles[index].position,
-      top: playerStyles[index].top,
-      left: playerStyles[index].left,
-    });
 
     return (
       <Player 

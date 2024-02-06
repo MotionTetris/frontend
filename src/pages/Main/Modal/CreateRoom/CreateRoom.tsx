@@ -3,10 +3,13 @@ import {
   CreateRoomBackground,
   CreateRoomContainer,
   CreateRoomActions,
-  CreateRoomButton,
+  CreateRoomYesButton,
+  CreateRoomNoButton,
+  CreateRoomMain,
   CreateRoomInput,
   CreateRoomSelect,
   OutlinedInputWrapper,
+  OutlinedSelectWrapper
 } from "./styles";
 import { useNavigate } from "react-router-dom";
 import { useRoomSocket, RoomSocketEvent } from "../../../../context/roomSocket";
@@ -58,19 +61,24 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
   return (
     <CreateRoomBackground>
       <CreateRoomContainer>
+        <CreateRoomMain>방 생성</CreateRoomMain>
       <OutlinedInputWrapper>
       <input value={roomName} onChange={handleInputChange} />
       <label>방 제목</label>
     </OutlinedInputWrapper>
-        <CreateRoomSelect value={selectedOption} onChange={handleSelectChange}>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </CreateRoomSelect>
+    <OutlinedSelectWrapper>
+  <label htmlFor="roomSelect">방 인원</label> {/* 예시 레이블, 실제 내용에 맞게 조정 필요 */}
+  <select id="roomSelect" value={selectedOption} onChange={handleSelectChange}>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+  </select>
+</OutlinedSelectWrapper>
+
         <CreateRoomActions>
-          <CreateRoomButton onClick={onClose}>아니오</CreateRoomButton>
-          <CreateRoomButton  onClick={handleCreateRoom}>예</CreateRoomButton>
+          <CreateRoomNoButton onClick={onClose}>아니오</CreateRoomNoButton>
+          <CreateRoomYesButton  onClick={handleCreateRoom}>예</CreateRoomYesButton>
         </CreateRoomActions>
       </CreateRoomContainer>
     </CreateRoomBackground>

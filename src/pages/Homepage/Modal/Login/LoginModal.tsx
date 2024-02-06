@@ -53,12 +53,11 @@ const LoginModal: React.FC = () => {
         setUser({
           nickname: response.nickname,
           email: response.email,
-          // isAuthenticated: true,
         }),
       );
       localStorage.setItem("token", response.access_token);
       setRoomSocket(createRoomSocket())
-      navigate("/GameLobby");
+      navigate("/gamelobby");
     } catch (error) {
       console.log(error);
       alert("아이디 또는 비밀번호가 다릅니다.");
