@@ -49,6 +49,10 @@ export class TetrisMultiplayView extends TetrisGame {
 
         this.isProcessingEvent = true;
         if (event?.keyframe > this.stepId) {
+            if (this.option.stepCallback) {
+                this.option.stepCallback(this, this.stepId);
+            }
+
             this.world.step(this.events);
             this.stepId++;
             this.graphics.render(this.world);
@@ -67,6 +71,7 @@ export class TetrisMultiplayView extends TetrisGame {
                 this.onCollisionDetected(body1, body2);
             });
 
+
             requestAnimationFrame(() => this.stepKeyFrameEvent(event, seq));
             return;
         }
@@ -74,20 +79,20 @@ export class TetrisMultiplayView extends TetrisGame {
         if (event?.keyframe === this.stepId) {
             switch (event?.event) {
                 case PlayerEventType.MOVE_LEFT:
-                    this.fallingTetromino?.rigidBody.applyImpulse({x: -event?.userData * 100000, y: 0}, false);
                     console.debug(`move_left at ${this.stepId} force: ${-event?.userData * 100000}, desired keyframe: ${event.keyframe}`);
+                    this.onMoveLeft(event.userData);
                     break;
                 case PlayerEventType.MOVE_RIGHT:
-                    this.fallingTetromino?.rigidBody.applyImpulse({x: event?.userData * 100000, y: 0}, false);
                     console.debug(`move_right at ${this.stepId} force: ${event?.userData * 100000}, desired keyframe: ${event.keyframe}`);
+                    this.onMoveRight(event?.userData);
                     break;
                 case PlayerEventType.TURN_LEFT:
-                    this.fallingTetromino?.rigidBody.applyTorqueImpulse(1000000, false);
                     console.debug(`turn_left at ${this.stepId}, desired keyframe: ${event.keyframe}`);
+                    this.onRotateLeft();
                     break;
                 case PlayerEventType.TURN_RIGHT:
                     console.debug(`turn_left at ${this.stepId}, desired keyframe: ${event.keyframe}`);
-                    this.fallingTetromino?.rigidBody.applyTorqueImpulse(-1000000, false);
+                    this.onRotateRight();
                     break;
                 default:
                     console.debug(`undefined evnet at ${this.stepId}, desired keyframe: ${event.keyframe}`);

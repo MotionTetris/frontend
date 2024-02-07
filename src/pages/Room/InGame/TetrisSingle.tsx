@@ -37,15 +37,11 @@ const TetrisSingle: React.FC = () => {
     
     }
 
-   
-
     const preLandingEvent = ({game, bodyA, bodyB}: any) => {
       game.fallingTetromino?.rigidBody.resetForces(true);
       removeGlow(game.fallingTetromino);
     }
-
-   
-
+  
     const LandingEvent = ({game, bodyA, bodyB}: any) => {
       let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
       let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
@@ -88,7 +84,15 @@ const TetrisSingle: React.FC = () => {
         });
       }
 
-      //make lineGrids score
+      game.spawnBlock(0xFF0000, "O", true);
+      fallingBlockGlow(game.fallingTetromino!);
+    }
+
+    const StepCallback = (game: TetrisGame, step: number) => {
+      if (step % 15 != 0) {
+        return;
+      }
+      const checkResult = game.checkLine(eraseThreshold);
       createScoreBasedGrid(game.graphics.viewport, checkResult.scoreList);
       
       scoreTexts.current.forEach((text) => {
@@ -97,12 +101,8 @@ const TetrisSingle: React.FC = () => {
         }
       });
 
-      scoreTexts.current = showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts.current, eraseThreshold); // 수정
-      game.spawnBlock(0xFF0000, "O", true);
-      fallingBlockGlow(game.fallingTetromino!);
+      scoreTexts.current = showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts.current, eraseThreshold);
     }
-
-
 
     
     const TetrisOption: TetrisOption = {
@@ -116,6 +116,7 @@ const TetrisSingle: React.FC = () => {
       blockCollisionCallback: CollisionEvent,
       blockLandingCallback: LandingEvent,
       preBlockLandingCallback: preLandingEvent,
+      stepCallback: StepCallback,
       worldHeight: 800,
       worldWidth: 600,
       wallColor: 0xFF0000,

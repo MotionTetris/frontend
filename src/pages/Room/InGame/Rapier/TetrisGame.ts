@@ -133,6 +133,10 @@ export class TetrisGame {
             this.preTimestepAction(this.graphics);
         }
 
+        if (this.option.stepCallback) {
+            this.option.stepCallback(this, this.stepId);
+        }
+
         this.world.step(this.events);
         this.stepId += 1;
         this.graphics.render(this.world);
