@@ -4,7 +4,9 @@ import {GlowFilter} from '@pixi/filter-glow';
 import { Tetromino } from "./Tetromino";
 import { gsap } from 'gsap';
 import { Graphics } from "./Graphics";
-
+import { number } from "prop-types";
+import Tetris from "../Tetris";
+import { playDoubleComboSound, playSingleComboSound, playTripleComboSound } from "./Sound";
 
 export const explodeParticleEffect = (x: number, y: number, graphics: Graphics ) => {
   const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
@@ -50,8 +52,6 @@ export const explodeParticleEffect = (x: number, y: number, graphics: Graphics )
 };
 
 
-
-
 export const starParticleEffect = (x: number, y: number, graphics: Graphics,  starTexture: PIXI.Texture) => {
   const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
   const viewport = graphics.viewport;
@@ -94,8 +94,6 @@ export const starParticleEffect = (x: number, y: number, graphics: Graphics,  st
     ticker.start();
   }
 };
-
-
 
 
 export function explodeImageEffect(
@@ -190,69 +188,51 @@ export function collisionParticleEffect(
     return particleSprite;
   }
   
-  
 
-
-export function createRectangle(container: PIXI.Container, width: number, height: number, x: number, y: number) {
-    const rectangle = new PIXI.Graphics();
-    rectangle.beginFill(0x0000c0, 0);
-    rectangle.drawRect(0, 0, width, height);
-    rectangle.endFill();
-    rectangle.x = x;
-    rectangle.y = y;
-    container.addChild(rectangle);
-    return rectangle;
+export function createRectangle(container: PIXI.Container, imagePath: string, width: number, height: number, x: number, y: number) {
+  const rectangle = PIXI.Sprite.from(imagePath);
+  rectangle.width = width;
+  rectangle.height = height;
+  rectangle.x = x;
+  rectangle.y = y;
+  container.addChild(rectangle);
+  return rectangle;
 }
 
 
-export function performRotateEffect(rectangle: PIXI.Graphics, ticker: PIXI.Ticker, color: number) {
-  rectangle.clear();
-  rectangle.beginFill(color);
-  rectangle.drawRect(0, 0, 50, 400);
-  rectangle.endFill();
+export function performPushEffect(firstRectangle: PIXI.Sprite, secondRectangle: PIXI.Sprite, alpha: number, firstOriginal: number, secondOriginal: number) {
+  console.log("First,", firstRectangle);
+  console.log("Second,", secondRectangle);
+  firstRectangle.alpha = 1;
+  secondRectangle.alpha = 0;
+  secondRectangle.x = secondOriginal;
 
-  let direction = 1;
-  const effectDuration = 0.5; // 효과 지속 시간(초)
-  const startTime = Date.now(); // 시작 시간
 
-  const animate = () => {
-    rectangle.alpha += 0.01 * direction;
-    if (rectangle.alpha > 1) {
-      rectangle.alpha = 1;
-      direction = -1;
-    } else if (rectangle.alpha < 0) {
-      rectangle.alpha = 0;
-      direction = 1;
+  let targetX = firstOriginal + 50 * alpha;
+  targetX = alpha > 0 ? firstOriginal + 50 : firstOriginal - 50;
+
+  let tl = gsap.timeline({repeat: -1, yoyo: true});
+
+  tl.to(firstRectangle.position, { 
+    duration: 1, 
+    x: `+=${50 * alpha}`, 
+    ease: "power1.inOut",
+    onUpdate: function() {
+      if (alpha > 0 && firstRectangle.position.x > targetX) {
+        firstRectangle.position.x = targetX;
+      } else if (alpha < 0 && firstRectangle.position.x < targetX) {
+        firstRectangle.position.x = targetX;
+      }
     }
-
-    // 효과 지속 시간이 지나면 ticker에서 콜백 함수를 제거
-    if ((Date.now() - startTime) / 1000 > effectDuration) {
-      ticker.remove(animate);  // 수정된 부분
-
-      // 효과가 끝나면 채우기 색상을 다시 검정색으로 변경
-      rectangle.clear();
-      rectangle.beginFill(0x00c000, 0);
-      rectangle.drawRect(0, 0, 50, 400);
-      rectangle.endFill();
-    }
-  };
-
-  // 티커에 애니메이션 함수 추가
-  ticker.add(animate);  // 수정된 부분
+  })
+  .to(firstRectangle.position, { 
+    duration: 0.1,
+    repeat: 5, 
+    yoyo: true, 
+    x: `+=${10 * Math.sign(alpha)}`,
+    ease: "sine.inOut"
+  }, 0);
 }
-
-  
-  export function performPushEffect(firstRectangle: PIXI.Graphics, secondRectangle: PIXI.Graphics, alpha: number, color: number) {
-    firstRectangle.alpha = alpha;
-    firstRectangle.clear();
-    firstRectangle.beginFill(color);
-    firstRectangle.drawRect(0, 0,50, 400);
-    firstRectangle.endFill();
-    secondRectangle.clear();
-    secondRectangle.beginFill(0x00c000, 0);
-    secondRectangle.drawRect(0, 0, 50, 400);
-    secondRectangle.endFill();
-  }
 
 
 
@@ -267,7 +247,6 @@ export function performRotateEffect(rectangle: PIXI.Graphics, ticker: PIXI.Ticke
     lines.push(line); // lines 배열에 추가
     viewport.addChild(line); // stage에 추가
 }
-
 
 
 export function createScoreBasedGrid(viewport: Viewport, scoreList: number []) {
@@ -294,9 +273,9 @@ export function createScoreBasedGrid(viewport: Viewport, scoreList: number []) {
     
     line.drawRect(100, -i * 32 + 588, 410, 32); // 32픽셀 간격으로 높이를 설정
     line.endFill();
-  }
-  
+  }  
 }
+
 
 export function showScore(viewport: Viewport, scoreList: number [], scoreTexts : PIXI.Text[], threshold: number): PIXI.Text[] {
   console.log("length", scoreTexts.length);
@@ -375,8 +354,8 @@ export function startShake(options: ShakeOptions) {
   return ticker; // 추후에 ticker를 멈추기 위해 반환합니다.
 }
 
+
 export function fallingBlockGlow(fallingBlock: Tetromino) {
-  
   const glowFilter = new GlowFilter({ 
     distance: 45, 
     outerStrength: 2,
@@ -386,6 +365,32 @@ export function fallingBlockGlow(fallingBlock: Tetromino) {
   fallingBlock.graphics.forEach(graphic => {
     graphic.filters = [...(graphic.filters || []), glowFilter];
   });
+}
+
+
+export function changeBlockGlow(fallingBlock: Tetromino, colorIndex: number) {
+  // 색상 리스트
+  const colorList = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
+
+  // 인덱스를 증가시키고, 색상 리스트의 길이에 도달하면 0으로 초기화
+  const nextColorIndex = (colorIndex + 1) % colorList.length;
+
+  // 새로운 색상으로 GlowFilter 생성
+  const glowFilter = new GlowFilter({ 
+    distance: 45, 
+    outerStrength: 2,
+    color: colorList[nextColorIndex] // 색상 리스트에서 색상 선택
+  });
+
+  fallingBlock.graphics.forEach(graphic => {
+    // 모든 필터 제거
+    graphic.filters = [];
+    // 새 GlowFilter 추가
+    graphic.filters = [glowFilter];
+  });
+
+  // 다음 색상의 인덱스를 반환
+  return nextColorIndex;
 }
 
 
@@ -415,4 +420,22 @@ export function loadStarImage() {
       });
     }
   });
+}
+
+
+export function handleComboEffect(combo: number, graphics: Graphics): string {
+  startShake({ viewport: graphics.viewport, strength: 5 + 10 * combo, duration: 400 + 50 * combo})
+  if (combo === 1) {
+    playSingleComboSound();
+    return "Single Combo!";
+  }
+  else if (combo === 2) {
+    playDoubleComboSound();
+    return "Double Combo!";
+  }
+  else {
+    playTripleComboSound();
+    explodeParticleEffect(300, 700, graphics);
+    return "Fantastic!";
+  }
 }

@@ -2,28 +2,27 @@ import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "./Rapier/TetrisGame.ts";
 import { initWorld } from "./Rapier/World.ts";
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer } from "./style.tsx";
-import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake } from "./Rapier/Effect.ts";
+import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake, handleComboEffect} from "./Rapier/Effect.ts";
 import * as PIXI from "pixi.js";
 import { runPosenet } from "./Rapier/WebcamPosenet.ts";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "./Rapier/TetrisOption.ts";
+import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } from "./Rapier/Sound.ts";
 
 
-
-const eraseThreshold = 10000;
+const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
 const TetrisSingle: React.FC = () => {
   const sceneRef = useRef<HTMLCanvasElement>(null);  //게임화면
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
-
   const [playerScore, setPlayerScore] = useState(0);
   const scoreTexts = useRef<PIXI.Text[]>([]);
-
+  playIngameSound();
 
   useEffect(() => {
-
+    
     if (!!!sceneRef.current) {
       console.log("sceneRef is null");
       return;
@@ -50,9 +49,10 @@ const TetrisSingle: React.FC = () => {
     const LandingEvent = ({game, bodyA, bodyB}: any) => {
       let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
       let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
-      
+      playLandingSound();
       if (bodyA.translation().y > 0 && bodyB.translation().y > 0) {
-        setMessage("게임오버")
+        playDefeatSound();
+        setMessage("게임오버");
         game.pause();
         return;
       }
@@ -62,29 +62,22 @@ const TetrisSingle: React.FC = () => {
       
       const checkResult = game.checkLine(eraseThreshold);
       const scoreList = checkResult.scoreList;
-      let combo = 0;
+      
+      let combo: number = 0;
+      let scoreIncrement: number = 0;
       for (let i = 0; i < checkResult.scoreList.length; i++) {
         if (scoreList[i] >= eraseThreshold) {
-          setPlayerScore(prevScore => Math.round(prevScore + scoreList[i]));
           combo += 1;
+          scoreIncrement += scoreList[i];
         }
       }
     
+    
       if (game.removeLines(checkResult.lines)) {
-        console.log("combois ", combo)
-        if (combo == 1) {
-          startShake({ viewport: game.graphics.viewport, strength: 15, duration: 500 });
-          setMessage("Single Combo!");
-        }
-        if (combo == 2) {
-          startShake({ viewport: game.graphics.viewport, strength: 25, duration: 500 });
-          explodeParticleEffect(300, 700, game.graphics);
-          setMessage("Double Combo!");
-        }
-        else {
-          startShake({ viewport: game.graphics.viewport, strength: 35, duration: 500 });
-          setMessage("Fantastic!")
-        }
+        playExplodeSound();
+        setPlayerScore(prevScore => Math.round(prevScore + scoreIncrement * (1 + 0.1 * combo)));
+        const comboMessage = handleComboEffect(combo, game.graphics);
+        setMessage(comboMessage);
         setTimeout(() => {
           setMessage("");
         }, 1000);

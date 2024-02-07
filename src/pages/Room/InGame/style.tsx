@@ -39,6 +39,17 @@ export const SceneContainer = styled.div`
   background: #4e9cad;
 `;
 
+export const PlayerContainer = styled.div`
+  top: 0%;
+  left: 0%;
+  width: 1000px;
+  height: 900px;
+  position: absolute;
+  background: black;
+`;
+
+
+
 export const MultiplayContainer = styled.div`
   top: 0%;
   left: 65%;
@@ -59,13 +70,11 @@ export const SceneCanvas = styled.canvas`
 
 export const VideoContainer = styled.div`
   top: 55%;
-  left: 37.7%;
+  left: 57.5%;
   position: relative;
-  width: 480px;
-  height: 320px;
-  background-color: #282c34;  // 어두운 회색 배경
-  border: 2px solid #4B5563;  // 어두운 테두리
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);  // 그림자 효과
+  width: 450px;
+  height: 300px;
+  
 `;
 
 
@@ -74,8 +83,8 @@ export const Video = styled.video`
   top: 0;
   left: 0;
   transform: scaleX(-1);
-  width: 480px;
-  height: 320px;
+  width: 100%;
+  height: 100%;
 `;
 
 export const VideoCanvas = styled.canvas`
