@@ -7,7 +7,7 @@ import * as PIXI from "pixi.js";
 import { runPosenet } from "./Rapier/WebcamPosenet.ts";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "./Rapier/TetrisOption.ts";
-
+import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } from "./Rapier/Sound.ts";
 
 
 const eraseThreshold = 8000;
@@ -19,10 +19,10 @@ const TetrisSingle: React.FC = () => {
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
   const [playerScore, setPlayerScore] = useState(0);
   const scoreTexts = useRef<PIXI.Text[]>([]);
-
+  playIngameSound();
 
   useEffect(() => {
-
+    
     if (!!!sceneRef.current) {
       console.log("sceneRef is null");
       return;
@@ -49,9 +49,10 @@ const TetrisSingle: React.FC = () => {
     const LandingEvent = ({game, bodyA, bodyB}: any) => {
       let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
       let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
-      
+      playLandingSound();
       if (bodyA.translation().y > 0 && bodyB.translation().y > 0) {
-        setMessage("게임오버")
+        playDefeatSound();
+        setMessage("게임오버");
         game.pause();
         return;
       }
@@ -73,6 +74,7 @@ const TetrisSingle: React.FC = () => {
     
     
       if (game.removeLines(checkResult.lines)) {
+        playExplodeSound();
         setPlayerScore(prevScore => Math.round(prevScore + scoreIncrement * (1 + 0.1 * combo)));
         const comboMessage = handleComboEffect(combo, game.graphics);
         setMessage(comboMessage);
