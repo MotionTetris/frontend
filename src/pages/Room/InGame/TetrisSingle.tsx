@@ -7,53 +7,20 @@ import * as PIXI from "pixi.js";
 import { runPosenet } from "./Rapier/WebcamPosenet.ts";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "./Rapier/TetrisOption.ts";
-import { TetrisMultiplayView } from "./Rapier/TetrisMultiplayView.ts";
-import * as io from 'socket.io-client';
-import  {useLocation} from "react-router-dom"
-import { GAME_SOCKET_URL } from "config.ts";
+
+
+
 const eraseThreshold = 10000;
 const RAPIER = await import('@dimforge/rapier2d')
-const Tetris: React.FC = () => {
+const TetrisSingle: React.FC = () => {
   const sceneRef = useRef<HTMLCanvasElement>(null);  //게임화면
-  const otherSceneRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
-  const socket = useRef<io.Socket>()
+
   const [playerScore, setPlayerScore] = useState(0);
   const scoreTexts = useRef<PIXI.Text[]>([]);
-  const [user, setUser] = useState<string>('')
-  const [other, setOther] = useState<string>('')
-  const location = useLocation()
-  useEffect(()=>{ 
-    // eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0bWFuIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxODE2MjM5MDIyfQ.Fx5xKjtPQHjYZWTcXkgLBYPL5BXFWELQx-rzAon_5vQ
-    const queryParams = new URLSearchParams(location.search);
-    const roomId = queryParams.get('roomId')
-    const max = queryParams.get('max')
-    const token = localStorage.getItem('token')
-    socket.current = io.connect(`ws://15.164.166.146:3001?roomId=${roomId}&max=${max}`,{
-      auth:{
-        token:`Bearer ${token}`
-      }
-    });
 
-    socket.current.on('myName',(nickname:string)=>{
-      setUser(nickname)
-    })
-
-    socket.current.on('userJoined',(nickname:string)=>{
-      console.log(nickname,'입장')
-    });
-
-    socket.current.on('userLeaved',(nickname:string)=>{
-      console.log(nickname,'도망감 ㅋㅋ')
-      setOther(nickname)
-    })
-
-    return ()=>{
-      socket.current?.disconnect();
-    }
-  },[])
 
   useEffect(() => {
 
@@ -61,32 +28,24 @@ const Tetris: React.FC = () => {
       console.log("sceneRef is null");
       return;
     }
-    if (!!!otherSceneRef.current) {
-      console.log("sceneRef is null");
-      return;
-    }
+    
     sceneRef.current.width = 600;
     sceneRef.current.height = 800;
-    otherSceneRef.current.width = 600;
-    otherSceneRef.current.height = 800;
+   
 
     //fallingBlockGlow(game.fallingTetromino!);
     const CollisionEvent = ({game, bodyA, bodyB}: any) => {
     
     }
 
-    const CollisionEvent1 = ({game, bodyA, bodyB}: any) => {
-
-    }
+   
 
     const preLandingEvent = ({game, bodyA, bodyB}: any) => {
       game.fallingTetromino?.rigidBody.resetForces(true);
       removeGlow(game.fallingTetromino);
     }
 
-    const preLandingEvent1 = ({game, bodyA, bodyB}: any) => {
-      game.fallingTetromino?.rigidBody.resetForces(true);
-    }
+   
 
     const LandingEvent = ({game, bodyA, bodyB}: any) => {
       let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
@@ -153,19 +112,7 @@ const Tetris: React.FC = () => {
     }
 
 
-    const LandingEvent1 = ({game, bodyA, bodyB}: any) => {
-      let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
-      let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
-      
-      if (bodyA.translation().y > 0 && bodyB.translation().y > 0) {
-        setMessage("게임오버")
-        game.pause();
-        return;
-      }
-      const checkResult = game.checkLine(eraseThreshold);
-      game.removeLines(checkResult.lines)
-      game.spawnBlock(0xFF0000, "O", true);
-    }
+
     
     const TetrisOption: TetrisOption = {
       blockFriction: 1.0,
@@ -192,52 +139,20 @@ const Tetris: React.FC = () => {
     game.spawnBlock(0xFF0000, "T", true);
     fallingBlockGlow(game.fallingTetromino!);
 
-    const otherGameOption = {
-      blockFriction: 1.0,
-      blockSize: 32,
-      blockRestitution: 0.0,
-      combineDistance: 1,
-      view: otherSceneRef.current,
-      spawnX: otherSceneRef.current.width / 2,
-      spawnY: 200,
-      blockCollisionCallback: CollisionEvent1,
-      blockLandingCallback: LandingEvent1,
-      preBlockLandingCallback: preLandingEvent1,
-      worldHeight: 800,
-      worldWidth: 600,
-      wallColor: 0xFF0000,
-      wallAlpha: 0.1,
-      backgroundColor: 0x222929,
-      backgroundAlpha: 1
-    };
 
-    const userId = other;
-    const otherGame = new TetrisMultiplayView(otherGameOption, userId);
-    otherGame.running = false;
-    otherGame.setWorld(initWorld(RAPIER, otherGameOption));
-    otherGame.spawnBlock(0xFF0000, "T", true);
+    runPosenet(videoRef, canvasRef, game);
+    game.run(); 
 
-    runPosenet(videoRef, canvasRef, game, socket.current);
-    
 
-    socket.current?.on('go',(data:string)=>{
-      console.log("시작!");
-      otherGame.run();
-      game.run(); 
-      setMessage("게임 시작!");
-      setTimeout(() => {
-        setMessage("");
-      }, 3000); 
-      socket.current?.on('eventOn',(event:any)=>{
-        otherGame.receiveKeyFrameEvent(event)
-      });
-    })
+    setMessage("게임 시작!");
+    setTimeout(() => {
+    setMessage("");
+    }, 3000); 
+   
     
-    
-    //game.run(); 
+ 
   return () => {
     game.dispose();
-    otherGame.dispose();
   }}, []);
 
   return (<>
@@ -254,12 +169,9 @@ const Tetris: React.FC = () => {
         <VideoCanvas ref={canvasRef}/>
       </VideoContainer>
     
-    <MultiplayContainer>
-      <SceneCanvas id="otherGame" ref={otherSceneRef}> </SceneCanvas>
-    </MultiplayContainer>
     </Container>
     </>
   );
 };
 
-export default Tetris;
+export default TetrisSingle;

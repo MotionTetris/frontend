@@ -31,7 +31,7 @@ export async function setupWebcam(videoRef: RefObject<HTMLVideoElement>) {
 }
 
 export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRef: RefObject<HTMLCanvasElement>,
-    game: TetrisGame, socket: Socket) {
+    game: TetrisGame, socket?: Socket) {
     const net = await posenet.load();
     const video = await setupWebcam(videoRef);
     const canvas = canvasRef.current;
@@ -175,7 +175,7 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
             console.log("왼회전")
             performRotateEffect(game.graphics.rectangles[2], game.graphics.ticker, 0xff00c0);
             const event = game.onRotateLeft();
-            socket.emit('eventOn',event);
+            socket?.emit('eventOn',event);
           
           }
         } else {
@@ -187,7 +187,7 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
             console.log("우회전")
             performRotateEffect(game.graphics.rectangles[3], game.graphics.ticker, 0xff00c0);
             const event = game.onRotateRight();
-            socket.emit('eventOn', event);
+            socket?.emit('eventOn', event);
           }
         }
 
@@ -212,12 +212,12 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
             if (noseX < centerX) {
               performPushEffect(game.graphics.rectangles[0], game.graphics.rectangles[1],  alpha, 0x00ff00);
               const event = game.onMoveLeft(forceMagnitude);
-              socket.emit('eventOn',event);
+              socket?.emit('eventOn',event);
               
             } else {
               performPushEffect(game.graphics.rectangles[1], game.graphics.rectangles[0], alpha, 0x00ff00);
               const event = game.onMoveRight(forceMagnitude);
-              socket.emit('eventOn',event);
+              socket?.emit('eventOn',event);
             }
         }
 
