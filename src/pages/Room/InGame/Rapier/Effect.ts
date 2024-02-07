@@ -192,28 +192,7 @@ export function collisionParticleEffect(
     return particleSprite;
   }
   
-  
 
-
-// export function createRectangle(container: PIXI.Container, width: number, height: number, x: number, y: number) {
-//     const rectangle = new PIXI.Graphics();
-//     rectangle.beginFill(0x0000c0, 0);
-//     rectangle.drawRect(0, 0, width, height);
-//     rectangle.endFill();
-//     rectangle.x = x;
-//     rectangle.y = y;
-//     container.addChild(rectangle);
-//     return rectangle;
-// }
-// export function createRectangle(container: PIXI.Container, width: number, height: number, x: number, y: number) {
-//   const rectangle = PIXI.Sprite.from('src/assets/arrow.png');
-//   rectangle.width = width;
-//   rectangle.height = height;
-//   rectangle.x = x;
-//   rectangle.y = y;
-//   container.addChild(rectangle);
-//   return rectangle;
-// }
 
 
 export function createRectangle(container: PIXI.Container, imagePath: string, width: number, height: number, x: number, y: number) {
@@ -227,41 +206,41 @@ export function createRectangle(container: PIXI.Container, imagePath: string, wi
 }
 
 
-export function performRotateEffect(rectangle: PIXI.Graphics, ticker: PIXI.Ticker, color: number) {
-  rectangle.clear();
-  rectangle.beginFill(color);
-  rectangle.drawRect(0, 0, 50, 400);
-  rectangle.endFill();
+// export function performRotateEffect(rectangle: PIXI.Graphics, ticker: PIXI.Ticker, color: number) {
+//   rectangle.clear();
+//   rectangle.beginFill(color);
+//   rectangle.drawRect(0, 0, 50, 400);
+//   rectangle.endFill();
 
-  let direction = 1;
-  const effectDuration = 0.5; // 효과 지속 시간(초)
-  const startTime = Date.now(); // 시작 시간
+//   let direction = 1;
+//   const effectDuration = 0.5; // 효과 지속 시간(초)
+//   const startTime = Date.now(); // 시작 시간
 
-  const animate = () => {
-    rectangle.alpha += 0.01 * direction;
-    if (rectangle.alpha > 1) {
-      rectangle.alpha = 1;
-      direction = -1;
-    } else if (rectangle.alpha < 0) {
-      rectangle.alpha = 0;
-      direction = 1;
-    }
+//   const animate = () => {
+//     rectangle.alpha += 0.01 * direction;
+//     if (rectangle.alpha > 1) {
+//       rectangle.alpha = 1;
+//       direction = -1;
+//     } else if (rectangle.alpha < 0) {
+//       rectangle.alpha = 0;
+//       direction = 1;
+//     }
 
-    // 효과 지속 시간이 지나면 ticker에서 콜백 함수를 제거
-    if ((Date.now() - startTime) / 1000 > effectDuration) {
-      ticker.remove(animate);  // 수정된 부분
+//     // 효과 지속 시간이 지나면 ticker에서 콜백 함수를 제거
+//     if ((Date.now() - startTime) / 1000 > effectDuration) {
+//       ticker.remove(animate);  // 수정된 부분
 
-      // 효과가 끝나면 채우기 색상을 다시 검정색으로 변경
-      rectangle.clear();
-      rectangle.beginFill(0x00c000, 0);
-      rectangle.drawRect(0, 0, 50, 400);
-      rectangle.endFill();
-    }
-  };
+//       // 효과가 끝나면 채우기 색상을 다시 검정색으로 변경
+//       rectangle.clear();
+//       rectangle.beginFill(0x00c000, 0);
+//       rectangle.drawRect(0, 0, 50, 400);
+//       rectangle.endFill();
+//     }
+//   };
 
-  // 티커에 애니메이션 함수 추가
-  ticker.add(animate);  // 수정된 부분
-}
+//   // 티커에 애니메이션 함수 추가
+//   ticker.add(animate);  // 수정된 부분
+// }
 
   
 export function performPushEffect(firstRectangle: PIXI.Sprite, secondRectangle: PIXI.Sprite, alpha: number, original: number) {
@@ -270,10 +249,6 @@ export function performPushEffect(firstRectangle: PIXI.Sprite, secondRectangle: 
   secondRectangle.alpha = 0;
   secondRectangle.x = original;
 }
-
-
-
-
 
 
   export function createLineEffect(i: number, viewport: Viewport, lines: PIXI.Graphics[]): void {
@@ -395,7 +370,6 @@ export function startShake(options: ShakeOptions) {
 }
 
 export function fallingBlockGlow(fallingBlock: Tetromino) {
-  
   const glowFilter = new GlowFilter({ 
     distance: 45, 
     outerStrength: 2,
@@ -406,6 +380,36 @@ export function fallingBlockGlow(fallingBlock: Tetromino) {
     graphic.filters = [...(graphic.filters || []), glowFilter];
   });
 }
+
+
+
+export function changeBlockGlow(fallingBlock: Tetromino, colorIndex: number) {
+  // 색상 리스트
+  const colorList = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
+
+  // 인덱스를 증가시키고, 색상 리스트의 길이에 도달하면 0으로 초기화
+  const nextColorIndex = (colorIndex + 1) % colorList.length;
+
+  // 새로운 색상으로 GlowFilter 생성
+  const glowFilter = new GlowFilter({ 
+    distance: 45, 
+    outerStrength: 2,
+    color: colorList[nextColorIndex] // 색상 리스트에서 색상 선택
+  });
+
+  fallingBlock.graphics.forEach(graphic => {
+    // 모든 필터 제거
+    graphic.filters = [];
+    // 새 GlowFilter 추가
+    graphic.filters = [glowFilter];
+  });
+
+  // 다음 색상의 인덱스를 반환
+  return nextColorIndex;
+}
+
+
+
 
 
 
