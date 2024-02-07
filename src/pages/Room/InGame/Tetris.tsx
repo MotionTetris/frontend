@@ -27,15 +27,19 @@ const Tetris: React.FC = () => {
   const scoreTexts = useRef<PIXI.Text[]>([]);
   const [user, setUser] = useState<string>('')
   const [other, setOther] = useState<string>('')
-  const location = useLocation()
+  const location = useLocation();
   const currentPlayerNickname = useSelector((state: RootState) => state.homepage.nickname);
+  const [otherPlayers, setOtherPlayers] = useState<string[]>([]);  
+  const otherNicknames = useSelector((state: RootState) => state.game.playersNickname);
+  console.log("딴놈 닉", Array.from(otherNicknames));
+
 
   useEffect(()=>{ 
-    // eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0bWFuIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxODE2MjM5MDIyfQ.Fx5xKjtPQHjYZWTcXkgLBYPL5BXFWELQx-rzAon_5vQ
     const queryParams = new URLSearchParams(location.search);
     const roomId = queryParams.get('roomId')
     const max = queryParams.get('max')
     const token = localStorage.getItem('token')
+
     socket.current = io.connect(`ws://15.164.166.146:3001?roomId=${roomId}&max=${max}`,{
       auth:{
         token:`Bearer ${token}`
@@ -247,6 +251,7 @@ const Tetris: React.FC = () => {
 
   return (<>
     <Container>
+
       
       <PlayerContainer>
         <SceneContainer>
@@ -263,10 +268,13 @@ const Tetris: React.FC = () => {
       </VideoContainer>
       </PlayerContainer>
 
-
-      <MultiplayContainer>
-        <UserNickName> 유저닉: </UserNickName>
-        <SceneCanvas id="otherGame" ref={otherSceneRef}> </SceneCanvas>
+              <MultiplayContainer>
+        <SceneCanvas id="otherGame" ref={otherSceneRef} />
+        {Array.from(otherNicknames).map((nickname, index) => (
+          <div key={index}>
+            <UserNickName>유저닉: {nickname}</UserNickName>
+          </div>
+        ))}
       </MultiplayContainer>
     </Container>
     </>

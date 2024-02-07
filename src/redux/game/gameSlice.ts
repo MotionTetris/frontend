@@ -1,106 +1,32 @@
 // src/features/game/gameSlice.ts
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-import {
-  RoomData,
-  Role,
-  CreatorStatuses,
-  PlayerStatuses,
-} from "../../types/room";
-import { GameState } from "../../types/game";
+import { createSlice, PayloadAction} from "@reduxjs/toolkit";
+import { InGamePlayerCard } from "../../types/Refactoring";
 
-const initialState: GameState = {
-  player: {
-    Role: "PLAYER",
-    playerstatus: "WAIT",
-    profilePicture: "",
-    nickname: "",
-    bannerBackground: "",
-    score: 0,
-  },
-  rooms: [],
-  currentPage: 1,
-  isModalOpen: false,
-  selectedRoom: null,
+
+const initialState: InGamePlayerCard = {
+  playersNickname: new Set<string>(), // Set<string>으로 초기화
+  creatorNickname: '',
+  roomId: 0, // 예시 값
+  roomTitle: '', // 예시 값
+  maxCount: 0, // 예시 값
 };
-export const fetchRooms = createAsyncThunk(
-  "game/fetchRooms",
-  async (page: number, { rejectWithValue }) => {
-    try {
-      const response = await axios.get<{ rooms: RoomData[] }>(
-        "/api/room-data",
-        {
-          params: {
-            page: page,
-          },
-        },
-      );
-      return response.data.rooms;
-    } catch (error) {
-      return rejectWithValue("방 정보를 가져오는데 실패했습니다.");
-    }
-  },
-);
 
 export const gameSlice = createSlice({
   name: "game",
   initialState,
   reducers: {
-    setCurrentPage: (state, action: PayloadAction<number>) => {
-      state.currentPage = action.payload;
+    setOtherNickname: (state, action: PayloadAction<Set<string>>) => {
+      state.playersNickname = action.payload;
     },
-    openModal: (state, action: PayloadAction<RoomData>) => {
-      state.selectedRoom = action.payload;
-      state.isModalOpen = true;
+    setCreatorNickname: (state, action: PayloadAction<string>) => {
+      state.creatorNickname = action.payload;
     },
-    closeModal: (state) => {
-      state.isModalOpen = false;
-      state.selectedRoom = null;
-    },
-    createPlayer: (state) => {
-      state.player.Role = "CREATOR";
-    },
-    togglePlayerReady: (state) => {
-      if (state.player.Role === Role.CREATOR) {
-        state.player.playerstatus =
-          state.player.playerstatus === CreatorStatuses.WAIT
-            ? CreatorStatuses.READY
-            : CreatorStatuses.WAIT;
-      } else if (state.player.Role === Role.PLAYER) {
-        state.player.playerstatus =
-          state.player.playerstatus === PlayerStatuses.WAIT
-            ? PlayerStatuses.READY
-            : PlayerStatuses.WAIT;
-      }
-    },
-
-    startGame: (state) => {
-      // 예시: selectedRoom이 설정되어 있고, 해당 방이 rooms 배열에 존재하는 경우
-      const selectedRoom = state.selectedRoom;
-      if (selectedRoom) {
-        const room = state.rooms.find(
-          (room) => room.roomid === selectedRoom.roomid,
-        );
-        if (room) {
-          room.roomStatus = "START";
-        }
-      }
-    },
-  },
-  extraReducers: (builder) => {
-    builder.addCase(fetchRooms.fulfilled, (state, action) => {
-      state.rooms = action.payload;
-    });
   },
 });
 
 export const {
-  setCurrentPage,
-  openModal,
-  closeModal,
-  createPlayer,
-  togglePlayerReady,
-  startGame,
+  setOtherNickname,
+  setCreatorNickname,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

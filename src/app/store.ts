@@ -16,6 +16,7 @@ import { RoomState } from "../types/room";
 import { SignupState } from "../types/signup";
 import { BannerState } from "../types/banner";
 import { Socket } from "socket.io-client";
+import { InGamePlayerCard } from "../types/Refactoring";
 
 export const store = configureStore({
   reducer: {
@@ -32,7 +33,7 @@ export const store = configureStore({
 
 export type RootState = {
   common: CommonState;
-  game: GameState;
+  game: InGamePlayerCard;
   homepage: HomepageState;
   profile: ProfileState;
   ranking: RankingState;

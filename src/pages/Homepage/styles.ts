@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { Range } from 'react-range';
 
 export const HomepageTitle = styled.h1`
   position: absolute;
@@ -189,3 +190,66 @@ export const HomepageSignupButton = styled(HomepageButton)`
   right: 2vw;
   background-color: #28a745;
 `;
+
+export const VolumeSlider = styled(Range)`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+`;
+
+
+export const VolumeControl = styled.div`
+  position: fixed;
+  z-index: 1000;
+  bottom: 20px;
+  right: 20px;
+
+  &:hover ${VolumeSlider} {
+    opacity: 1;
+  }
+`;
+export const VolumeButton = styled.button`
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #ff0000;
+  color: #ffffff;
+`;
+
+export const PlayButton = styled.button`
+  position: fixed;
+  z-index: 1000;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #ff0000;
+  color: #ffffff;
+`;
+
+
+export const VolumeThumb = styled.div`
+  height: 42px;
+  width: 42px;
+  border-radius: 4px;
+  background-color: #FFF;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0px 2px 6px #AAA;
+`;
+
+export const VolumeTooltip = styled.div`
+  position: absolute;
+  top: -28px;
+  color: #fff;
+  font-weight: bold;
+  font-size: 14px;
+  font-family: Arial,Helvetica Neue,Helvetica,sans-serif;
+  padding: 4px;
+  border-radius: 4px;
+  background-color: #548BF4;
+`
