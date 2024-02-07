@@ -1,7 +1,7 @@
 import { RefObject } from 'react';
 import * as posenet from "@tensorflow-models/posenet";
 import * as PIXI from "pixi.js";
-import { performPushEffect, performRotateEffect } from './Effect';
+import { changeBlockGlow, performPushEffect, performRotateEffect, removeGlow } from './Effect';
 import { TetrisGame } from './TetrisGame';
 import { Graphics } from './Graphics';
 import { math } from '@tensorflow/tfjs';
@@ -54,6 +54,7 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
     let leftAngleDelta = 0;
     let rightAngleDelta = 0;
     let noseX = 0;
+    let nextColorIndex = 0;
     game.graphics.ticker.start();
     //const [rectangleLeft, rectangleRight, rectangleLeftRotate, rectangleRightRotate] = rectangles;
 
@@ -173,7 +174,8 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
             leftWristX < prevLeftWristX - 20
           ) {
             console.log("왼회전")
-            //performRotateEffect(game.graphics.rectangles[2], game.graphics.ticker, 0xff00c0);
+            
+            nextColorIndex = changeBlockGlow(game.fallingTetromino!, nextColorIndex);
             const event = game.onRotateLeft();
             socket?.emit('eventOn',event);
           
@@ -185,7 +187,7 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
             rightWristX - 20 > prevRightWristX
           ) {
             console.log("우회전")
-            //performRotateEffect(game.graphics.rectangles[3], game.graphics.ticker, 0xff00c0);
+            nextColorIndex = changeBlockGlow(game.fallingTetromino!, nextColorIndex);
             const event = game.onRotateRight();
             socket?.emit('eventOn', event);
           }
