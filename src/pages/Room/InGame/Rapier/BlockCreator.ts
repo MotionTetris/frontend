@@ -64,10 +64,10 @@ export class BlockCreator {
     }
 
     public static createT(rad: number) {
-        const colliderDesc1 = this.createRectangle(rad)!.setTranslation(0, 0).setRestitution(0.1).setFriction(1.0);
-        const colliderDesc2 = this.createRectangle(rad)!.setTranslation(2 * rad, 0).setRestitution(0.1).setFriction(1.0);
-        const colliderDesc3 = this.createRectangle(rad)!.setTranslation(-2 * rad, 0).setRestitution(0.1).setFriction(1.0);
-        const colliderDesc4 = this.createRectangle(rad)!.setTranslation(0, 2 * rad).setRestitution(0.1).setFriction(1.0);
+        const colliderDesc1 = this.createRectangle(rad)!.setTranslation(0, 0);
+        const colliderDesc2 = this.createRectangle(rad)!.setTranslation(2 * rad, 0);
+        const colliderDesc3 = this.createRectangle(rad)!.setTranslation(-2 * rad, 0);
+        const colliderDesc4 = this.createRectangle(rad)!.setTranslation(0, 2 * rad);
         return [colliderDesc1, colliderDesc2, colliderDesc3, colliderDesc4];
     }
 
