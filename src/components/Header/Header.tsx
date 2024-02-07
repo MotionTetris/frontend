@@ -20,6 +20,7 @@ import { Navigate } from "react-router-dom";
 import {BackgroundColor3, Circle} from "../../BGstyles"
 import {BlockComponents} from "../../BGtetris"
 import { useLocation } from "react-router-dom";
+import Volume from "@components/volume";
 
 const HeaderStyledLink: React.FC<{ to: string, image: string, children: React.ReactNode }> = ({ to, children, image }) => {
   const location = useLocation();
@@ -48,6 +49,7 @@ const Header: React.FC = () => {
     <>
       {backgroundCircles}
       <HeaderContainer>
+      <Volume page = 'page2'/>
         <HeaderLogoContainer>
           <HeaderLogo src="src/assets/Logo.png" alt="logo" />
           <HeaderLogoTitle>Motion Tetris</HeaderLogoTitle>

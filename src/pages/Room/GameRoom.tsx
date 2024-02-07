@@ -18,8 +18,10 @@ import { useRoomSocket, RoomSocketEvent } from "../../context/roomSocket";
 import { InGamePlayerCard } from "../../types/Refactoring";
 import { BackgroundColor1, Night, ShootingStar } from "../../BGstyles";
 import { useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from '../../app/store';
+import { setOtherNickname, setCreatorNickname } from "../../redux/game/gameSlice";
+
 
 const GameRoom: React.FC = () => {
   const navigate = useNavigate();
@@ -33,6 +35,9 @@ const GameRoom: React.FC = () => {
   const currentPlayerNickname = useSelector((state: RootState) => state.homepage.nickname);
   const [players, setPlayers] = useState<string[]>([]);
   const [isGameALLReady, setIsGameALLReady] = useState(false);
+  const creatorNickname = useSelector((state: RootState) => state.game.creatorNickname);
+  const playersNickname = useSelector((state: RootState) => state.game.playersNickname);
+  const dispatch = useDispatch();
 
   const shootingStars = Array(20).fill(null).map((_, index) => 
 <ShootingStar 
@@ -48,27 +53,25 @@ useEffect(() => {
   let timeoutId: NodeJS.Timeout;
 
   if (roomInfo) {
+    dispatch(setCreatorNickname(roomInfo.roomInfo.creatorNickname));
+    dispatch(setOtherNickname(new Set(roomInfo.roomInfo.playersNickname || [])));
     setInGameCard(roomInfo.roomInfo);
     const playersNickname = Array.from(roomInfo.roomInfo.playersNickname || []);
     const creatorNickname = roomInfo.roomInfo.creatorNickname;
-    
+
     if (roomInfo.isCreator) {
       const otherPlayers = playersNickname.filter(nickname => nickname !== currentPlayerNickname);
       setPlayers([currentPlayerNickname, ...randomizePlayers(otherPlayers)]);
-
-      roomSocket?.on(RoomSocketEvent.ON_GAME_ALLREADY, () => {
-        setIsGameALLReady(true);
-      });
-    }
-    else {
+    } else {
       const otherPlayers = playersNickname.filter(nickname => nickname !== creatorNickname && nickname !== currentPlayerNickname);
       setPlayers([currentPlayerNickname, ...randomizePlayers(otherPlayers)]);
     }
   }
 
   roomSocket?.on(RoomSocketEvent.ON_JOIN_ROOM, (users) => {
-    const otherUsers = users.filter((user: string) => user !== currentPlayerNickname);
-    setPlayers([currentPlayerNickname, ...shufflePlayers(otherUsers)]);
+    const otherUsersNicknames = users.filter((user: string) => user !== currentPlayerNickname);
+    const otherUsersNicknamesSet = new Set<string>(otherUsersNicknames);
+    dispatch(setOtherNickname(otherUsersNicknamesSet));
   });
   
   roomSocket?.on(RoomSocketEvent.EMIT_EXIT, () => {
@@ -81,6 +84,10 @@ useEffect(() => {
     clearTimeout(timeoutId);
   });
 
+  roomSocket?.on(RoomSocketEvent.ON_GAME_ALLREADY, () => {
+    setIsGameALLReady(true);
+  });
+
   roomSocket?.on(RoomSocketEvent.ON_GAME_START, () => {
     navigate(`/gameplay?roomId=${roomInfo?.roomInfo.roomId}&max=${roomInfo?.roomInfo.maxCount}`);
   });
@@ -90,12 +97,11 @@ useEffect(() => {
     roomSocket?.off(RoomSocketEvent.ON_JOIN_ROOM);
     roomSocket?.off(RoomSocketEvent.EMIT_EXIT);
     roomSocket?.off(RoomSocketEvent.EMIT_JOIN);
-
-    if (roomInfo?.isCreator) {
-      roomSocket?.off(RoomSocketEvent.ON_GAME_ALLREADY);
-    }
+    roomSocket?.off(RoomSocketEvent.ON_GAME_ALLREADY);
   };
 }, [roomInfo, currentPlayerNickname, roomSocket]);
+
+
 
 function randomizePlayers(players: string[]) {
   return players.sort(() => Math.random() - 0.5);

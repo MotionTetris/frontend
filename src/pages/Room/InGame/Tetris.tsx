@@ -11,6 +11,9 @@ import { TetrisMultiplayView } from "./Rapier/TetrisMultiplayView.ts";
 import * as io from 'socket.io-client';
 import  {useLocation} from "react-router-dom"
 import { GAME_SOCKET_URL } from "config.ts";
+import { useSelector } from "react-redux";
+import { RootState } from "@app/store.ts";
+
 const eraseThreshold = 10000;
 const RAPIER = await import('@dimforge/rapier2d')
 const Tetris: React.FC = () => {
@@ -24,13 +27,18 @@ const Tetris: React.FC = () => {
   const scoreTexts = useRef<PIXI.Text[]>([]);
   const [user, setUser] = useState<string>('')
   const [other, setOther] = useState<string>('')
-  const location = useLocation()
+  const location = useLocation();
+  const currentPlayerNickname = useSelector((state: RootState) => state.homepage.nickname);
+  const [otherPlayers, setOtherPlayers] = useState<string[]>([]);  
+  const otherNicknames = useSelector((state: RootState) => state.game.playersNickname);
+  console.log("딴놈 닉", Array.from(otherNicknames));
+
   useEffect(()=>{ 
-    // eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0bWFuIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxODE2MjM5MDIyfQ.Fx5xKjtPQHjYZWTcXkgLBYPL5BXFWELQx-rzAon_5vQ
     const queryParams = new URLSearchParams(location.search);
     const roomId = queryParams.get('roomId')
     const max = queryParams.get('max')
     const token = localStorage.getItem('token')
+
     socket.current = io.connect(`ws://15.164.166.146:3001?roomId=${roomId}&max=${max}`,{
       auth:{
         token:`Bearer ${token}`
@@ -243,7 +251,7 @@ const Tetris: React.FC = () => {
   return (<>
     <Container>
       <SceneContainer>
-        <UserNickName> 유저닉: </UserNickName>
+        <UserNickName> 유저닉: {currentPlayerNickname}</UserNickName>
         <MessageDiv>  {message} </MessageDiv>
         <Score> 점수: {playerScore} </Score>
         <SceneCanvas id = "game" ref = {sceneRef}> </SceneCanvas>
@@ -254,9 +262,14 @@ const Tetris: React.FC = () => {
         <VideoCanvas ref={canvasRef}/>
       </VideoContainer>
     
-    <MultiplayContainer>
-      <SceneCanvas id="otherGame" ref={otherSceneRef}> </SceneCanvas>
-    </MultiplayContainer>
+      <MultiplayContainer>
+        <SceneCanvas id="otherGame" ref={otherSceneRef} />
+        {Array.from(otherNicknames).map((nickname, index) => (
+          <div key={index}>
+            <UserNickName>유저닉: {nickname}</UserNickName>
+          </div>
+        ))}
+      </MultiplayContainer>
     </Container>
     </>
   );
