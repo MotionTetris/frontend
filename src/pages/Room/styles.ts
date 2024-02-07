@@ -219,10 +219,16 @@ export const StartButton = styled.button`
     background-color: #ff6666; // 호버 시 색상을 더 부드럽게 변경
     box-shadow: 0 0 15px rgba(255, 0, 0, 0.1); // 호버 시 빨간색 glow 효과
   }
+  &:disabled {
+    background-color: #cccccc; // 회색으로 변경
+    color: #666666; // 텍스트 색상을 어둡게 변경
+    cursor: not-allowed; // 마우스 오버시 커서 변경
+    box-shadow: none; // 그림자 제거
+  }
 `;
 
 export const ReadyButton = styled.span`
-   position: absolute;
+  position: absolute;
   bottom: 20vh;
   right: 6vw;
   width: 8%;

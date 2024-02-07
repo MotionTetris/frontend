@@ -109,10 +109,12 @@ function shufflePlayers(players: string[]) {
 
 const isCreator = inGameCard?.creatorNickname === currentPlayerNickname;
 
-  const handleReadyClick = () => {
-    setIsReady(!isReady);
-    roomSocket?.emit(RoomSocketEvent.EMIT_GAME_READY, {roomId});
-  };
+const handleReadyClick = () => {
+  if (!isReady) {
+    setIsReady(true);
+    roomSocket?.emit(RoomSocketEvent.EMIT_GAME_READY, { roomId });
+  }
+};
 
   const handleBackButtonClick = () => {
     navigate('/GameMain');
