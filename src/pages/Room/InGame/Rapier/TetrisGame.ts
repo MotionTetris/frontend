@@ -189,6 +189,8 @@ export class TetrisGame {
             type: 'block'
         };
 
+        newBody.rigidBody.setLinearDamping(0.25);
+        newBody.rigidBody.setAngularDamping(10);
         if (spawnedForFalling) {
             this.fallingTetromino = newBody;
             return newBody;
@@ -221,6 +223,7 @@ export class TetrisGame {
         const tetromino = new Tetromino(this.option, this.world, this.graphics.viewport, newBody, color);
         for (let i = 0; i < tetromino.rigidBody.numColliders(); i++) {
             this.graphics.addCollider(tetromino.rigidBody.collider(i));
+            tetromino.rigidBody.collider(i).setRestitution(0);
             tetromino.rigidBody.collider(i).setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
         }
 
@@ -322,35 +325,33 @@ export class TetrisGame {
     }
 
     public onRotateLeft() {
-        this.fallingTetromino?.rigidBody.applyTorqueImpulse(1000000, false);
+        this.fallingTetromino?.rigidBody.setAngvel(10, false);
         const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.TURN_LEFT);
-        console.log(event);
         this.updateSequence();
         return event;
     }
 
     public onRotateRight() {
-        this.fallingTetromino?.rigidBody.applyTorqueImpulse(-1000000, false);
+        this.fallingTetromino?.rigidBody.setAngvel(-10, false);
         const event =  KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.TURN_RIGHT);
-        console.log(event);
         this.updateSequence();
         return event;
     }
 
     public onMoveLeft(weight: number) {
-        this.fallingTetromino?.rigidBody.applyImpulse({x: -weight * 100000, y: 0}, false);
+        let velocity = this.fallingTetromino?.rigidBody.linvel()!;
+        this.fallingTetromino?.rigidBody.setLinvel({x: -weight * 100, y: velocity.y}, false);
         const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.MOVE_LEFT);
         event.userData = weight;
-        console.log(event);
         this.updateSequence();
         return event;
     }
 
     public onMoveRight(weight: number) {
-        this.fallingTetromino?.rigidBody.applyImpulse({x: weight * 100000, y: 0}, false);
+        let velocity = this.fallingTetromino?.rigidBody.linvel()!;
+        this.fallingTetromino?.rigidBody.setLinvel({x: weight * 100, y: velocity.y}, false);
         const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.MOVE_RIGHT);
         event.userData = weight;
-        console.log(event);
         this.updateSequence();
         return event;
     }
@@ -358,7 +359,6 @@ export class TetrisGame {
     public onBlockSpawned(type: BlockType) {
         const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.BLOCK_SPAWNED);
         event.userData = type;
-        console.log(event);
         this.sequence += 1;
         return event;
     }
