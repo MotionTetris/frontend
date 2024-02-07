@@ -263,6 +263,7 @@ const Tetris: React.FC = () => {
       </VideoContainer>
       </PlayerContainer>
 
+
       <MultiplayContainer>
         <UserNickName> 유저닉: </UserNickName>
         <SceneCanvas id="otherGame" ref={otherSceneRef}> </SceneCanvas>
