@@ -173,7 +173,7 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
             leftWristX < prevLeftWristX - 20
           ) {
             console.log("왼회전")
-            performRotateEffect(game.graphics.rectangles[2], game.graphics.ticker, 0xff00c0);
+            //performRotateEffect(game.graphics.rectangles[2], game.graphics.ticker, 0xff00c0);
             const event = game.onRotateLeft();
             socket?.emit('eventOn',event);
           
@@ -185,7 +185,7 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
             rightWristX - 20 > prevRightWristX
           ) {
             console.log("우회전")
-            performRotateEffect(game.graphics.rectangles[3], game.graphics.ticker, 0xff00c0);
+            //performRotateEffect(game.graphics.rectangles[3], game.graphics.ticker, 0xff00c0);
             const event = game.onRotateRight();
             socket?.emit('eventOn', event);
           }
@@ -206,16 +206,16 @@ export async function runPosenet(videoRef: RefObject<HTMLVideoElement>, canvasRe
           let forceMagnitude = Math.abs(noseX - centerX) / (centerX); // 중앙에서 얼마나 떨어져 있는지에 비례하는 힘의 크기를 계산합니다.
 
           // noseX와 centerX의 차이에 따라 alpha 값을 결정
-          let alpha = Math.min(Math.abs(noseX - centerX) / 300, 1); // 100은 정규화를 위한 값이며 조절 가능
+          let alpha = Math.min((noseX - centerX) / 300, 1); // 100은 정규화를 위한 값이며 조절 가능
 
         //   if (GAME.fallingBlock) {
             if (noseX < centerX) {
-              performPushEffect(game.graphics.rectangles[0], game.graphics.rectangles[1],  alpha, 0x00ff00);
+              performPushEffect(game.graphics.rectangles[0], game.graphics.rectangles[1],  alpha, 470);
               const event = game.onMoveLeft(forceMagnitude);
               socket?.emit('eventOn',event);
               
             } else {
-              performPushEffect(game.graphics.rectangles[1], game.graphics.rectangles[0], alpha, 0x00ff00);
+              performPushEffect(game.graphics.rectangles[1], game.graphics.rectangles[0], alpha, 80);
               const event = game.onMoveRight(forceMagnitude);
               socket?.emit('eventOn',event);
             }

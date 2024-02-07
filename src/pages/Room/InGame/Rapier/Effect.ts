@@ -4,6 +4,8 @@ import {GlowFilter} from '@pixi/filter-glow';
 import { Tetromino } from "./Tetromino";
 import { gsap } from 'gsap';
 import { Graphics } from "./Graphics";
+import { number } from "prop-types";
+import Tetris from "../Tetris";
 
 
 export const explodeParticleEffect = (x: number, y: number, graphics: Graphics ) => {
@@ -193,15 +195,35 @@ export function collisionParticleEffect(
   
 
 
-export function createRectangle(container: PIXI.Container, width: number, height: number, x: number, y: number) {
-    const rectangle = new PIXI.Graphics();
-    rectangle.beginFill(0x0000c0, 0);
-    rectangle.drawRect(0, 0, width, height);
-    rectangle.endFill();
-    rectangle.x = x;
-    rectangle.y = y;
-    container.addChild(rectangle);
-    return rectangle;
+// export function createRectangle(container: PIXI.Container, width: number, height: number, x: number, y: number) {
+//     const rectangle = new PIXI.Graphics();
+//     rectangle.beginFill(0x0000c0, 0);
+//     rectangle.drawRect(0, 0, width, height);
+//     rectangle.endFill();
+//     rectangle.x = x;
+//     rectangle.y = y;
+//     container.addChild(rectangle);
+//     return rectangle;
+// }
+// export function createRectangle(container: PIXI.Container, width: number, height: number, x: number, y: number) {
+//   const rectangle = PIXI.Sprite.from('src/assets/arrow.png');
+//   rectangle.width = width;
+//   rectangle.height = height;
+//   rectangle.x = x;
+//   rectangle.y = y;
+//   container.addChild(rectangle);
+//   return rectangle;
+// }
+
+
+export function createRectangle(container: PIXI.Container, imagePath: string, width: number, height: number, x: number, y: number) {
+  const rectangle = PIXI.Sprite.from(imagePath);
+  rectangle.width = width;
+  rectangle.height = height;
+  rectangle.x = x;
+  rectangle.y = y;
+  container.addChild(rectangle);
+  return rectangle;
 }
 
 
@@ -242,17 +264,14 @@ export function performRotateEffect(rectangle: PIXI.Graphics, ticker: PIXI.Ticke
 }
 
   
-  export function performPushEffect(firstRectangle: PIXI.Graphics, secondRectangle: PIXI.Graphics, alpha: number, color: number) {
-    firstRectangle.alpha = alpha;
-    firstRectangle.clear();
-    firstRectangle.beginFill(color);
-    firstRectangle.drawRect(0, 0,50, 400);
-    firstRectangle.endFill();
-    secondRectangle.clear();
-    secondRectangle.beginFill(0x00c000, 0);
-    secondRectangle.drawRect(0, 0, 50, 400);
-    secondRectangle.endFill();
-  }
+export function performPushEffect(firstRectangle: PIXI.Sprite, secondRectangle: PIXI.Sprite, alpha: number, original: number) {
+  firstRectangle.alpha = 1;
+  firstRectangle.x += alpha * 10;
+  secondRectangle.alpha = 0;
+  secondRectangle.x = original;
+}
+
+
 
 
 
@@ -389,6 +408,7 @@ export function fallingBlockGlow(fallingBlock: Tetromino) {
 }
 
 
+
 export function removeGlow(fallingBlock: Tetromino) {
   fallingBlock.graphics.forEach(graphic => {
     if (graphic.filters) {
@@ -415,4 +435,18 @@ export function loadStarImage() {
       });
     }
   });
+}
+
+export function handleComboEffect(combo: number, graphics: Graphics): string {
+  startShake({ viewport: graphics.viewport, strength: 5 + 10 * combo, duration: 400 + 50 * combo})
+  if (combo === 1) {
+    return "Single Combo!";
+  }
+  else if (combo === 2) {
+    return "Double Combo!";
+  }
+  else {
+    explodeParticleEffect(300, 700, graphics);
+    return "Fantastic!";
+  }
 }

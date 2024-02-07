@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "./Rapier/TetrisGame.ts";
 import { initWorld } from "./Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer } from "./style.tsx";
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer, PlayerContainer } from "./style.tsx";
 import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake } from "./Rapier/Effect.ts";
 import * as PIXI from "pixi.js";
 import { runPosenet } from "./Rapier/WebcamPosenet.ts";
@@ -11,6 +11,9 @@ import { TetrisMultiplayView } from "./Rapier/TetrisMultiplayView.ts";
 import * as io from 'socket.io-client';
 import  {useLocation} from "react-router-dom"
 import { GAME_SOCKET_URL } from "config.ts";
+import {  useSelector } from 'react-redux';
+import { RootState } from "@app/store.ts";
+
 const eraseThreshold = 10000;
 const RAPIER = await import('@dimforge/rapier2d')
 const Tetris: React.FC = () => {
@@ -25,6 +28,8 @@ const Tetris: React.FC = () => {
   const [user, setUser] = useState<string>('')
   const [other, setOther] = useState<string>('')
   const location = useLocation()
+  const currentPlayerNickname = useSelector((state: RootState) => state.homepage.nickname);
+
   useEffect(()=>{ 
     // eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0bWFuIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxODE2MjM5MDIyfQ.Fx5xKjtPQHjYZWTcXkgLBYPL5BXFWELQx-rzAon_5vQ
     const queryParams = new URLSearchParams(location.search);
@@ -242,21 +247,26 @@ const Tetris: React.FC = () => {
 
   return (<>
     <Container>
-      <SceneContainer>
-        <UserNickName> 유저닉: </UserNickName>
-        <MessageDiv>  {message} </MessageDiv>
-        <Score> 점수: {playerScore} </Score>
-        <SceneCanvas id = "game" ref = {sceneRef}> </SceneCanvas>
-      </SceneContainer>
+      
+      <PlayerContainer>
+        <SceneContainer>
+          <UserNickName> 유저닉: {currentPlayerNickname} </UserNickName>
+          <MessageDiv>  {message} </MessageDiv>
+          <Score> 점수: {playerScore} </Score>
+          <SceneCanvas id = "game" ref = {sceneRef}> </SceneCanvas>
+        </SceneContainer>
+      
     
       <VideoContainer>
         <Video ref={videoRef} autoPlay/>
         <VideoCanvas ref={canvasRef}/>
       </VideoContainer>
-    
-    <MultiplayContainer>
-      <SceneCanvas id="otherGame" ref={otherSceneRef}> </SceneCanvas>
-    </MultiplayContainer>
+      </PlayerContainer>
+
+      <MultiplayContainer>
+        <UserNickName> 유저닉: </UserNickName>
+        <SceneCanvas id="otherGame" ref={otherSceneRef}> </SceneCanvas>
+      </MultiplayContainer>
     </Container>
     </>
   );
