@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { VolumeControl, VolumeButton, VolumeTooltip, VolumeThumb } from "./styles";
+import { VolumeControl, VolumeButton } from "./styles";
 import { playLodingSound1,playLodingSound2, stopSound  } from "./sound";
 import { IoVolumeMediumSharp } from "react-icons/io5";
 import { IoVolumeMuteOutline } from "react-icons/io5";
@@ -13,13 +13,14 @@ const Volume: React.FC<VolumeProps> = ({ page }) => {
   const [volume, setVolume] = useState([50]);
 
   useEffect(() => {
-    stopSound();
     if (page === 'page1') {
       playLodingSound1(volume[0] / 100);
     } else if (page === 'page2') {
       playLodingSound2(volume[0] / 100);
     }
-  }, [ page]);
+    return () => stopSound();
+  }, [page]);
+
 
   useEffect(() => {
     if (page === 'page1') {

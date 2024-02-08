@@ -1,6 +1,6 @@
 // src/App.tsx
 import React, {useEffect, useState} from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from "react-router-dom";
 
 import GameMain from "./pages/Main/GameMain";
 import GameLobby from "./pages/Lobby/GameLobby";
@@ -20,9 +20,18 @@ const WithHeader: React.FC<{ component: React.ComponentType }> = ({ component: C
     <Component />
   </>
 );
+const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    return <Navigate to="/gamelobby" replace />;
+  }
+  return children;
+};
+
 
 const App: React.FC = () => {
   const [roomSocket, setRoomSocket] = useState<io.Socket | null>(null);
+  
   return (
     <Router>
       <GlobalStyles />
@@ -34,7 +43,11 @@ const App: React.FC = () => {
           <Route path="/rooms/:roomId" element={<GameRoom/>} />
           <Route path="/gameplay" element={<Tetris />} />
           <Route path="/singleplay" element={<TetrisSingle />} />
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          } />
         </Routes>
       </RoomSocketContext.Provider>
     </Router>

@@ -1,6 +1,6 @@
 // src/components/GameRoom.tsx
 import { useEffect, useState } from "react";
-import { Navigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import {
   RoomContainer,
@@ -10,7 +10,6 @@ import {
   GameRoomTitle,
   FaBackspaced,
   PlayerContainer,
-  StyledPlayer,
   playerStyles
 } from "./styles";
 import Player from "@components/Player/Player";
@@ -35,8 +34,6 @@ const GameRoom: React.FC = () => {
   const currentPlayerNickname = useSelector((state: RootState) => state.homepage.nickname);
   const [players, setPlayers] = useState<string[]>([]);
   const [isGameALLReady, setIsGameALLReady] = useState(false);
-  const creatorNickname = useSelector((state: RootState) => state.game.creatorNickname);
-  const playersNickname = useSelector((state: RootState) => state.game.playersNickname);
   const dispatch = useDispatch();
 
   const shootingStars = Array(20).fill(null).map((_, index) => 
@@ -72,6 +69,8 @@ useEffect(() => {
     const otherUsersNicknames = users.filter((user: string) => user !== currentPlayerNickname);
     const otherUsersNicknamesSet = new Set<string>(otherUsersNicknames);
     dispatch(setOtherNickname(otherUsersNicknamesSet));
+    setPlayers([currentPlayerNickname, ...shufflePlayers(otherUsersNicknames)]);
+    setIsReady(false);
   });
   
   roomSocket?.on(RoomSocketEvent.EMIT_EXIT, () => {
@@ -123,8 +122,27 @@ const handleReadyClick = () => {
 };
 
   const handleBackButtonClick = () => {
+    roomSocket?.emit(RoomSocketEvent.EMIT_EXIT, { roomId });
     navigate('/GameMain');
   };
+
+
+
+  
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+  
+    window.addEventListener('beforeunload', handleBeforeUnload);
+  
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
+  
 
   return (
     <RoomContainer>
@@ -132,10 +150,16 @@ const handleReadyClick = () => {
       <GameRoomTitle>{inGameCard?.roomTitle}</GameRoomTitle>
       <FaBackspaced onClick={handleBackButtonClick} />
       {isCreator ? (
-  <StartButton 
-  disabled={!isGameALLReady}
+        <StartButton 
+  disabled={players.length !== 1 && !isGameALLReady}
   onClick={() => {
-    roomSocket?.emit(RoomSocketEvent.EMIT_GAME_START);
+    if (players.length === 1) {
+      if (window.confirm('싱글 게임으로 시작하시겠습니까?')) {
+        navigate('/singleplay');
+      }
+    } else {
+      roomSocket?.emit(RoomSocketEvent.EMIT_GAME_START);
+    }
   }}
 >
   Start Game
