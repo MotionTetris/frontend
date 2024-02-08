@@ -97,6 +97,22 @@ const Tetris: React.FC = () => {
       game.fallingTetromino?.rigidBody.resetForces(true);
     }
 
+    const StepCallback = (game: TetrisGame, step: number) => {
+      if (step % 15 != 0) {
+        return;
+      }
+      const checkResult = game.checkLine(eraseThreshold);
+      createScoreBasedGrid(game.graphics.viewport, checkResult.scoreList);
+      
+      scoreTexts.current.forEach((text) => {
+        if (game.graphics.viewport.children.includes(text)) {
+          game.graphics.viewport.removeChild(text);
+        }
+      });
+
+      scoreTexts.current = showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts.current, eraseThreshold);
+    }
+
     const LandingEvent = ({game, bodyA, bodyB}: any) => {
       let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
       let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
@@ -192,7 +208,8 @@ const Tetris: React.FC = () => {
       wallColor: 0xFF0000,
       wallAlpha: 0.1,
       backgroundColor: 0x222929,
-      backgroundAlpha: 1
+      backgroundAlpha: 1,
+      stepCallback: StepCallback
     };
     
     const game = new TetrisGame(TetrisOption, "user");
