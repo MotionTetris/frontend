@@ -2,12 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "./Rapier/TetrisGame.ts";
 import { initWorld } from "./Rapier/World.ts";
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer } from "./style.tsx";
-import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake, handleComboEffect} from "./Rapier/Effect.ts";
+import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake, handleComboEffect, performPushEffect, changeBlockGlow} from "./Rapier/Effect.ts";
 import * as PIXI from "pixi.js";
-import { runPosenet } from "./Rapier/WebcamPosenet.ts";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "./Rapier/TetrisOption.ts";
 import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } from "./Rapier/Sound.ts";
+import { PoseNet } from "@tensorflow-models/posenet";
+import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "./Rapier/PostNet.ts";
 
 
 const eraseThreshold = 8000;
@@ -134,19 +135,69 @@ const TetrisSingle: React.FC = () => {
     fallingBlockGlow(game.fallingTetromino!);
 
 
-    runPosenet(videoRef, canvasRef, game);
+    let poseNetResult: { poseNet: PoseNet; renderingContext: CanvasRenderingContext2D; } | undefined = undefined;
+    let prevResult: KeyPointResult = {
+      leftAngle: 0,
+      rightAngle: 0,
+      rightWristX: 0,
+      leftWristX: 0
+    }
+
+    let nextColorIndex = 0;
+
+    let eventCallback: KeyPointCallback = {
+      onRotateLeft: function (keypoints: Map<string, KeyPoint>): void {
+        nextColorIndex = changeBlockGlow(game.fallingTetromino!, nextColorIndex);
+        game.onRotateLeft();
+      },
+      onRotateRight: function (keypoints: Map<string, KeyPoint>): void {
+        nextColorIndex = changeBlockGlow(game.fallingTetromino!, nextColorIndex);
+        game.onRotateRight();
+      },
+      onMoveLeft: function (keypoints: Map<string, KeyPoint>): void {
+        let centerX = keypoints.get("center")?.x;
+        let nose = keypoints.get("nose");
+        if (!nose || !centerX) {
+          return;
+        }
+        let alpha = (nose.x - centerX) / 300;
+        let forceMagnitude = Math.abs(nose.x - centerX) / (centerX);
+        performPushEffect(game.graphics.rectangles[0], game.graphics.rectangles[1],  alpha, 80, 470);
+        game.onMoveLeft(forceMagnitude);
+
+      },
+      onMoveRight: function (keypoints: Map<string, KeyPoint>): void {
+        let centerX = keypoints.get("center")?.x;
+        let nose = keypoints.get("nose");
+        if (!nose || !centerX) {
+          return;
+        }
+        let alpha = (nose.x - centerX) / 300;
+        let forceMagnitude = Math.abs(nose.x - centerX) / (centerX);
+        performPushEffect(game.graphics.rectangles[1], game.graphics.rectangles[0], alpha, 470, 80);
+        game.onMoveRight(forceMagnitude);
+      }
+    }
+    
+    const poseNetLoop = async () => {
+      if (!videoRef.current) {
+        return;
+      }
+
+      if (!poseNetResult) {
+        poseNetResult = await loadPoseNet(videoRef, canvasRef);
+      }
+      prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback);
+    }
+    
+    let id = setInterval(poseNetLoop, 250);
     game.run(); 
 
-
     setMessage("게임 시작!");
-    setTimeout(() => {
-    setMessage("");
-    }, 3000); 
-   
-    
- 
+    setTimeout(() => {setMessage("")}, 3000); 
   return () => {
     game.dispose();
+    clearInterval(id);
   }}, []);
 
   return (<>
