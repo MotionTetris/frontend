@@ -24,6 +24,24 @@ export const CreateRoomContainer = styled.div`
   max-width: 600px;
 `;
 
+export const RoomLabel = styled.label`
+  // 여기에 CSS 스타일을 추가합니다.
+`;
+
+export const RoomInput = styled.input`
+  // 여기에 CSS 스타일을 추가합니다.
+`;
+
+export const RoomSelect = styled.select`
+  // 여기에 CSS 스타일을 추가합니다.
+`;
+
+export const WarningMessage = styled.span`
+  color: red;
+  white-space: nowrap;
+`;
+
+
 export const CreateRoomTitle = styled.h2``;
 
 export const CreateRoomContent = styled.p``;

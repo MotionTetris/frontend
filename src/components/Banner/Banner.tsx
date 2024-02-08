@@ -29,7 +29,7 @@ const Banner: React.FC = () => {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
-
+  
   return (
     <BannerContainer>
       <BannerArrowButton

@@ -22,7 +22,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://jeongminjo.shop",
+        target: "http://jeongminjo.shop:3000/",
         changeOrigin: true,
         rewrite: (path) => {
           const newPath = path.replace(/^\/api/, '');

@@ -105,7 +105,7 @@ const LoginModal: React.FC = () => {
                   onChange={handlePasswordChange}
                   minLength={8}
                   pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
-                  title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"
+                  title="적어도 하나의 숫자와 대문자, 소문자를 포함해야 하며, 길이는 최소 8자 이상이어야 합니다."
                   placeholder="비밀번호"
                 />
                 <Icon>
