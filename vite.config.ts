@@ -12,11 +12,12 @@ export default defineConfig({
       '@app': path.resolve(__dirname, './src/app'),
       '@assets': path.resolve(__dirname, './src/assets'),
       '@components': path.resolve(__dirname, './src/components'),
-      '@redux': path.resolve(__dirname, './src/redus'),
+      '@redux': path.resolve(__dirname, './src/redux'),
       '@mocks': path.resolve(__dirname, './src/mocks'),
       '@pages': path.resolve(__dirname, './src/pages'),
       '@util': path.resolve(__dirname, './src/util'),
-      '@types': path.resolve(__dirname, './src/types'),
+      '@type': path.resolve(__dirname, './src/types'),
+      '@context': path.resolve(__dirname, './src/context'),
     }
   },
   server: {

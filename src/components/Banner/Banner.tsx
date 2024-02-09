@@ -1,4 +1,3 @@
-// src/components/Banner.tsx
 import { useState, useEffect } from "react";
 import {
   BannerContainer,

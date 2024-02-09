@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { userChangePasswordAPI, userByeAPI } from "@api/user";
 import {ByeButton,ProfileHeader,ProfileChange, GameDashboardContainer, Button, Input, FormContainer } from "./styles";
-import {Circle, BackgroundColor1, Span, BackgroundColor2, BackgroundColor3} from "../../BGstyles"
+import {Circle, BackgroundColor1, Span, BackgroundColor2, BackgroundColor3} from "BGstyles"
 
 const GameDashboard = () => {
   const [activePath] = useState("/gamedashboard");

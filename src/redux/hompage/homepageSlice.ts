@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { HomepageState } from "../../types/homepage";
+import { HomepageState } from "@type/homepage";
 
 const initialState: HomepageState = {
   nickname: "",

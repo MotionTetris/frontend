@@ -23,7 +23,7 @@ import {
   setEmailError,
   setPasswordError,
   setConfirmPasswordError,
-} from "../../../../redux/hompage/signupSlice"; // 경로는 실제 구조에 맞게 조정하세요.
+} from "@redux/hompage/signupSlice";
 import { RootState } from "@app/store";
 import {
   validateNickname,

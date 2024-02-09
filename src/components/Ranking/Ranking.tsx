@@ -1,6 +1,5 @@
-// RankingComponent.tsx
 import { useEffect, useState } from "react";
-import { rankingAPI } from "../../api/ranking";
+import { rankingAPI } from "@api/ranking";
 import {
   RankContainer,
   RankBar,
@@ -13,7 +12,7 @@ import {
   RankSection,
   RankButton,
 } from "./styles";
-import { Ranking } from "../../types/Refactoring";
+import { Ranking } from "@type/Refactoring";
 
 const Ranking: React.FC = () => {
   const rankingsPerPage = 10;

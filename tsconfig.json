@@ -18,7 +18,8 @@
       "@mocks/*": ["mocks/*"],
       "@pages/*": ["pages/*"],
       "@util/*": ["util/*"],
-      "@types/*": ["types/*"],
+      "@type/*": ["types/*"],
+      "@context/*": ["context/*"]
     },
     /* Bundler mode */
     "moduleResolution": "node",

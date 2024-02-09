@@ -1,6 +1,5 @@
-// src/features/ranking/rankingSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RankingState, RankingItem } from "../../types/ranking";
+import { RankingState, RankingItem } from "@type/ranking";
 
 const initialState: RankingState = {
   rankings: [],

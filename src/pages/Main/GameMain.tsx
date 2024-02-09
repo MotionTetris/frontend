@@ -8,8 +8,8 @@ import {
   CreateRoomButton,
 } from "./styles";
 import CreateRoom from "./Modal/CreateRoom/CreateRoom";
-import { LobbyGameRoomCard } from "../../types/Refactoring";
-import { useRoomSocket } from "../../context/roomSocket";
+import { LobbyGameRoomCard } from "@type/Refactoring";
+import { useRoomSocket } from "@context/roomSocket";
 import RoomInfo from "../Main/Modal/RoomInfo/RoomInfo";
 import { requestRoomAPI } from "@api/room";
 

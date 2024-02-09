@@ -1,4 +1,3 @@
-// src/app/store.ts
 import { configureStore } from "@reduxjs/toolkit";
 import profileReducer from "../redux/profile/profileSlice";
 import rankingReducer from "../redux/ranking/rankingSlice";
