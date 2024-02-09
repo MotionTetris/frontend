@@ -1,5 +1,5 @@
 import * as io from "socket.io-client";
-import * as config from "../config";
+import * as config from "@src/config";
 import React, { useContext } from "react";
 
 const loadToken = () => localStorage.getItem("token");

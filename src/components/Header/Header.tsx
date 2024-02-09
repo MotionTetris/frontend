@@ -14,9 +14,9 @@ import {
   HeaderStyledLink as OriginalHeaderStyledLink,
 } from "./styles";
 import { userProfileAPI } from "@api/user";
-import defaultProfileImage from "assets/ProfilePhoto.png";
+import defaultProfileImage from "@assets/ProfilePhoto.png";
 import { Navigate } from "react-router-dom";
-import {BackgroundColor3, Circle} from "BGstyles"
+import {BackgroundColor3, Circle} from "@src/BGstyles"
 import {BlockComponents} from "BGtetris"
 import { useLocation } from "react-router-dom";
 import Volume from "@components/volume";

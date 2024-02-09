@@ -1,5 +1,5 @@
 import axios from "axios";
-import { CreateRoomCard, LobbyGameRoomCard } from "../types/Refactoring";
+import { CreateRoomCard, LobbyGameRoomCard } from "@type/Refactoring";
 
 // 방 생성 API 호출 함수
 export const createRoomAPI = async (roomData: CreateRoomCard) => {

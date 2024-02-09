@@ -14,7 +14,7 @@ import {
 import Player from "@components/Player/Player";
 import { useRoomSocket, RoomSocketEvent } from "@context/roomSocket";
 import { InGamePlayerCard } from "@type/Refactoring";
-import { BackgroundColor1, Night, ShootingStar } from "BGstyles";
+import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles";
 import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from '@app/store';

@@ -10,6 +10,7 @@
     "skipLibCheck": true,
     "baseUrl": "src",
     "paths": {
+      "@src/*": ["./*"],
       "@api/*": ["api/*"],
       "@app/*": ["app/*"],
       "@assets/*": ["assets/*"],

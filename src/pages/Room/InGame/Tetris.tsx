@@ -10,8 +10,8 @@ import { TetrisOption } from "./Rapier/TetrisOption";
 import { TetrisMultiplayView } from "./Rapier/TetrisMultiplayView";
 import * as io from 'socket.io-client';
 import  {useLocation} from "react-router-dom"
-import { GAME_SOCKET_URL } from "config";
-import {  useSelector } from 'react-redux';
+import { GAME_SOCKET_URL } from "@src/config";
+import { useSelector } from 'react-redux';
 import { RootState } from "@app/store";
 
 const eraseThreshold = 10000;
