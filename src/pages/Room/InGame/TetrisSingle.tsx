@@ -9,7 +9,7 @@ import { TetrisOption } from "./Rapier/TetrisOption.ts";
 import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } from "./Rapier/Sound.ts";
 import { PoseNet } from "@tensorflow-models/posenet";
 import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "./Rapier/PostNet.ts";
-import { createLandingEvent, createUserEventCallback } from "./Rapier/TetrisCallback.ts";
+import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "./Rapier/TetrisCallback.ts";
 
 
 const eraseThreshold = 8000;
@@ -24,7 +24,6 @@ const TetrisSingle: React.FC = () => {
   playIngameSound();
 
   useEffect(() => {
-    
     if (!!!sceneRef.current) {
       console.log("sceneRef is null");
       return;
@@ -32,12 +31,6 @@ const TetrisSingle: React.FC = () => {
     
     sceneRef.current.width = 600;
     sceneRef.current.height = 800;
-   
-
-    //fallingBlockGlow(game.fallingTetromino!);
-    const CollisionEvent = ({game, bodyA, bodyB}: any) => {
-    
-    }
 
     const preLandingEvent = ({game, bodyA, bodyB}: any) => {
       game.fallingTetromino?.rigidBody.resetForces(true);
@@ -70,10 +63,11 @@ const TetrisSingle: React.FC = () => {
       view: sceneRef.current,
       spawnX: sceneRef.current.width / 2,
       spawnY: 200,
-      blockCollisionCallback: CollisionEvent,
+      blockCollisionCallback: () => {},
       blockLandingCallback: LandingEvent,
       preBlockLandingCallback: preLandingEvent,
       stepCallback: StepCallback,
+      blockSpawnCallback: createBlockSpawnEvent(),
       worldHeight: 800,
       worldWidth: 600,
       wallColor: 0xFF0000,
@@ -105,14 +99,22 @@ const TetrisSingle: React.FC = () => {
       if (!poseNetResult) {
         poseNetResult = await loadPoseNet(videoRef, canvasRef);
       }
-      prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback);
+      prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback); 
     }
-    
-    let id = setInterval(poseNetLoop, 250);
-    game.run(); 
 
-    setMessage("게임 시작!");
-    setTimeout(() => {setMessage("")}, 3000); 
+    let id: any;
+    const run = async() => {
+      if (!poseNetResult) {
+        poseNetResult = await loadPoseNet(videoRef, canvasRef);
+      }
+      
+      game.run();
+      setMessage("게임 시작!");
+      setTimeout(() => {setMessage("")}, 3000);
+      id = setInterval(poseNetLoop, 250);
+    }
+
+    run();
   return () => {
     game.dispose();
     clearInterval(id);

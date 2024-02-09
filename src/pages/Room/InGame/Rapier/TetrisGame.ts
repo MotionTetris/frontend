@@ -1,7 +1,7 @@
 import {Graphics} from "./Graphics";
 import * as RAPIER from "@dimforge/rapier2d";
 import { BlockCollisionCallbackParam, TetrisOption } from "./TetrisOption";
-import { BlockType, Tetromino } from "./Tetromino";
+import { BlockType, BlockTypeList, Tetromino } from "./Tetromino";
 import { createLines } from "./Line";
 import { calculateLineIntersectionArea } from "./BlockScore";
 import { removeLines as removeShapeWithLine } from "./BlockRemove";
@@ -24,9 +24,10 @@ export class TetrisGame {
     tetrominos: Set<Tetromino>;
     fallingTetromino?: Tetromino;
     lines: Line[];
-    sequence: number;
-    userId: string;
+    protected sequence: number;
+    protected userId: string;
     running: boolean;
+    protected _nextBlock?: BlockType; 
     private readonly defaultWallColor = 0x222929
     public constructor(option: TetrisOption, userId: string) {
         if (!option.view) {
@@ -44,6 +45,7 @@ export class TetrisGame {
         this.running = false;
         this.userId = userId;
         this.stepId = 0;
+        this._nextBlock = BlockTypeList.at(this.getRandomInt(0, BlockTypeList.length - 1));
     }
 
     public set landingCallback(callback: ((result: BlockCollisionCallbackParam) => void)) {
@@ -195,16 +197,27 @@ export class TetrisGame {
 
         newBody.rigidBody.setLinearDamping(0.25);
         newBody.rigidBody.setAngularDamping(10);
+        
         if (!spawnedForFalling) {
-            this.tetrominos.add(newBody);   
+            this.tetrominos.add(newBody);
         } else {
             this.fallingTetromino = newBody;
-        }
+            this._nextBlock = BlockTypeList.at(this.getRandomInt(0, BlockTypeList.length - 1)); 
+        }   
 
         if (this.option.blockSpawnCallback) {
-            this.option.blockSpawnCallback(this, blockType);
+            this.option.blockSpawnCallback(this, blockType, 0, this._nextBlock!, this.nextBlockColor);
         }
+
         return newBody;
+    }
+
+    public get nextBlock() {
+        return this._nextBlock;
+    }
+
+    public get nextBlockColor() {
+        return 0;
     }
 
     public spawnFromRigidBody(color: number, rigidBody: RAPIER.RigidBody) {
@@ -364,9 +377,9 @@ export class TetrisGame {
         return event;
     }
 
-    public onBlockSpawned(type: BlockType, blockColor: number) {
+    public onBlockSpawned(type: BlockType, blockColor: number, nextBlockType: BlockType, nextBlockColor: number) {
         const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.BLOCK_SPAWNED);
-        event.userData = {type, blockColor};
+        event.userData = {type, blockColor, nextBlockType, nextBlockColor};
         this.sequence += 1;
         return event;
     }
@@ -409,5 +422,16 @@ export class TetrisGame {
     protected collideWithWall(body1: RAPIER.RigidBody, body2: RAPIER.RigidBody) {
         // @ts-ignore
         return (body1.userData?.type === "left_wall" || body1.userData?.type === "right_wall") || (body2.userData?.type === "left_wall" || body2.userData?.type === "right_wall")
+    }
+
+    private getRandomInt(min: number, max: number) {
+        const randomBuffer = new Uint32Array(1);
+
+        window.crypto.getRandomValues(randomBuffer);
+        let randomNumber = randomBuffer[0] / (0xffffffff + 1);
+    
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(randomNumber * (max - min + 1)) + min;
     }
 }

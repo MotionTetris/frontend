@@ -48,9 +48,11 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
 }
 
 export function createBlockSpawnEvent(socket?: Socket) {
-    return (game: TetrisGame, blockType: BlockType, blockColor: number) => {
-        let event = game.onBlockSpawned(blockType, blockColor);
+    return (game: TetrisGame, blockType: BlockType, blockColor: number, nextBlockType: BlockType, nextBlockColor: number) => {
+        let event = game.onBlockSpawned(blockType, blockColor, nextBlockType, nextBlockColor);
+        console.log(blockType, nextBlockType);
         socket?.emit('eventOn', event);
+        
     }
 }
 
@@ -81,7 +83,6 @@ export function createLandingEvent(eraseThreshold: number, setMessage: (message:
             }
         }
 
-
         if (game.removeLines(checkResult.lines)) {
             playExplodeSound();
             setPlayerScore((prevScore: number) => Math.round(prevScore + scoreIncrement * (1 + 0.1 * combo)));
@@ -99,22 +100,9 @@ export function createLandingEvent(eraseThreshold: number, setMessage: (message:
                 console.error(error);
             });
         }
-
-        let nextBlock = BlockTypeList.at(getRandomInt(0, BlockTypeList.length - 1));
-        game.spawnBlock(0xFF0000, nextBlock, true);
+        let blockToSpawn = game.nextBlock;
+        
+        game.spawnBlock(0xFF0000, blockToSpawn, true);
         fallingBlockGlow(game.fallingTetromino!);
     }
-}
-
-/* [min, max] */
-function getRandomInt(min: number, max: number) {
-    const randomBuffer = new Uint32Array(1);
-
-    window.crypto.getRandomValues(randomBuffer);
-
-    let randomNumber = randomBuffer[0] / (0xffffffff + 1);
-
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(randomNumber * (max - min + 1)) + min;
 }
