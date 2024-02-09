@@ -1,5 +1,5 @@
 import { Socket } from "socket.io-client";
-import { changeBlockGlow, collisionParticleEffect, fallingBlockGlow, handleComboEffect, loadStarImage, performPushEffect, starParticleEffect } from "./Effect";
+import { changeBlockGlow, collisionParticleEffect, fallingBlockGlow, handleComboEffect, lightEffectToLine, loadStarImage, performPushEffect, starParticleEffect } from "./Effect";
 import { KeyPointCallback, KeyPoint } from "./PostNet";
 import { TetrisGame } from "./TetrisGame";
 import { playDefeatSound, playExplodeSound, playLandingSound } from "./Sound";
@@ -56,7 +56,7 @@ export function createBlockSpawnEvent(socket?: Socket) {
     }
 }
 
-export function createLandingEvent(eraseThreshold: number, setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void) {
+export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void) {
     return ({ game, bodyA, bodyB }: any) => {
         let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
         let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
@@ -80,6 +80,7 @@ export function createLandingEvent(eraseThreshold: number, setMessage: (message:
             if (scoreList[i] >= eraseThreshold) {
                 combo += 1;
                 scoreIncrement += scoreList[i];
+                lightEffectToLine(lineGrids, i);
             }
         }
 

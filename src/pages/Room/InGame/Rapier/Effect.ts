@@ -8,6 +8,7 @@ import { Graphics } from "./Graphics";
 import { playDoubleComboSound, playSingleComboSound, playTripleComboSound } from "./Sound";
 import { TetrisGame } from "./TetrisGame";
 import * as particles from '@pixi/particle-emitter'
+
 export const explodeParticleEffect = (x: number, y: number, graphics: Graphics ) => {
   const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
   const viewport = graphics.viewport;
@@ -249,6 +250,37 @@ export function createScoreBasedGrid(lineGrids: PIXI.Graphics[], scoreList: numb
 }
 
 
+
+export function lightEffectToLine(lineGrids: PIXI.Graphics[], index: number) {
+  // Glow 효과를 위한 필터를 생성합니다.
+  const glowFilter = new GlowFilter({
+    color: 0xffff, // 노란색 빛
+    distance: 35, // 빛의 거리
+    quality: 0.5, // 빛의 품질
+  });
+
+  // 빛나는 효과를 주기 위해 필터를 설정합니다.
+  lineGrids[index].filters = [glowFilter];
+
+  // 색상을 잠시 노란색으로 변경합니다.
+  lineGrids[index].clear();
+  lineGrids[index].beginFill(0xffff00);
+  lineGrids[index].drawRect(100, -index * 32 +588, 420, 32);
+  lineGrids[index].endFill();
+
+  // 0.3초 후에 필터를 제거하고 색상을 원래대로 돌려놓습니다.
+  setTimeout(() => {
+    lineGrids[index].filters = [];
+    lineGrids[index].clear();
+    lineGrids[index].beginFill(0xff00f0, 0.25);
+    lineGrids[index].drawRect(100, -index * 32 +588, 420, 32);
+    lineGrids[index].endFill();
+  }, 400);
+}
+
+
+
+
 export function showScore(scoreList: number [], scoreTexts : PIXI.Text[], threshold: number) { 
   for (let i = 0; i < scoreList.length; i++) {
     let alpha = scoreList[i]/threshold;
@@ -381,6 +413,7 @@ export function handleComboEffect(combo: number, graphics: Graphics): string {
   startShake({ viewport: graphics.viewport, strength: 5 + 10 * combo, duration: 400 + 50 * combo})
   if (combo === 1) {
     playSingleComboSound();
+    explodeParticleEffect(300, 700, graphics);
     return "Single Combo!";
   }
   else if (combo === 2) {
