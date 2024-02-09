@@ -4,10 +4,12 @@ import { initWorld } from "./Rapier/World.ts";
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer } from "./style.tsx";
 import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake, handleComboEffect, rotateViewport, resetRotateViewport, flipViewport, resetFlipViewport, addFog, removeGlowWithDelay, fallingBlockGlowWithDelay} from "./Rapier/Effect.ts";
 import * as PIXI from "pixi.js";
-import { runPosenet } from "./Rapier/WebcamPosenet.ts";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "./Rapier/TetrisOption.ts";
 import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } from "./Rapier/Sound.ts";
+import { PoseNet } from "@tensorflow-models/posenet";
+import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "./Rapier/PostNet.ts";
+import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "./Rapier/TetrisCallback.ts";
 
 
 const eraseThreshold = 8000;
@@ -26,7 +28,6 @@ const TetrisSingle: React.FC = () => {
   playIngameSound();
 
   useEffect(() => {
-    
     if (!!!sceneRef.current) {
       console.log("sceneRef is null");
       return;
@@ -34,8 +35,6 @@ const TetrisSingle: React.FC = () => {
     
     sceneRef.current.width = 600;
     sceneRef.current.height = 800;
-
-
     //fallingBlockGlow(game.fallingTetromino!);
     const CollisionEvent = ({game, bodyA, bodyB}: any) => {
     
@@ -48,53 +47,7 @@ const TetrisSingle: React.FC = () => {
       removeGlowWithDelay(game.fallingTetromino);
     }
   
-    const LandingEvent = ({game, bodyA, bodyB}: any) => {
-      let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
-      let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
-      playLandingSound();
-      if (bodyA.translation().y > 0 && bodyB.translation().y > 0) {
-        playDefeatSound();
-        setMessage("게임오버");
-        game.pause();
-        return;
-      }
-      
-      collisionParticleEffect(bodyA.translation().x, -bodyB.translation().y, game.graphics);
-      collisionParticleEffect(bodyB.translation().x, -bodyB.translation().y, game.graphics);
-      
-      const checkResult = game.checkLine(eraseThreshold);
-      const scoreList = checkResult.scoreList;
-      
-      let combo: number = 0;
-      let scoreIncrement: number = 0;
-      for (let i = 0; i < checkResult.scoreList.length; i++) {
-        if (scoreList[i] >= eraseThreshold) {
-          combo += 1;
-          scoreIncrement += scoreList[i];
-        }
-      }
-    
-    
-      if (game.removeLines(checkResult.lines)) {
-        playExplodeSound();
-        setPlayerScore(prevScore => Math.round(prevScore + scoreIncrement * (1 + 0.1 * combo)));
-        const comboMessage = handleComboEffect(combo, game.graphics);
-        setMessage(comboMessage);
-        setTimeout(() => {
-          setMessage("");
-        }, 1000);
-      
-        loadStarImage().then((starTexture: PIXI.Texture) => {
-          starParticleEffect(0, 600, game.graphics ,starTexture);
-          starParticleEffect(450, 600, game.graphics, starTexture);
-        }).catch((error: any) => {
-          console.error(error);
-        });
-      }
-
-      game.spawnBlock(0xFF0000, "O", true);
-      fallingBlockGlow(game.fallingTetromino!);
-    }
+    const LandingEvent = createLandingEvent(eraseThreshold, setMessage, setPlayerScore);
 
     const StepCallback = (game: TetrisGame, step: number) => {
       if (step % 15 != 0) {
@@ -105,7 +58,6 @@ const TetrisSingle: React.FC = () => {
       showScore(checkResult.scoreList, scoreTexts.current, eraseThreshold);
     }
 
-    
     const TetrisOption: TetrisOption = {
       blockFriction: 1.0,
       blockSize: 32,
@@ -114,10 +66,11 @@ const TetrisSingle: React.FC = () => {
       view: sceneRef.current,
       spawnX: sceneRef.current.width / 2,
       spawnY: 200,
-      blockCollisionCallback: CollisionEvent,
+      blockCollisionCallback: () => {},
       blockLandingCallback: LandingEvent,
       preBlockLandingCallback: preLandingEvent,
       stepCallback: StepCallback,
+      blockSpawnCallback: createBlockSpawnEvent(),
       worldHeight: 800,
       worldWidth: 600,
       wallColor: 0xFF0000,
@@ -133,22 +86,45 @@ const TetrisSingle: React.FC = () => {
     game.spawnBlock(0xFF0000, "T", true);
     fallingBlockGlow(game.fallingTetromino!);
 
+    let poseNetResult: { poseNet: PoseNet; renderingContext: CanvasRenderingContext2D; } | undefined = undefined;
+    let prevResult: KeyPointResult = {
+      leftAngle: 0,
+      rightAngle: 0,
+      rightWristX: 0,
+      leftWristX: 0
+    }
 
-    runPosenet(videoRef, canvasRef, game);
-    game.run(); 
+    let eventCallback = createUserEventCallback(game);
+    const poseNetLoop = async () => {
+      if (!videoRef.current) {
+        return;
+      }
 
+      if (!poseNetResult) {
+        poseNetResult = await loadPoseNet(videoRef, canvasRef);
+      }
+      prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback); 
+    }
 
-    setMessage("게임 시작!");
-    setTimeout(() => {
-    setMessage("");
-    }, 3000); 
-    scoreTexts.current.forEach((text) => {
-      game.graphics.viewport.addChild(text);
-    });
-    
+    let id: any;
+    const run = async() => {
+      if (!poseNetResult) {
+        poseNetResult = await loadPoseNet(videoRef, canvasRef);
+      }
+      
+      game.run();
+      setMessage("게임 시작!");
+      scoreTexts.current.forEach((text) => {
+        game.graphics.viewport.addChild(text);
+      });
+      setTimeout(() => {setMessage("")}, 3000);
+      id = setInterval(poseNetLoop, 250);
+    }
 
+    run();
   return () => {
     game.dispose();
+    clearInterval(id);
   }}, []);
 
   return (<>
