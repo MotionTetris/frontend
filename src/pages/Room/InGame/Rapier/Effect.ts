@@ -4,10 +4,10 @@ import {GlowFilter} from '@pixi/filter-glow';
 import { Tetromino } from "./Tetromino";
 import { gsap } from 'gsap';
 import { Graphics } from "./Graphics";
-import { number } from "prop-types";
-import Tetris from "../Tetris";
-import { playDoubleComboSound, playSingleComboSound, playTripleComboSound } from "./Sound";
 
+import { playDoubleComboSound, playSingleComboSound, playTripleComboSound } from "./Sound";
+import { TetrisGame } from "./TetrisGame";
+import * as particles from '@pixi/particle-emitter'
 export const explodeParticleEffect = (x: number, y: number, graphics: Graphics ) => {
   const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
   const viewport = graphics.viewport;
@@ -201,12 +201,14 @@ export function createRectangle(container: PIXI.Container, imagePath: string, wi
 
 
 export function performPushEffect(firstRectangle: PIXI.Sprite, secondRectangle: PIXI.Sprite, alpha: number, firstOriginal: number, secondOriginal: number) {
-  console.log("First,", firstRectangle);
-  console.log("Second,", secondRectangle);
-  firstRectangle.alpha = 1;
-  secondRectangle.alpha = 0;
+  // 진행 중인 애니메이션 중단
+  gsap.killTweensOf(secondRectangle.position);
+
+  // 두 번째 사각형의 위치를 원래 위치로 복원
   secondRectangle.x = secondOriginal;
 
+  firstRectangle.alpha = 1;
+  secondRectangle.alpha = 0;
 
   let targetX = firstOriginal + 50 * alpha;
   targetX = alpha > 0 ? firstOriginal + 50 : firstOriginal - 50;
@@ -236,7 +238,6 @@ export function performPushEffect(firstRectangle: PIXI.Sprite, secondRectangle: 
 
 
 
-
   export function createLineEffect(i: number, viewport: Viewport, lines: PIXI.Graphics[]): void {
     let line = new PIXI.Graphics();
     line.lineStyle(1, 0xFFF000, 0.2); // 선의 두께는 1, 색상은 검정색, 투명도는 1(불투명)
@@ -249,7 +250,7 @@ export function performPushEffect(firstRectangle: PIXI.Sprite, secondRectangle: 
 }
 
 
-export function createScoreBasedGrid(viewport: Viewport, scoreList: number []) {
+export function createScoreBasedGrid(viewport: Viewport, scoreList: number [], threshold: number) {
   //make lineGrids
   let lineGrids: PIXI.Graphics[] = [];
    // Clean up the old grids
@@ -263,63 +264,30 @@ export function createScoreBasedGrid(viewport: Viewport, scoreList: number []) {
       createLineEffect(i, viewport, lineGrids);
   }
   for (let i = 0; i < lineGrids.length; i++) {
-    const alpha = scoreList[i]/ 10000; // 점수를 투명도로 변환 (0 ~ 1 사이의 값)
-    console.log("alpha", alpha);
-    let line = lineGrids[i];
-    line.clear(); // 이전 라인 스타일 제거
+    const alpha = scoreList[i] / threshold; // 점수를 투명도로 변환 (0 ~ 1 사이의 값)
+  let line = lineGrids[i];
+  line.clear(); // 이전 라인 스타일 제거
+
+  line.beginFill(0xff00f0, alpha/4);
+  line.filters = null; // glow 효과 제거
   
-    line.beginFill(0xff00f0, alpha/4);
-    line.filters = null; // glow 효과 제거
-    
-    line.drawRect(100, -i * 32 + 588, 410, 32); // 32픽셀 간격으로 높이를 설정
-    line.endFill();
+  line.drawRect(100, -i * 32 + 588, 410, 32); // 32픽셀 간격으로 높이를 설정
+  line.endFill();
+
+  if(alpha >= 1) {
+    lineGlowEffect(line); // alpha가 1 이상일 때 glow 효과를 줍니다.
+  }
   }  
 }
 
 
-export function showScore(viewport: Viewport, scoreList: number [], scoreTexts : PIXI.Text[], threshold: number): PIXI.Text[] {
-  console.log("length", scoreTexts.length);
-  for (let i = 0; i < scoreTexts.length; i++) {
-    if (viewport.children.includes(scoreTexts[i])) {
-      viewport.removeChild(scoreTexts[i]);
-    }
-  }
-  
-  let newScoreTexts: PIXI.Text[] = []; // 새로운 배열 생성
-  
+export function showScore(scoreList: number [], scoreTexts : PIXI.Text[], threshold: number) { 
   for (let i = 0; i < scoreList.length; i++) {
-    console.log("들어옴?");
     let alpha = scoreList[i]/threshold;
-    let scoreText: PIXI.Text;
-    scoreText = new PIXI.Text((alpha * 100).toFixed(2), {fontFamily : 'Arial', fontSize: 20, fill : 0xffffff, align : 'center'}); 
-    scoreText.x = 60;
-    scoreText.y = 600 - 32*i;
-    newScoreTexts[i] = scoreText; // 새로운 배열에 추가
-    viewport.addChild(scoreText);
-
-    // alpha가 0.95보다 크면, 폭파직전! 이라는 노란색 움직이는 글씨를 띄워준다.
-    if (alpha > 0.55) {
-      let warningText: PIXI.Text;
-      warningText = new PIXI.Text('폭파 직전!', {fontFamily : 'Arial', fontSize: 20, fill : 0xffff00, align : 'center'}); // 노란색
-      warningText.x = 600;
-      warningText.y = 560 - 32*i; // scoreText 위에 위치
-      viewport.addChild(warningText);
-      
-      // GSAP 애니메이션 추가
-      gsap.fromTo(warningText.scale, {
-        x: 1,
-        y: 1
-      }, {
-        x: 1.1,
-        y: 1.1,
-        duration: 0.3, // 0.3초 동안
-        repeat: -1, // 무한 반복
-        yoyo: true // 원래 크기로 돌아옴
-      });
-    }
+    scoreTexts[i].x = 70;
+    scoreTexts[i].y = 600 - 32*i;
+    scoreTexts[i].text = (alpha * 100).toFixed(0);
   }
-
-  return newScoreTexts; // 새로운 배열 반환
 }
 
 interface ShakeOptions {
@@ -332,7 +300,6 @@ export function startShake(options: ShakeOptions) {
   const { viewport, strength, duration } = options;
   
   let remainingDuration = duration;
-  
   const ticker = new PIXI.Ticker();
   const originPosition = { x: viewport.position.x, y: viewport.position.y };
 
@@ -367,15 +334,27 @@ export function fallingBlockGlow(fallingBlock: Tetromino) {
   });
 }
 
+export function fallingBlockGlowWithDelay(fallingBlock: Tetromino) {
+  setTimeout(function() {
+    const glowFilter = new GlowFilter({ 
+      distance: 45, 
+      outerStrength: 2,
+      color: 0xffff 
+    });
+    
+    fallingBlock.graphics.forEach(graphic => {
+      graphic.filters = [...(graphic.filters || []), glowFilter];
+    });
+  }, 50); // 100 밀리세컨드 후에 함수를 실행합니다.
+}
+
 
 export function changeBlockGlow(fallingBlock: Tetromino, colorIndex: number) {
-  // 색상 리스트
+  
   const colorList = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
 
-  // 인덱스를 증가시키고, 색상 리스트의 길이에 도달하면 0으로 초기화
   const nextColorIndex = (colorIndex + 1) % colorList.length;
 
-  // 새로운 색상으로 GlowFilter 생성
   const glowFilter = new GlowFilter({ 
     distance: 45, 
     outerStrength: 2,
@@ -383,13 +362,10 @@ export function changeBlockGlow(fallingBlock: Tetromino, colorIndex: number) {
   });
 
   fallingBlock.graphics.forEach(graphic => {
-    // 모든 필터 제거
     graphic.filters = [];
-    // 새 GlowFilter 추가
     graphic.filters = [glowFilter];
   });
 
-  // 다음 색상의 인덱스를 반환
   return nextColorIndex;
 }
 
@@ -397,17 +373,27 @@ export function changeBlockGlow(fallingBlock: Tetromino, colorIndex: number) {
 export function removeGlow(fallingBlock: Tetromino) {
   fallingBlock.graphics.forEach(graphic => {
     if (graphic.filters) {
-      // GlowFilter 인스턴스를 찾아 제거
       graphic.filters = graphic.filters.filter(filter => !(filter instanceof GlowFilter));
     }
   });
 }
 
+export function removeGlowWithDelay(fallingBlock: Tetromino) {
+  setTimeout(function() {
+    fallingBlock.graphics.forEach(graphic => {
+      if (graphic.filters) {
+        graphic.filters = graphic.filters.filter(filter => !(filter instanceof GlowFilter));
+      }
+    });
+  }, 200); // 500 밀리세컨드 후에 함수를 실행합니다.
+}
+
+
 
 export function loadStarImage() {
   return new Promise((resolve, reject) => {
     if (PIXI.Loader.shared.resources['src/assets/whitestar.png']) {
-      // 이미 로드된 이미지라면 즉시 resolve를 호출합니다.
+      // 이미 로드된 이미지라면 즉시 resolve를 호출.
       resolve(PIXI.Loader.shared.resources['src/assets/whitestar.png'].texture);
     } else {
       PIXI.Loader.shared.add('src/assets/whitestar.png').load((loader, resources) => {
@@ -438,4 +424,166 @@ export function handleComboEffect(combo: number, graphics: Graphics): string {
     explodeParticleEffect(300, 700, graphics);
     return "Fantastic!";
   }
+}
+
+
+//item-region
+
+export function rotateViewport(viewport: Viewport, degree: number) {
+  console.log("original", viewport.x);
+  const angleInRadians = degree * (Math.PI / 180);
+  viewport.rotation = angleInRadians;
+  viewport.scale.x *= 0.8;
+  viewport.scale.y *= 0.8;
+  if (degree < 0) {
+    ;
+  }
+  else {
+    viewport.x += 200;
+  }
+  
+}
+
+export function resetRotateViewport(viewport: Viewport) {
+  viewport.rotation = 0;
+  viewport.scale.x = 1;
+  viewport.scale.y = 1;
+  viewport.x = 0;;
+}
+
+
+export function flipViewport(viewport: Viewport) {
+  // 좌우 반전
+  viewport.scale.x = -1;
+  viewport.x += 600;
+}
+
+export function resetFlipViewport(viewport: Viewport) {
+  viewport.scale.x = 1;
+  viewport.x -= 600;
+}
+
+
+export function addFog(game: TetrisGame) {
+
+  var emitter = new particles.Emitter(
+    game.graphics.viewport,
+
+    {
+        lifetime: {
+            min: 1,
+            max: 2
+        },
+        frequency: 0.008,
+        spawnChance: 1,
+        particlesPerWave: 1,
+        emitterLifetime: 0.31,
+        maxParticles: 1000,
+        pos: {
+            x: 0,
+            y: 0
+        },
+        addAtBack: false,
+        behaviors: [
+            {
+                type: 'alpha',
+                config: {
+                    alpha: {
+                        list: [
+                            {
+                                value: 0.8,
+                                time: 0
+                            },
+                            {
+                                value: 0.1,
+                                time: 1
+                            }
+                        ],
+                    },
+                }
+            },
+            {
+                type: 'scale',
+                config: {
+                    scale: {
+                        list: [
+                            {
+                                value: 1,
+                                time: 0
+                            },
+                            {
+                                value: 0.3,
+                                time: 1
+                            }
+                        ],
+                    },
+                }
+            },
+            {
+                type: 'moveSpeed',
+                config: {
+                    speed: {
+                        list: [
+                            {
+                                value: 200,
+                                time: 0
+                            },
+                            {
+                                value: 100,
+                                time: 1
+                            }
+                        ],
+                        isStepped: false
+                    },
+                }
+            },
+            {
+                type: 'rotationStatic',
+                config: {
+                    min: 0,
+                    max: 360
+                }
+            },
+            {
+                type: 'spawnShape',
+                config: {
+                    type: 'torus',
+                    data: {
+                        x: 300,
+                        y: 500,
+                        radius: 10
+                    }
+                }
+            },
+            {
+                type: 'textureSingle',
+                config: {
+                    texture: PIXI.Texture.from('src/assets/fog.png')
+                }
+            }
+        ],
+    }
+);
+  game.graphics.ticker.add((delta) => {
+    emitter.update(delta * 0.01);
+  });
+
+  emitter.emit = true;
+  game.graphics.ticker.start();
+};
+
+
+
+export function lineGlowEffect(graphics: PIXI.Graphics) {
+  const glowFilter = new GlowFilter({ 
+    distance: 45, 
+    outerStrength: 2,
+    color: 0xffff // 흰색
+  });
+
+  graphics.filters = [...(graphics.filters || []), glowFilter];
+
+  gsap.delayedCall(0.3, function() {
+    graphics.filters = graphics.filters!.filter(filter => filter !== glowFilter);
+  });
 }

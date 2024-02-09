@@ -172,7 +172,7 @@ const Tetris: React.FC = () => {
         }
       });
 
-      scoreTexts.current = showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts.current, eraseThreshold); // 수정
+      //scoreTexts.current = showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts.current, eraseThreshold); // 수정
       game.spawnBlock(0xFF0000, "O", true);
       fallingBlockGlow(game.fallingTetromino!);
     }

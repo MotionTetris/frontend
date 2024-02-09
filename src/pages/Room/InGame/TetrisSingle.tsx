@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "./Rapier/TetrisGame.ts";
 import { initWorld } from "./Rapier/World.ts";
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer } from "./style.tsx";
-import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake, handleComboEffect} from "./Rapier/Effect.ts";
+import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake, handleComboEffect, rotateViewport, resetRotateViewport, flipViewport, resetFlipViewport, addFog, removeGlowWithDelay, fallingBlockGlowWithDelay} from "./Rapier/Effect.ts";
 import * as PIXI from "pixi.js";
 import { runPosenet } from "./Rapier/WebcamPosenet.ts";
 import "@tensorflow/tfjs";
@@ -18,7 +18,11 @@ const TetrisSingle: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
   const [playerScore, setPlayerScore] = useState(0);
-  const scoreTexts = useRef<PIXI.Text[]>([]);
+  const gameRef = useRef<TetrisGame | null>(null);
+  const scoreTexts = useRef(
+    Array.from({ length: 21 }, () => new PIXI.Text('0', {fontFamily: 'Arial', fontSize: 24, fill: '#ffffff'}))
+  );
+  
   playIngameSound();
 
   useEffect(() => {
@@ -30,7 +34,7 @@ const TetrisSingle: React.FC = () => {
     
     sceneRef.current.width = 600;
     sceneRef.current.height = 800;
-   
+
 
     //fallingBlockGlow(game.fallingTetromino!);
     const CollisionEvent = ({game, bodyA, bodyB}: any) => {
@@ -40,6 +44,8 @@ const TetrisSingle: React.FC = () => {
     const preLandingEvent = ({game, bodyA, bodyB}: any) => {
       game.fallingTetromino?.rigidBody.resetForces(true);
       removeGlow(game.fallingTetromino);
+      fallingBlockGlowWithDelay(game.fallingTetromino);
+      removeGlowWithDelay(game.fallingTetromino);
     }
   
     const LandingEvent = ({game, bodyA, bodyB}: any) => {
@@ -95,15 +101,8 @@ const TetrisSingle: React.FC = () => {
         return;
       }
       const checkResult = game.checkLine(eraseThreshold);
-      createScoreBasedGrid(game.graphics.viewport, checkResult.scoreList);
-      
-      scoreTexts.current.forEach((text) => {
-        if (game.graphics.viewport.children.includes(text)) {
-          game.graphics.viewport.removeChild(text);
-        }
-      });
-
-      scoreTexts.current = showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts.current, eraseThreshold);
+      createScoreBasedGrid(game.graphics.viewport, checkResult.scoreList, eraseThreshold);
+      showScore(checkResult.scoreList, scoreTexts.current, eraseThreshold);
     }
 
     
@@ -128,6 +127,7 @@ const TetrisSingle: React.FC = () => {
     };
     
     const game = new TetrisGame(TetrisOption, "user");
+    gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
     game.running = true;
     game.spawnBlock(0xFF0000, "T", true);
@@ -142,9 +142,11 @@ const TetrisSingle: React.FC = () => {
     setTimeout(() => {
     setMessage("");
     }, 3000); 
-   
+    scoreTexts.current.forEach((text) => {
+      game.graphics.viewport.addChild(text);
+    });
     
- 
+
   return () => {
     game.dispose();
   }}, []);
@@ -156,13 +158,49 @@ const TetrisSingle: React.FC = () => {
         <MessageDiv>  {message} </MessageDiv>
         <Score> 점수: {playerScore} </Score>
         <SceneCanvas id = "game" ref = {sceneRef}> </SceneCanvas>
+        <button onClick={() => {
+        if (gameRef.current) {
+          rotateViewport(gameRef.current.graphics.viewport, 15);
+        }
+        }}>우회전</button>
+
+        <button onClick={() => {
+        if (gameRef.current) {
+          rotateViewport(gameRef.current.graphics.viewport, -15);
+        }
+        }}>좌회전</button>
+
+
+        <button onClick={() => {
+        if (gameRef.current) {
+          resetRotateViewport(gameRef.current.graphics.viewport);
+        }
+        }}>회전원복</button>
+
+        <button onClick={() => {
+        if (gameRef.current) {
+          flipViewport(gameRef.current.graphics.viewport);
+        }
+        }}>좌우대칭</button>
+
+        <button onClick={() => {
+        if (gameRef.current) {
+          resetFlipViewport(gameRef.current.graphics.viewport);
+        }
+        }}>좌우원복</button>
+
+        <button onClick={() => {
+        if (gameRef.current) {
+          addFog(gameRef.current);
+        }
+        }}>안개~</button>
+
       </SceneContainer>
     
       <VideoContainer>
         <Video ref={videoRef} autoPlay/>
         <VideoCanvas ref={canvasRef}/>
       </VideoContainer>
-    
     </Container>
     </>
   );
