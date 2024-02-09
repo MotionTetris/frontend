@@ -17,14 +17,14 @@ import {
 } from "./styles";
 import SignupModal from "@pages/Homepage/Modal/Signup/SignupModal";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "../../../../redux/hompage/homepageSlice";
+import { setUser } from "@redux/hompage/homepageSlice";
 import { loginAPI } from "@api/auth";
 import { FaUserAlt } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 
 import { RiLockPasswordFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
-import { createRoomSocket, useRoomSocket } from "../../../../context/roomSocket"
+import { createRoomSocket, useRoomSocket } from "@context/roomSocket"
 import { RootState } from "@app/store";
 const LoginModal: React.FC = () => {
   

@@ -1,7 +1,5 @@
-// src/features/game/gameSlice.ts
 import { createSlice, PayloadAction} from "@reduxjs/toolkit";
-import { InGamePlayerCard } from "../../types/Refactoring";
-
+import { InGamePlayerCard } from "@type/Refactoring";
 
 const initialState: InGamePlayerCard = {
   playersNickname: new Set<string>(), // Set<string>으로 초기화

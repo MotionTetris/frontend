@@ -1,4 +1,3 @@
-// RoomCardComponent.tsx
 import styled from "styled-components";
 export const RoomBackground = styled.div<{
   status: "READY" | "START" | "WAIT";

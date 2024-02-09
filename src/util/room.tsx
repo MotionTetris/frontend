@@ -2,8 +2,8 @@ import { Dispatch } from "redux";
 import {
   setShowStatusMessage,
   setStatusMessage,
-} from "../redux/roomStatus/roomStatusSlice";
-import { RoomStatuses } from "../types/room";
+} from "@redux/roomStatus/roomStatusSlice";
+import { RoomStatuses } from "@type/room";
 
 export const handleRoomStatusMessage = (roomData: any, dispatch: Dispatch) => {
   // `roomData.status` 대신 `roomData.roomStatus`를 사용

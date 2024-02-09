@@ -1,5 +1,3 @@
-//GameMain.tsx
-//GameMain
 import styled from "styled-components";
 
 export const GameRoomGrid = styled.div`

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { CreateRoomCard, LobbyGameRoomCard } from "../types/Refactoring";
+import { CreateRoomCard, LobbyGameRoomCard } from "@type/Refactoring";
 
 // 방 생성 API 호출 함수
 export const createRoomAPI = async (roomData: CreateRoomCard) => {
@@ -10,7 +10,7 @@ export const createRoomAPI = async (roomData: CreateRoomCard) => {
     },
   };
   const response = await axios.post(
-    "http://54.180.148.103:3000/room",
+    "/room",
     roomData,
     config,
   );
@@ -28,7 +28,7 @@ export const requestRoomAPI = async ():Promise<LobbyGameRoomCard[]> => {
     },
   };
   const response = await axios.get(
-    "http://54.180.148.103:3000/room",
+    "/room",
     config,
   );
   return response.data;

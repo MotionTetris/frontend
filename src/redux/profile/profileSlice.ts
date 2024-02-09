@@ -1,6 +1,5 @@
-// src/features/profile/profileSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ProfileState } from "../../types/profile";
+import { ProfileState } from "@type/profile";
 
 const initialState: ProfileState = {
   nickname: "",

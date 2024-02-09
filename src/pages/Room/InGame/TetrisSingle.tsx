@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import { TetrisGame } from "./Rapier/TetrisGame.ts";
-import { initWorld } from "./Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer } from "./style.tsx";
-import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake, handleComboEffect} from "./Rapier/Effect.ts";
+import { TetrisGame } from "./Rapier/TetrisGame";
+import { initWorld } from "./Rapier/World";
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer } from "./style";
+import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake, handleComboEffect} from "./Rapier/Effect";
 import * as PIXI from "pixi.js";
-import { runPosenet } from "./Rapier/WebcamPosenet.ts";
+import { runPosenet } from "./Rapier/WebcamPosenet";
 import "@tensorflow/tfjs";
-import { TetrisOption } from "./Rapier/TetrisOption.ts";
-import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } from "./Rapier/Sound.ts";
+import { TetrisOption } from "./Rapier/TetrisOption";
+import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } from "./Rapier/Sound";
 
 
 const eraseThreshold = 8000;
