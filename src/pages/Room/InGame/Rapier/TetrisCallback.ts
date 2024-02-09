@@ -5,7 +5,6 @@ import { TetrisGame } from "./TetrisGame";
 import { playDefeatSound, playExplodeSound, playLandingSound } from "./Sound";
 import * as PIXI from "pixi.js";
 import { BlockType, BlockTypeList } from "./Tetromino";
-import { randomInt } from "crypto";
 
 export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
     let nextColorIndex = 0;
@@ -101,8 +100,21 @@ export function createLandingEvent(eraseThreshold: number, setMessage: (message:
             });
         }
 
-        let nextBlock = BlockTypeList.at(randomInt(0, BlockTypeList.length + 1));
+        let nextBlock = BlockTypeList.at(getRandomInt(0, BlockTypeList.length - 1));
         game.spawnBlock(0xFF0000, nextBlock, true);
         fallingBlockGlow(game.fallingTetromino!);
     }
+}
+
+/* [min, max] */
+function getRandomInt(min: number, max: number) {
+    const randomBuffer = new Uint32Array(1);
+
+    window.crypto.getRandomValues(randomBuffer);
+
+    let randomNumber = randomBuffer[0] / (0xffffffff + 1);
+
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(randomNumber * (max - min + 1)) + min;
 }

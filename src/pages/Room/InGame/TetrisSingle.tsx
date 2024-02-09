@@ -9,7 +9,7 @@ import { TetrisOption } from "./Rapier/TetrisOption.ts";
 import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } from "./Rapier/Sound.ts";
 import { PoseNet } from "@tensorflow-models/posenet";
 import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "./Rapier/PostNet.ts";
-import { createUserEventCallback } from "./Rapier/TetrisCallback.ts";
+import { createLandingEvent, createUserEventCallback } from "./Rapier/TetrisCallback.ts";
 
 
 const eraseThreshold = 8000;
@@ -44,53 +44,7 @@ const TetrisSingle: React.FC = () => {
       removeGlow(game.fallingTetromino);
     }
   
-    const LandingEvent = ({game, bodyA, bodyB}: any) => {
-      let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
-      let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
-      playLandingSound();
-      if (bodyA.translation().y > 0 && bodyB.translation().y > 0) {
-        playDefeatSound();
-        setMessage("게임오버");
-        game.pause();
-        return;
-      }
-      
-      collisionParticleEffect(bodyA.translation().x, -bodyB.translation().y, game.graphics);
-      collisionParticleEffect(bodyB.translation().x, -bodyB.translation().y, game.graphics);
-      
-      const checkResult = game.checkLine(eraseThreshold);
-      const scoreList = checkResult.scoreList;
-      
-      let combo: number = 0;
-      let scoreIncrement: number = 0;
-      for (let i = 0; i < checkResult.scoreList.length; i++) {
-        if (scoreList[i] >= eraseThreshold) {
-          combo += 1;
-          scoreIncrement += scoreList[i];
-        }
-      }
-    
-    
-      if (game.removeLines(checkResult.lines)) {
-        playExplodeSound();
-        setPlayerScore(prevScore => Math.round(prevScore + scoreIncrement * (1 + 0.1 * combo)));
-        const comboMessage = handleComboEffect(combo, game.graphics);
-        setMessage(comboMessage);
-        setTimeout(() => {
-          setMessage("");
-        }, 1000);
-      
-        loadStarImage().then((starTexture: PIXI.Texture) => {
-          starParticleEffect(0, 600, game.graphics ,starTexture);
-          starParticleEffect(450, 600, game.graphics, starTexture);
-        }).catch((error: any) => {
-          console.error(error);
-        });
-      }
-
-      game.spawnBlock(0xFF0000, "O", true);
-      fallingBlockGlow(game.fallingTetromino!);
-    }
+    const LandingEvent = createLandingEvent(eraseThreshold, setMessage, setPlayerScore);
 
     const StepCallback = (game: TetrisGame, step: number) => {
       if (step % 15 != 0) {
