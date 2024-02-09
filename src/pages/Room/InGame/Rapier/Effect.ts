@@ -238,45 +238,13 @@ export function performPushEffect(firstRectangle: PIXI.Sprite, secondRectangle: 
 
 
 
-  export function createLineEffect(i: number, viewport: Viewport, lines: PIXI.Graphics[]): void {
-    let line = new PIXI.Graphics();
-    line.lineStyle(1, 0xFFF000, 0.2); // 선의 두께는 1, 색상은 검정색, 투명도는 1(불투명)
-    line.beginFill(0x000000, 0); 
-    line.drawRect(100, i * 32 - 20, 420, 32); // 32픽셀 간격으로 높이를 설정
-    line.endFill();
-    line.name = 'lineGrid'
-    lines.push(line); // lines 배열에 추가
-    viewport.addChild(line); // stage에 추가
-}
-
-
-export function createScoreBasedGrid(viewport: Viewport, scoreList: number [], threshold: number) {
-  //make lineGrids
-  let lineGrids: PIXI.Graphics[] = [];
-   // Clean up the old grids
-  for (let i = 0; i < viewport.children.length; i++) {
-    if (viewport.children[i].name === 'lineGrid') {
-      viewport.removeChild(viewport.children[i]);
-      i--; // Adjust index due to removal of child
-    }
-  }
-  for (let i = 0 ; i < 20; i ++) {
-      createLineEffect(i, viewport, lineGrids);
-  }
+export function createScoreBasedGrid(lineGrids: PIXI.Graphics[], scoreList: number [], threshold: number) {
   for (let i = 0; i < lineGrids.length; i++) {
     const alpha = scoreList[i] / threshold; // 점수를 투명도로 변환 (0 ~ 1 사이의 값)
-  let line = lineGrids[i];
-  line.clear(); // 이전 라인 스타일 제거
-
-  line.beginFill(0xff00f0, alpha/4);
-  line.filters = null; // glow 효과 제거
-  
-  line.drawRect(100, -i * 32 + 588, 410, 32); // 32픽셀 간격으로 높이를 설정
-  line.endFill();
-
-  if(alpha >= 1) {
-    lineGlowEffect(line); // alpha가 1 이상일 때 glow 효과를 줍니다.
-  }
+    lineGrids[i].clear();
+    lineGrids[i].beginFill(0xff00f0, alpha/4);
+    lineGrids[i].drawRect(100, -i * 32 +588, 420, 32); // 32픽셀 간격으로 높이를 설정
+    lineGrids[i].endFill();
   }  
 }
 

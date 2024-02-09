@@ -24,6 +24,7 @@ const TetrisSingle: React.FC = () => {
   const scoreTexts = useRef(
     Array.from({ length: 21 }, () => new PIXI.Text('0', {fontFamily: 'Arial', fontSize: 24, fill: '#ffffff'}))
   );
+  const lineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
   
   playIngameSound();
 
@@ -54,7 +55,7 @@ const TetrisSingle: React.FC = () => {
         return;
       }
       const checkResult = game.checkLine(eraseThreshold);
-      createScoreBasedGrid(game.graphics.viewport, checkResult.scoreList, eraseThreshold);
+      createScoreBasedGrid(lineGrids, checkResult.scoreList, eraseThreshold);
       showScore(checkResult.scoreList, scoreTexts.current, eraseThreshold);
     }
 
@@ -116,6 +117,9 @@ const TetrisSingle: React.FC = () => {
       setMessage("게임 시작!");
       scoreTexts.current.forEach((text) => {
         game.graphics.viewport.addChild(text);
+      });
+      lineGrids.forEach((line) => {
+        game.graphics.viewport.addChild(line);
       });
       setTimeout(() => {setMessage("")}, 3000);
       id = setInterval(poseNetLoop, 250);
