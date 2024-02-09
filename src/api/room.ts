@@ -10,7 +10,7 @@ export const createRoomAPI = async (roomData: CreateRoomCard) => {
     },
   };
   const response = await axios.post(
-    "http://54.180.148.103:3000/room",
+    "/room",
     roomData,
     config,
   );
@@ -28,7 +28,7 @@ export const requestRoomAPI = async ():Promise<LobbyGameRoomCard[]> => {
     },
   };
   const response = await axios.get(
-    "http://54.180.148.103:3000/room",
+    "/room",
     config,
   );
   return response.data;
