@@ -48,7 +48,7 @@ const TetrisSingle: React.FC = () => {
       removeGlowWithDelay(game.fallingTetromino);
     }
   
-    const LandingEvent = createLandingEvent(eraseThreshold, setMessage, setPlayerScore);
+    const LandingEvent = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore);
 
     const StepCallback = (game: TetrisGame, step: number) => {
       if (step % 15 != 0) {
