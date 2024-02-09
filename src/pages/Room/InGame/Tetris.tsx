@@ -115,7 +115,69 @@ const Tetris: React.FC = () => {
       scoreTexts.current = showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts.current, eraseThreshold);
     }
 
-    const LandingEvent = createLandingEvent(eraseThreshold, setMessage, setPlayerScore);
+    const LandingEvent = ({game, bodyA, bodyB}: any) => {
+      let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
+      let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
+      
+      if (bodyA.translation().y > 0 && bodyB.translation().y > 0) {
+        setMessage("게임오버")
+        game.pause();
+        return;
+      }
+      
+      collisionParticleEffect(bodyA.translation().x, -bodyB.translation().y, game.graphics);
+      collisionParticleEffect(bodyB.translation().x, -bodyB.translation().y, game.graphics);
+      
+      const checkResult = game.checkLine(eraseThreshold);
+      const scoreList = checkResult.scoreList;
+      let combo = 0;
+      for (let i = 0; i < checkResult.scoreList.length; i++) {
+        if (scoreList[i] >= eraseThreshold) {
+          setPlayerScore(prevScore => Math.round(prevScore + scoreList[i]));
+          combo += 1;
+        }
+      }
+    
+      if (game.removeLines(checkResult.lines)) {
+        console.log("combois ", combo)
+        if (combo == 1) {
+          startShake({ viewport: game.graphics.viewport, strength: 15, duration: 500 });
+          setMessage("Single Combo!");
+        }
+        if (combo == 2) {
+          startShake({ viewport: game.graphics.viewport, strength: 25, duration: 500 });
+          explodeParticleEffect(300, 700, game.graphics);
+          setMessage("Double Combo!");
+        }
+        else {
+          startShake({ viewport: game.graphics.viewport, strength: 35, duration: 500 });
+          setMessage("Fantastic!")
+        }
+        setTimeout(() => {
+          setMessage("");
+        }, 1000);
+      
+        loadStarImage().then((starTexture: PIXI.Texture) => {
+          starParticleEffect(0, 600, game.graphics ,starTexture);
+          starParticleEffect(450, 600, game.graphics, starTexture);
+        }).catch((error: any) => {
+          console.error(error);
+        });
+      }
+
+      //make lineGrids score
+      createScoreBasedGrid(game.graphics.viewport, checkResult.scoreList);
+      
+      scoreTexts.current.forEach((text) => {
+        if (game.graphics.viewport.children.includes(text)) {
+          game.graphics.viewport.removeChild(text);
+        }
+      });
+
+      //scoreTexts.current = showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts.current, eraseThreshold); // 수정
+      game.spawnBlock(0xFF0000, "O", true);
+      fallingBlockGlow(game.fallingTetromino!);
+    }
 
     const LandingEvent1 = ({game, bodyA, bodyB}: any) => {
       let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
