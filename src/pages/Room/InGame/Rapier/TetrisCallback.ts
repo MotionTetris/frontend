@@ -2,8 +2,10 @@ import { Socket } from "socket.io-client";
 import { changeBlockGlow, collisionParticleEffect, fallingBlockGlow, handleComboEffect, loadStarImage, performPushEffect, starParticleEffect } from "./Effect";
 import { KeyPointCallback, KeyPoint } from "./PostNet";
 import { TetrisGame } from "./TetrisGame";
-import { playDefeatSound, playDefeatSound, playExplodeSound, playLandingSound } from "./Sound";
+import { playDefeatSound, playExplodeSound, playLandingSound } from "./Sound";
 import * as PIXI from "pixi.js";
+import { BlockType, BlockTypeList } from "./Tetromino";
+import { randomInt } from "crypto";
 
 export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
     let nextColorIndex = 0;
@@ -46,6 +48,13 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
     return eventCallback;
 }
 
+export function createBlockSpawnEvent(socket?: Socket) {
+    return (game: TetrisGame, blockType: BlockType, blockColor: number) => {
+        let event = game.onBlockSpawned(blockType, blockColor);
+        socket?.emit('eventOn', event);
+    }
+}
+
 export function createLandingEvent(eraseThreshold: number, setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void) {
     return ({ game, bodyA, bodyB }: any) => {
         let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
@@ -83,6 +92,7 @@ export function createLandingEvent(eraseThreshold: number, setMessage: (message:
                 setMessage("");
             }, 1000);
 
+            // @ts-ignore
             loadStarImage().then((starTexture: PIXI.Texture) => {
                 starParticleEffect(0, 600, game.graphics, starTexture);
                 starParticleEffect(450, 600, game.graphics, starTexture);
@@ -91,7 +101,8 @@ export function createLandingEvent(eraseThreshold: number, setMessage: (message:
             });
         }
 
-        game.spawnBlock(0xFF0000, "O", true);
+        let nextBlock = BlockTypeList.at(randomInt(0, BlockTypeList.length + 1));
+        game.spawnBlock(0xFF0000, nextBlock, true);
         fallingBlockGlow(game.fallingTetromino!);
     }
 }

@@ -195,11 +195,15 @@ export class TetrisGame {
 
         newBody.rigidBody.setLinearDamping(0.25);
         newBody.rigidBody.setAngularDamping(10);
-        if (spawnedForFalling) {
+        if (!spawnedForFalling) {
+            this.tetrominos.add(newBody);   
+        } else {
             this.fallingTetromino = newBody;
-            return newBody;
         }
-        this.tetrominos.add(newBody);
+
+        if (this.option.blockSpawnCallback) {
+            this.option.blockSpawnCallback(this, blockType);
+        }
         return newBody;
     }
 
@@ -360,9 +364,9 @@ export class TetrisGame {
         return event;
     }
 
-    public onBlockSpawned(type: BlockType) {
+    public onBlockSpawned(type: BlockType, blockColor: number) {
         const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.BLOCK_SPAWNED);
-        event.userData = type;
+        event.userData = {type, blockColor};
         this.sequence += 1;
         return event;
     }
