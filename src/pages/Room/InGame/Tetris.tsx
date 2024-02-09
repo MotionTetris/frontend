@@ -14,6 +14,7 @@ import {  useSelector } from 'react-redux';
 import { RootState } from "@app/store.ts";
 import { KeyPoint, KeyPointCallback, KeyPointResult, loadPoseNet, processPose } from "./Rapier/PostNet.ts";
 import { PoseNet } from "@tensorflow-models/posenet";
+import { createUserEventCallback } from "./Rapier/TetrisCallback.ts";
 
 const eraseThreshold = 10000;
 const RAPIER = await import('@dimforge/rapier2d')
@@ -253,45 +254,7 @@ const Tetris: React.FC = () => {
       leftWristX: 0
     }
 
-    let nextColorIndex = 0;
-
-    let eventCallback: KeyPointCallback = {
-      onRotateLeft: function (keypoints: Map<string, KeyPoint>): void {
-        nextColorIndex = changeBlockGlow(game.fallingTetromino!, nextColorIndex);
-        let event = game.onRotateLeft();
-        socket.current?.emit('eventOn', event);
-      },
-      onRotateRight: function (keypoints: Map<string, KeyPoint>): void {
-        nextColorIndex = changeBlockGlow(game.fallingTetromino!, nextColorIndex);
-        const event = game.onRotateRight();
-        socket.current?.emit('eventOn', event);
-      },
-      onMoveLeft: function (keypoints: Map<string, KeyPoint>): void {
-        let centerX = keypoints.get("center")?.x;
-        let nose = keypoints.get("nose");
-        if (!nose || !centerX) {
-          return;
-        }
-        let alpha = (nose.x - centerX) / 300;
-        let forceMagnitude = Math.abs(nose.x - centerX) / (centerX);
-        performPushEffect(game.graphics.rectangles[0], game.graphics.rectangles[1],  alpha, 80, 470);
-        const event = game.onMoveLeft(forceMagnitude);
-        socket.current?.emit('eventOn', event);
-      },
-      onMoveRight: function (keypoints: Map<string, KeyPoint>): void {
-        let centerX = keypoints.get("center")?.x;
-        let nose = keypoints.get("nose");
-        if (!nose || !centerX) {
-          return;
-        }
-        let alpha = (nose.x - centerX) / 300;
-        let forceMagnitude = Math.abs(nose.x - centerX) / (centerX);
-        performPushEffect(game.graphics.rectangles[1], game.graphics.rectangles[0], alpha, 470, 80);
-        const event = game.onMoveRight(forceMagnitude);
-        socket.current?.emit('eventOn', event);
-      }
-    }
-
+    const eventCallback = createUserEventCallback(game, socket.current);
     const poseNetLoop = async () => {
       if (!videoRef.current) {
         return;

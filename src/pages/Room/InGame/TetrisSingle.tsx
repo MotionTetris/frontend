@@ -9,6 +9,7 @@ import { TetrisOption } from "./Rapier/TetrisOption.ts";
 import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } from "./Rapier/Sound.ts";
 import { PoseNet } from "@tensorflow-models/posenet";
 import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "./Rapier/PostNet.ts";
+import { createUserEventCallback } from "./Rapier/TetrisCallback.ts";
 
 
 const eraseThreshold = 8000;
@@ -107,7 +108,6 @@ const TetrisSingle: React.FC = () => {
       scoreTexts.current = showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts.current, eraseThreshold);
     }
 
-    
     const TetrisOption: TetrisOption = {
       blockFriction: 1.0,
       blockSize: 32,
@@ -134,7 +134,6 @@ const TetrisSingle: React.FC = () => {
     game.spawnBlock(0xFF0000, "T", true);
     fallingBlockGlow(game.fallingTetromino!);
 
-
     let poseNetResult: { poseNet: PoseNet; renderingContext: CanvasRenderingContext2D; } | undefined = undefined;
     let prevResult: KeyPointResult = {
       leftAngle: 0,
@@ -143,42 +142,7 @@ const TetrisSingle: React.FC = () => {
       leftWristX: 0
     }
 
-    let nextColorIndex = 0;
-
-    let eventCallback: KeyPointCallback = {
-      onRotateLeft: function (keypoints: Map<string, KeyPoint>): void {
-        nextColorIndex = changeBlockGlow(game.fallingTetromino!, nextColorIndex);
-        game.onRotateLeft();
-      },
-      onRotateRight: function (keypoints: Map<string, KeyPoint>): void {
-        nextColorIndex = changeBlockGlow(game.fallingTetromino!, nextColorIndex);
-        game.onRotateRight();
-      },
-      onMoveLeft: function (keypoints: Map<string, KeyPoint>): void {
-        let centerX = keypoints.get("center")?.x;
-        let nose = keypoints.get("nose");
-        if (!nose || !centerX) {
-          return;
-        }
-        let alpha = (nose.x - centerX) / 300;
-        let forceMagnitude = Math.abs(nose.x - centerX) / (centerX);
-        performPushEffect(game.graphics.rectangles[0], game.graphics.rectangles[1],  alpha, 80, 470);
-        game.onMoveLeft(forceMagnitude);
-
-      },
-      onMoveRight: function (keypoints: Map<string, KeyPoint>): void {
-        let centerX = keypoints.get("center")?.x;
-        let nose = keypoints.get("nose");
-        if (!nose || !centerX) {
-          return;
-        }
-        let alpha = (nose.x - centerX) / 300;
-        let forceMagnitude = Math.abs(nose.x - centerX) / (centerX);
-        performPushEffect(game.graphics.rectangles[1], game.graphics.rectangles[0], alpha, 470, 80);
-        game.onMoveRight(forceMagnitude);
-      }
-    }
-    
+    let eventCallback = createUserEventCallback(game);
     const poseNetLoop = async () => {
       if (!videoRef.current) {
         return;
