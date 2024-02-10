@@ -52,10 +52,18 @@ export const GamePagination = styled.div`
   justify-content: center;
 `;
 
-export const CreateRoomButton = styled.button`
+export const ButtonContainer = styled.div`
   position: absolute;
-  top: 16vh;
-  right: 8vw;
+  right: -300px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+export const CreateRoomButton = styled.button`
+  position: relative;
+  top: 200px;
+  right: 80px;
   width: 90px;
   height: 35px;
   background-color: white; 

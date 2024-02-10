@@ -6,6 +6,7 @@ import {
   GameContainer,
   GamePaginationButton,
   CreateRoomButton,
+  ButtonContainer,
 } from "./styles";
 import CreateRoom from "./Modal/CreateRoom/CreateRoom";
 import { LobbyGameRoomCard } from "@type/Refactoring";
@@ -13,8 +14,6 @@ import { useRoomSocket } from "@context/roomSocket";
 import RoomInfo from "../Main/Modal/RoomInfo/RoomInfo";
 import { requestRoomAPI } from "@api/room";
 import { Navigate } from "react-router-dom";
-import { getToken } from "@src/data-store/token";
-import { Spinner } from "@src/components/Common/Spinner";
 
 const GameMain = () => {
   const [rooms, setRooms] = useState<LobbyGameRoomCard[]>([]);
@@ -61,6 +60,10 @@ const GameMain = () => {
     );
   };
 
+  const handleRefresh = async () => {
+    setRooms(await requestRoomAPI());
+  }
+  
   let roomSocket = useRoomSocket();
   console.assert(roomSocket, "socket is undefined");
 
@@ -86,9 +89,14 @@ const GameMain = () => {
 
   return (
     <GameContainer>
+      <ButtonContainer>
+      <CreateRoomButton onClick={handleRefresh}>
+        새로고침
+      </CreateRoomButton>
       <CreateRoomButton onClick={handleCreateRoomClick}>
         + 방 생성
       </CreateRoomButton>
+      </ButtonContainer>
       <GameRoomGrid>
         {currentRooms.map((room) => (
           <RoomCardComponent
