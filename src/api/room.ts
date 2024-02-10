@@ -11,7 +11,7 @@ export const createRoomAPI = async (roomData: CreateRoomCard) => {
     },
   };
   const response = await axios.post(
-    "/room",
+    "/room-api",
     roomData,
     config,
   );
@@ -29,7 +29,7 @@ export const requestRoomAPI = async ():Promise<LobbyGameRoomCard[]> => {
     },
   };
   const response = await axios.get(
-    "/room",
+    "/room-api",
     config,
   );
   return response.data;
