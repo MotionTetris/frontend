@@ -22,6 +22,11 @@ const RoomInfo: React.FC<RoomInfoProps> = ({ roomData, onCloseModal }) => {
 
   const handleYesClick = () => {
     roomSocket?.emit(RoomSocketEvent.EMIT_JOIN,{ roomId: roomData.roomId });
+    if (roomData.maxCount <= roomData.currentCount) {
+      alert("방이 가득 찼습니다.");
+      onCloseModal();
+      return;
+    }
     navigate(`/rooms/${roomData.roomId}`, { state: { roomInfo: roomData, isCreator: false } });
   };
   const handleNoClick = () => {
