@@ -11,7 +11,9 @@ export const GameRoomGrid = styled.div`
 `;
 
 export const GameContainer = styled.div`
-  position: relative;
+  position: fixed;
+  top: 0%;
+  left: 30%;
 `;
 
 export const GamePaginationButton = styled.button<{
