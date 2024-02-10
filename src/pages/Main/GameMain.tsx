@@ -13,6 +13,8 @@ import { useRoomSocket } from "@context/roomSocket";
 import RoomInfo from "../Main/Modal/RoomInfo/RoomInfo";
 import { requestRoomAPI } from "@api/room";
 import { Navigate } from "react-router-dom";
+import { getToken } from "@src/data-store/token";
+import { Spinner } from "@src/components/Common/Spinner";
 
 const GameMain = () => {
   const [rooms, setRooms] = useState<LobbyGameRoomCard[]>([]);
@@ -61,7 +63,9 @@ const GameMain = () => {
 
   let roomSocket = useRoomSocket();
   console.assert(roomSocket, "socket is undefined");
-  if (!roomSocket) {
+
+  if (!roomSocket || !roomSocket.connected) {
+    alert("게임 서버와의 연결에 실패하였습니다!");
     return <Navigate to="/" replace></Navigate>
   }
 
