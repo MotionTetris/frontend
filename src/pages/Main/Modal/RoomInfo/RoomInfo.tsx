@@ -10,7 +10,6 @@ import { useNavigate } from "react-router-dom";
 import { LobbyGameRoomCard } from "@type/Refactoring";
 import { RoomStatuses } from "@type/RefactoringStatuses";
 import { useRoomSocket, RoomSocketEvent } from "@context/roomSocket";
-import { RoomId } from "@components/Room/styles";
 
 interface RoomInfoProps {
   roomData: LobbyGameRoomCard;
@@ -19,11 +18,11 @@ interface RoomInfoProps {
 
 const RoomInfo: React.FC<RoomInfoProps> = ({ roomData, onCloseModal }) => {
   const navigate = useNavigate();
-  const {roomSocket} = useRoomSocket();
+  const roomSocket = useRoomSocket();
 
   const handleYesClick = () => {
-    navigate(`/rooms/${roomData.roomId}`, { state: { roomInfo: roomData, isCreator: false } });
     roomSocket?.emit(RoomSocketEvent.EMIT_JOIN,{ roomId: roomData.roomId });
+    navigate(`/rooms/${roomData.roomId}`, { state: { roomInfo: roomData, isCreator: false } });
   };
   const handleNoClick = () => {
     if (onCloseModal) onCloseModal();
