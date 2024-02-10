@@ -24,7 +24,7 @@ import { MdEmail } from "react-icons/md";
 
 import { RiLockPasswordFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
-import { createRoomSocket, useRoomSocket } from "@context/roomSocket"
+import { useRoomSocket } from "@context/roomSocket"
 import { RootState } from "@app/store";
 const LoginModal: React.FC = () => {
   
@@ -33,7 +33,7 @@ const LoginModal: React.FC = () => {
   const [isSignupModalOpen, setSignupModalOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const {setRoomSocket} = useRoomSocket()
+  const roomSocket = useRoomSocket();
 
   const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -56,7 +56,6 @@ const LoginModal: React.FC = () => {
         }),
       );
       localStorage.setItem("token", response.access_token);
-      setRoomSocket(createRoomSocket())
       navigate("/gamelobby");
     } catch (error) {
       console.log(error);

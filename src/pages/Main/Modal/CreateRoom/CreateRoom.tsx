@@ -28,7 +28,7 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
   const navigate = useNavigate();
   const [roomName, setRoomName] = useState("");
   const [selectedOption, setSelectedOption] = useState(1);
-  const {roomSocket} = useRoomSocket();
+  const roomSocket = useRoomSocket();
   const [createRooms, setCreateRooms] = useState<LobbyGameRoomCard[]>();
   const [warningMessage, setWarningMessage] = useState("");
 

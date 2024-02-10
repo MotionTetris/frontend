@@ -24,7 +24,7 @@ import { setOtherNickname, setCreatorNickname } from "@redux/game/gameSlice";
 const GameRoom: React.FC = () => {
   const navigate = useNavigate();
   const [inGameCard, setInGameCard] = useState<InGamePlayerCard | null>(null);
-  const {roomSocket} = useRoomSocket();
+  const roomSocket = useRoomSocket();
   const { roomId: roomIdString } = useParams<{ roomId: string }>();
   const roomId = parseInt(roomIdString || "");
   const location = useLocation();
