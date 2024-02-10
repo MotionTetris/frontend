@@ -1,4 +1,3 @@
-import { useSelector, useDispatch } from "react-redux";
 import {
   SignupModalOverlay,
   SignupModalContainer,
@@ -15,61 +14,49 @@ import {
   SignupText5,
 } from "./styles";
 import {
-  setNickname,
-  setEmail,
-  setPassword,
-  setConfirmPassword,
-  setNicknameError,
-  setEmailError,
-  setPasswordError,
-  setConfirmPasswordError,
-} from "@redux/hompage/signupSlice";
-import { RootState } from "@app/store";
-import {
   validateNickname,
   validateEmail,
   validatePassword,
   validateConfirmPassword,
 } from "@util/validation";
 import { signupAPI } from "@api/auth";
+import { useState } from "react";
 
 function SignupModal({ onClose }: { onClose: () => void }) {
-  const dispatch = useDispatch();
-  const {
-    nickname,
-    email,
-    password,
-    confirmPassword,
-    nicknameError,
-    emailError,
-    passwordError,
-    confirmPasswordError,
-  } = useSelector((state: RootState) => state.signup);
+  const [nickname, setNickname] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [nicknameError, setNicknameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    dispatch(setNickname(value));
-    dispatch(setNicknameError(validateNickname(value)));
+    setNickname(value);
+    setNicknameError(validateNickname(value));
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    dispatch(setEmail(value));
-    dispatch(setEmailError(validateEmail(value)));
+    setEmail(value);
+    setEmailError(validateEmail(value));
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    dispatch(setPassword(value));
-    dispatch(setPasswordError(validatePassword(value)));
+    setPassword(value);
+    setPasswordError(validatePassword(value));
   };
 
   const handleConfirmPasswordChange = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const value = e.target.value;
-    dispatch(setConfirmPassword(value));
-    dispatch(setConfirmPasswordError(validateConfirmPassword(password, value)));
+    setConfirmPassword(value);
+    setConfirmPasswordError(validateConfirmPassword(password, value));
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -133,5 +120,4 @@ function SignupModal({ onClose }: { onClose: () => void }) {
     </SignupModalOverlay>
   );
 }
-
 export default SignupModal;

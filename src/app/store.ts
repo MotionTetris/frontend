@@ -4,17 +4,12 @@ import rankingReducer from "@redux/ranking/rankingSlice";
 import roomStatusReducer from "@redux/roomStatus/roomStatusSlice";
 import gameReducer from "@redux/game/gameSlice";
 import homepageReducer from "@redux/hompage/homepageSlice";
-import signupReducer from "@redux/hompage/signupSlice";
-import socketReducer from "@redux/socket/socketReducer";
 import { CommonState } from "@type/common";
-import { GameState } from "@type/game";
 import { HomepageState } from "@type/homepage";
 import { ProfileState } from "@type/profile";
 import { RankingState } from "@type/ranking";
 import { RoomState } from "@type/room";
-import { SignupState } from "@type/signup";
 import { BannerState } from "@type/banner";
-import { Socket } from "socket.io-client";
 import { InGamePlayerCard } from "@type/Refactoring";
 
 export const store = configureStore({
@@ -24,8 +19,6 @@ export const store = configureStore({
     roomStatus: roomStatusReducer,
     game: gameReducer,
     homepage: homepageReducer,
-    signup: signupReducer,
-    socket: socketReducer,
   },
   devTools: process.env.NODE_ENV !== "production", // 개발 환경에서만 DevTools 활성화
 });
@@ -37,9 +30,7 @@ export type RootState = {
   profile: ProfileState;
   ranking: RankingState;
   roomState: RoomState;
-  signup: SignupState;
   banner: BannerState;
-  socket: Socket | null;
 };
 
 export type AppDispatch = typeof store.dispatch;
