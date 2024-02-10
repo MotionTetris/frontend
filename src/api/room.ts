@@ -1,9 +1,10 @@
 import axios from "axios";
 import { CreateRoomCard, LobbyGameRoomCard } from "@type/Refactoring";
+import { getToken } from "@src/data-store/token";
 
 // 방 생성 API 호출 함수
 export const createRoomAPI = async (roomData: CreateRoomCard) => {
-  const token = localStorage.getItem("token");
+  const token = getToken();
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -21,7 +22,7 @@ export const createRoomAPI = async (roomData: CreateRoomCard) => {
 
 // 방 생성 API 호출 함수
 export const requestRoomAPI = async ():Promise<LobbyGameRoomCard[]> => {
-  const token = localStorage.getItem("token");
+  const token = getToken();
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,

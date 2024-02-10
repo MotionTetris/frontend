@@ -19,6 +19,7 @@ import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from '@app/store';
 import { setOtherNickname, setCreatorNickname } from "@redux/game/gameSlice";
+import { getUserNickname } from "@src/data-store/token";
 
 
 const GameRoom: React.FC = () => {
@@ -30,7 +31,7 @@ const GameRoom: React.FC = () => {
   const location = useLocation();
   const roomInfo = location.state as { roomInfo: InGamePlayerCard, isCreator: boolean } | undefined;
   const [isReady, setIsReady] = useState(false);
-  const currentPlayerNickname = useSelector((state: RootState) => state.homepage.nickname);
+  const currentPlayerNickname = getUserNickname();
   const [players, setPlayers] = useState<string[]>([]);
   const [isGameALLReady, setIsGameALLReady] = useState(false);
   const dispatch = useDispatch();
@@ -62,6 +63,7 @@ useEffect(() => {
       const otherPlayers = playersNickname.filter(nickname => nickname !== creatorNickname && nickname !== currentPlayerNickname);
       setPlayers([currentPlayerNickname, ...randomizePlayers(otherPlayers)]);
     }
+      roomSocket.emit(RoomSocketEvent.EMIT_JOIN, roomId);
   }
 
   roomSocket?.on(RoomSocketEvent.ON_JOIN_ROOM, (users) => {

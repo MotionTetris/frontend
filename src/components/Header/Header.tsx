@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setProfile } from "@redux/profile/profileSlice";
-import { RootState, store } from "@app/store";
 import {
   HeaderContainer,
   HeaderLogoContainer,
@@ -13,14 +12,11 @@ import {
   HeaderStyledLinkContainer,
   HeaderStyledLink as OriginalHeaderStyledLink,
 } from "./styles";
-import { userProfileAPI } from "@api/user";
 import defaultProfileImage from "@assets/ProfilePhoto.png";
-import { Navigate } from "react-router-dom";
-import {BackgroundColor3, Circle} from "@src/BGstyles"
-import {BlockComponents} from "BGtetris"
+import { BackgroundColor3 } from "@src/BGstyles"
 import { useLocation } from "react-router-dom";
 import Volume from "@components/volume";
-import { jwtDecode } from "jwt-decode";
+import { getUserNickname } from "@src/data-store/token";
 
 const HeaderStyledLink: React.FC<{ to: string, image: string, children: React.ReactNode }> = ({ to, children, image }) => {
   const location = useLocation();
@@ -37,33 +33,22 @@ const Header: React.FC = () => {
   const dispatch = useDispatch();
   const [nickname, setNickname] = useState("");
 
-
-  useEffect(() => {
-    console.log('header nickname::::::',nickname)
-  }, [nickname]); // 의존성 배열에 nickname 추가
-
   const backgroundCircles = useMemo(() => (
     <BackgroundColor3></BackgroundColor3>
     ), []);
     useEffect(() => {
-      const token = localStorage.getItem('token');
-      if (token) {
         try {
-          const decoded = jwtDecode(token);
-          const nickname = decoded.sub;
+          const nickname = getUserNickname();
           if (nickname) {
             console.log('Decoded nickname:', nickname);
-            setNickname(nickname); // 상태 업데이트
+            setNickname(nickname);
             dispatch(setProfile({ nickname: nickname }));
           }
-    
         } catch (error) {
           console.error('An error occurred while decoding the token:', error);
         }
-      }
     }, [dispatch]);
-    
-    
+
   return (
     <>
       {backgroundCircles}

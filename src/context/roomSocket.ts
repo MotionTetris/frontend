@@ -2,8 +2,9 @@ import * as io from "socket.io-client";
 import * as config from "@src/config";
 import React, { useContext } from "react";
 import { Socket } from "socket.io-client";
+import { getToken } from "@src/data-store/token";
 
-const loadToken = () => localStorage.getItem("token");
+const loadToken = () => getToken();
 export const roomSocket = io.connect(config.ROOM_SOCKET_URL, {
   auth: {
     token: `Bearer ${loadToken()}`

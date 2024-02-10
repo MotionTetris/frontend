@@ -13,6 +13,7 @@ import  {useLocation} from "react-router-dom"
 import { GAME_SOCKET_URL } from "@src/config";
 import { useSelector } from 'react-redux';
 import { RootState } from "@app/store";
+import { getToken } from "@src/data-store/token";
 
 const eraseThreshold = 10000;
 const RAPIER = await import('@dimforge/rapier2d')
@@ -38,8 +39,7 @@ const Tetris: React.FC = () => {
     const queryParams = new URLSearchParams(location.search);
     const roomId = queryParams.get('roomId')
     const max = queryParams.get('max')
-    const token = localStorage.getItem('token')
-
+    const token = getToken();
     socket.current = io.connect(`ws://15.164.166.146:3001?roomId=${roomId}&max=${max}`,{
       auth:{
         token:`Bearer ${token}`
