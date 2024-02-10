@@ -5,11 +5,14 @@ import { Socket } from "socket.io-client";
 import { getToken } from "@src/data-store/token";
 
 const loadToken = () => getToken();
-export const roomSocket = io.connect(config.ROOM_SOCKET_URL, {
+export const roomSocket = (() => io.connect(config.ROOM_SOCKET_URL, {
   auth: {
     token: `Bearer ${loadToken()}`
-  }
-})
+  },
+  transports: ['websocket'],
+  autoConnect: true,
+  reconnection: true,
+}))();
 
 export const RoomSocketContext = React.createContext<Socket | undefined>(undefined);
 export const useRoomSocket = () => {
@@ -19,6 +22,10 @@ export const useRoomSocket = () => {
     throw new Error('useRoomSocket must be used within a RoomSocketProvider');
   }
 
+  if (!context.connected) {
+    context.auth = {token: `Bearer ${loadToken()}`}
+    context.connect();
+  }
   return context;
 };
 export enum RoomSocketEvent {
