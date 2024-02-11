@@ -4,10 +4,11 @@ import {GlowFilter} from '@pixi/filter-glow';
 import { Tetromino } from "./Tetromino";
 import { gsap } from 'gsap';
 import { Graphics } from "./Graphics";
-
 import { playDoubleComboSound, playSingleComboSound, playTripleComboSound } from "./Sound";
 import { TetrisGame } from "./TetrisGame";
 import * as particles from '@pixi/particle-emitter'
+import * as RAPIER from "@dimforge/rapier2d";
+
 
 export const explodeParticleEffect = (x: number, y: number, graphics: Graphics ) => {
   const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
@@ -95,41 +96,6 @@ export const starParticleEffect = (x: number, y: number, graphics: Graphics,  st
     ticker.start();
   }
 };
-
-
-export function explodeImageEffect(
-  explosionSprite: PIXI.DisplayObject, 
-  app: PIXI.Application, 
-  i: number
-): void {
-  explosionSprite.alpha = 1; // 알파값 초기화
-
-  // 스프라이트가 이미 부모에 추가되어 있으면 제거
-  if (explosionSprite.parent) { 
-      explosionSprite.parent.removeChild(explosionSprite);
-  }
-
-  // 스프라이트 위치 설정 및 추가
-  explosionSprite.x = 140;
-  explosionSprite.y = i * 32 - 200;
-  explosionSprite.alpha = 0.5;
-  app.stage.addChild(explosionSprite);
-
-
-  let ticker = PIXI.Ticker.shared;
-          let timeElapsed = 0; // 경과 시간
-          const handleTick = (deltaTime: number) => {
-            timeElapsed += deltaTime;
-            if (timeElapsed >= 60) { // 약 1초 후
-              ticker.remove(handleTick); // 애니메이션 제거
-              if (explosionSprite.parent) { // 스프라이트가 부모에 추가되어 있다면 제거
-                explosionSprite.parent.removeChild(explosionSprite);
-              }
-            }
-          };
-          ticker.add(handleTick);
-}
-
 
 
 export function collisionParticleEffect(
@@ -588,3 +554,83 @@ export function lineGlowEffect(graphics: PIXI.Graphics) {
     graphics.filters = graphics.filters!.filter(filter => filter !== glowFilter);
   });
 }
+
+
+export function spawnBomb(game: TetrisGame, x: number, y: number): number {
+  
+  let radius = 50;
+  let rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
+  let rigidBody = game.world?.createRigidBody(rigidBodyDesc);
+  rigidBody!.userData = {type: 'bomb'};
+
+  let colliderDesc = RAPIER.ColliderDesc.ball(radius).setMass(100000);
+  let collider = game.world?.createCollider(colliderDesc, rigidBody);
+
+  let graphics = new PIXI.Graphics();  
+  graphics.beginFill(0xFF0000); // 빨간색
+  graphics.drawCircle(0, 0, radius);
+  graphics.endFill();
+  game.graphics.viewport.addChild(graphics);
+  game.graphics.coll2gfx.set(collider!.handle, graphics);
+
+  setTimeout(() => {
+    //game.world!.removeCollider(collider!, false);
+    rigidBody?.setTranslation({x: 10000, y: 0}, false);
+    game.graphics.viewport.removeChild(graphics);
+    game.graphics.coll2gfx.delete(collider!.handle);
+  }, 4000);  
+  return collider!.handle;
+}
+
+
+export function explodeBomb(game: TetrisGame, bodyA: RAPIER.Collider, bodyB: RAPIER.Collider, ver: number) {
+  const explosionPoint = ver ? bodyA.translation() : bodyB.translation();
+  let rigidBodyHandle = (ver ? bodyA : bodyB).parent()?.handle;
+  let rigidBody = game.world!.getRigidBody(rigidBodyHandle!);
+  rigidBody.setTranslation({x: 10000, y: 0}, false);
+  loadExplosionImage().then((explodeTexture: PIXI.Texture) => {
+    createExplosion(game.graphics.viewport, explodeTexture, explosionPoint.x, explosionPoint.y);
+    const graphics = game.graphics.coll2gfx.get((ver ? bodyA : bodyB).handle);
+    if (graphics) {
+      game.graphics.viewport.removeChild(graphics);
+      game.graphics.coll2gfx.delete((ver ? bodyA : bodyB).handle);
+    }
+  }).catch((error: any) => {
+    console.error(error);
+  });
+}
+
+
+export function loadExplosionImage(): Promise<PIXI.Texture> {
+  return new Promise((resolve, reject) => {
+    const imagePath = 'src/assets/explosion.png';
+    if (PIXI.Loader.shared.resources[imagePath]?.texture) {
+      resolve(PIXI.Loader.shared.resources[imagePath].texture);
+    } else {
+      PIXI.Loader.shared.add(imagePath).load((loader, resources) => {
+        if (resources[imagePath]?.texture) {
+          console.log("폭발 이미지 로드 성공");
+          resolve(resources[imagePath].texture);
+        } else {
+          reject("폭발 이미지 로드 실패");
+        }
+      });
+    }
+  });
+}
+
+
+
+export const createExplosion = (viewport: Viewport, texture: PIXI.Texture, x: number, y: number) => {
+
+  const explosion = new PIXI.Sprite(texture);
+  explosion.width = 150; // 원하는 폭발 이미지의 너비로 설정하세요.
+  explosion.height = 150; 
+  explosion.anchor.set(0.5, 0.5);
+  explosion.x = x;
+  explosion.y = -y;
+  viewport.addChild(explosion);
+  setTimeout(() => {
+      viewport.removeChild(explosion);
+  }, 300);
+};

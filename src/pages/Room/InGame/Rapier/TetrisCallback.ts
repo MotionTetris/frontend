@@ -58,6 +58,8 @@ export function createBlockSpawnEvent(socket?: Socket) {
 
 export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void) {
     return ({ game, bodyA, bodyB }: any) => {
+        
+
         let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
         let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
         playLandingSound();
@@ -68,8 +70,8 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
             return;
         }
 
-        collisionParticleEffect(bodyA.translation().x, -bodyB.translation().y, game.graphics);
-        collisionParticleEffect(bodyB.translation().x, -bodyB.translation().y, game.graphics);
+        //collisionParticleEffect(bodyA.translation().x, -bodyB.translation().y, game.graphics);
+        //collisionParticleEffect(bodyB.translation().x, -bodyB.translation().y, game.graphics);
 
         const checkResult = game.checkLine(eraseThreshold);
         const scoreList = checkResult.scoreList;
