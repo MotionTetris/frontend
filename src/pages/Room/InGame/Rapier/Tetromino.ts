@@ -1,5 +1,6 @@
 
 import { BlockCreator } from "./BlockCreator";
+import { TetrisGame } from "./TetrisGame";
 import { TetrisOption } from "./TetrisOption";
 import * as RAPIER from "@dimforge/rapier2d";
 import * as PIXI from "pixi.js";
@@ -14,8 +15,10 @@ export class Tetromino {
     private _graphics: PIXI.Graphics[];
     private _context: PIXI.Container;
     private _world: RAPIER.World;
+    private _game: TetrisGame;
 
-    public constructor(option: TetrisOption, world: RAPIER.World, ctx: PIXI.Container, rigidBody?: RAPIER.RigidBody, blockColor?: number, blockType?: BlockType) {
+    public constructor(game: TetrisGame, option: TetrisOption, world: RAPIER.World, ctx: PIXI.Container, rigidBody?: RAPIER.RigidBody, blockColor?: number, blockType?: BlockType) {
+        this._game = game;
         this._world = world;
         this._blockColor = blockColor!;
         this._type = blockType!;
@@ -78,5 +81,6 @@ export class Tetromino {
 
         // TODO: At some point, we will have to delete a block.
         this._rigidBody.setTranslation({x: 10000, y: 0}, false);
+        this._game.addRigidBodyToRemoveQueue(this._rigidBody);
     }
 }

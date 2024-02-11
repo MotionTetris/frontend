@@ -7,6 +7,7 @@ import { calculateLineIntersectionArea } from "./BlockScore";
 import { removeLines as removeShapeWithLine } from "./BlockRemove";
 import { KeyFrameEvent, PlayerEventType } from "./Multiplay";
 import { removeGlow } from "./Effect";
+import { Bodies } from "matter-js";
 
 type Line = number[][][]
 export class TetrisGame {
@@ -27,6 +28,8 @@ export class TetrisGame {
     sequence: number;
     userId: string;
     running: boolean;
+    private removeBodies: Array<RAPIER.RigidBody>;
+
     private readonly defaultWallColor = 0x222929
     public constructor(option: TetrisOption, userId: string) {
         if (!option.view) {
@@ -44,6 +47,7 @@ export class TetrisGame {
         this.running = false;
         this.userId = userId;
         this.stepId = 0;
+        this.removeBodies = [];
     }
 
     public set landingCallback(callback: ((result: BlockCollisionCallbackParam) => void)) {
@@ -56,6 +60,10 @@ export class TetrisGame {
 
     public dispose() {
         this.world?.free();
+    }
+
+    public addRigidBodyToRemoveQueue(body: RAPIER.RigidBody) {
+        this.removeBodies.push(body);
     }
 
     public setWorld(world: RAPIER.World) {
@@ -154,7 +162,12 @@ export class TetrisGame {
             const body2 = this.world.getCollider(handle2);
             this.onCollisionDetected(body1, body2);
         });
-
+        
+        for (let body of this.removeBodies) {
+            console.log(this.removeBodies);
+            this.world.removeRigidBody(body);
+        }
+        this.removeBodies = [];
         requestAnimationFrame(() => this.run());
     }
 
@@ -178,7 +191,7 @@ export class TetrisGame {
             throw new Error("Failed to spawn block. world is not set");
         }
 
-        const newBody = new Tetromino(this.option, this.world, this.graphics.viewport, undefined, color, blockType);
+        const newBody = new Tetromino(this, this.option, this.world, this.graphics.viewport, undefined, color, blockType);
         for (let i = 0; i < newBody.rigidBody.numColliders(); i++) {
             const graphics = this.graphics.addCollider(newBody.rigidBody.collider(i));
             if (graphics) {
@@ -208,7 +221,7 @@ export class TetrisGame {
             throw new Error("Failed to spawn block. world is not set");
         }
 
-        const tetromino = new Tetromino(this.option, this.world, this.graphics.viewport, rigidBody, color);
+        const tetromino = new Tetromino(this, this.option, this.world, this.graphics.viewport, rigidBody, color);
         for (let i = 0; i < rigidBody.numColliders(); i++) {
             rigidBody.collider(i).setRestitution(0);
             rigidBody.collider(i).setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
@@ -224,7 +237,7 @@ export class TetrisGame {
         }
 
         const newBody = this.world.createRigidBody(rigidBodyDesc);
-        const tetromino = new Tetromino(this.option, this.world, this.graphics.viewport, newBody, color);
+        const tetromino = new Tetromino(this, this.option, this.world, this.graphics.viewport, newBody, color);
         for (let i = 0; i < tetromino.rigidBody.numColliders(); i++) {
             this.graphics.addCollider(tetromino.rigidBody.collider(i));
             tetromino.rigidBody.collider(i).setRestitution(0);
@@ -259,7 +272,7 @@ export class TetrisGame {
                 this.world.createCollider(collider, body);
             }
 
-            const shape = new Tetromino(this.option, this.world, this.graphics.viewport, body, color);
+            const shape = new Tetromino(this, this.option, this.world, this.graphics.viewport, body, color);
             shapes.push(shape);
         }
 
