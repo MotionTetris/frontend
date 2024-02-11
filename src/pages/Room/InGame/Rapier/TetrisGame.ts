@@ -6,14 +6,12 @@ import { createLines } from "./Line";
 import { calculateLineIntersectionArea } from "./BlockScore";
 import { removeLines as removeShapeWithLine } from "./BlockRemove";
 import { KeyFrameEvent, PlayerEventType } from "./Multiplay";
-import { removeGlow } from "./Effect";
-import { Bodies } from "matter-js";
+import { Wall } from "./Wall";
 
 type Line = number[][][]
 export class TetrisGame {
     graphics: Graphics;
     inhibitLookAt: boolean;
-    demoToken: number;
     events: RAPIER.EventQueue;
     world?: RAPIER.World;
     preTimestepAction?: (gfx: Graphics) => void;
@@ -22,14 +20,15 @@ export class TetrisGame {
     snap?: Uint8Array;
     snapStepId?: number;
     option: TetrisOption;
-    tetrominos: Set<Tetromino>;
+    tetrominos: Map<number, Tetromino>;
     fallingTetromino?: Tetromino;
     lines: Line[];
     sequence: number;
     userId: string;
     running: boolean;
     private removeBodies: Array<RAPIER.RigidBody>;
-
+    private walls: Map<number, Wall>
+    
     private readonly defaultWallColor = 0x222929
     public constructor(option: TetrisOption, userId: string) {
         if (!option.view) {
@@ -38,16 +37,16 @@ export class TetrisGame {
 
         this.graphics = new Graphics(option);
         this.inhibitLookAt = false;
-        this.demoToken = 0;
         this.events = new RAPIER.EventQueue(true);
         this.option = option;
-        this.tetrominos = new Set();
+        this.tetrominos = new Map();
         this.lines = createLines(-20 * option.blockSize + 20, 0, option.blockSize);
         this.sequence = 0;
         this.running = false;
         this.userId = userId;
         this.stepId = 0;
         this.removeBodies = [];
+        this.walls = new Map();
     }
 
     public set landingCallback(callback: ((result: BlockCollisionCallbackParam) => void)) {
@@ -72,8 +71,8 @@ export class TetrisGame {
         this.preTimestepAction = undefined;
         this.world = world;
         this.world.numSolverIterations = 4;
-        this.demoToken += 1;
         this.stepId = 0;
+        this.walls = new Map();
 
         world.forEachCollider((coll) => {
             // @ts-ignore
@@ -84,6 +83,13 @@ export class TetrisGame {
             }
             this.graphics.addCollider(coll);
         });
+
+        world.forEachRigidBody((body) => {
+            let wall = new Wall(body);
+            wall.userData = body.userData;
+            this.walls.set(wall.rigidBody.handle, wall);
+        });
+
         this.graphics.render(this.world);
         this.lastMessageTime = new Date().getTime();
     }
@@ -182,7 +188,7 @@ export class TetrisGame {
 
     public removeBlock(block: Tetromino) {
         block.remove();
-        this.tetrominos.delete(block);
+        this.tetrominos.delete(block.rigidBody.handle);
     }
 
     /* Spawn new block */
@@ -201,7 +207,7 @@ export class TetrisGame {
             newBody.rigidBody.collider(i).setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
         }
 
-        newBody.rigidBody.userData = {
+        newBody.userData = {
             color: color,
             type: 'block'
         };
@@ -212,7 +218,7 @@ export class TetrisGame {
             this.fallingTetromino = newBody;
             return newBody;
         }
-        this.tetrominos.add(newBody);
+        this.tetrominos.set(newBody.rigidBody.handle, newBody);
         return newBody;
     }
 
@@ -226,7 +232,7 @@ export class TetrisGame {
             rigidBody.collider(i).setRestitution(0);
             rigidBody.collider(i).setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
         }
-        this.tetrominos.add(tetromino);
+        this.tetrominos.set(tetromino.rigidBody.handle, tetromino);
         return tetromino; 
     }
 
@@ -249,7 +255,7 @@ export class TetrisGame {
             type: 'block'
         };
 
-        this.tetrominos.add(tetromino);
+        this.tetrominos.set(tetromino.rigidBody.handle, tetromino);
         return tetromino;
     }
 
@@ -283,7 +289,7 @@ export class TetrisGame {
                     shape.addGraphics(graphics);
                 }
             }
-            this.tetrominos.add(shape);
+            this.tetrominos.set(shape.rigidBody.handle, shape);
             console.log(shape.rigidBody.translation());
         }
         
@@ -327,7 +333,7 @@ export class TetrisGame {
         // TODO: Shape-cast and remove without removing and re-create all shapes in the world
         for (const line of lineToRemove) {
             const shapes = [...this.tetrominos];
-            shapes.forEach((value) => {
+            shapes.forEach(([_, value]) => {
                 const result = removeShapeWithLine(value.rigidBody, line);
                 const color = value.fillStyle;
                 this.removeBlock(value);
@@ -386,9 +392,9 @@ export class TetrisGame {
         if (!body1 || !body2) {
             return;
         }
-
+        
         if (this.isFalling(body1, body2) && !this.collideWithWall(body1, body2)) {
-            this.tetrominos.add(this.fallingTetromino!);
+            this.tetrominos.set(this.fallingTetromino!.rigidBody.handle, this.fallingTetromino!);
             if (this.option.preBlockLandingCallback) {
                 try {
                     this.option.preBlockLandingCallback({game: this, bodyA: collider1, bodyB: collider2});
@@ -416,7 +422,8 @@ export class TetrisGame {
     }
 
     protected collideWithWall(body1: RAPIER.RigidBody, body2: RAPIER.RigidBody) {
-        // @ts-ignore
-        return (body1.userData?.type === "left_wall" || body1.userData?.type === "right_wall") || (body2.userData?.type === "left_wall" || body2.userData?.type === "right_wall")
+        let userData1 = this.walls.get(body1.handle)?.userData;
+        let userData2 = this.walls.get(body2.handle)?.userData;
+        return (userData1?.type === "left_wall" || userData1?.type === "right_wall") || (userData2?.type === "left_wall" || userData2?.type === "right_wall")
     }
 }
