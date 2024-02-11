@@ -305,5 +305,5 @@ export class Graphics {
         this.colorIndex = (this.colorIndex + 1) % (this.colorPalette.length - 1);
         
         return graphics;
-    }
+    }   
 }

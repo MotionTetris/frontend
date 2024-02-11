@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "./Rapier/TetrisGame.ts";
 import { initWorld } from "./Rapier/World.ts";
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer } from "./style.tsx";
-import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake, handleComboEffect, rotateViewport, resetRotateViewport, flipViewport, resetFlipViewport, addFog, removeGlowWithDelay, fallingBlockGlowWithDelay} from "./Rapier/Effect.ts";
+import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake, handleComboEffect, rotateViewport, resetRotateViewport, flipViewport, resetFlipViewport, addFog, removeGlowWithDelay, fallingBlockGlowWithDelay, spawnBomb, explodeBomb} from "./Rapier/Effect.ts";
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "./Rapier/TetrisOption.ts";
@@ -10,11 +10,14 @@ import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } 
 import { PoseNet } from "@tensorflow-models/posenet";
 import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "./Rapier/PostNet.ts";
 import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "./Rapier/TetrisCallback.ts";
+import { BackgroundColor1, Night, ShootingStar } from "../../../BGstyles.ts";
 
 
 const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
+let bombHandle = 0;
 const TetrisSingle: React.FC = () => {
+  const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
   const sceneRef = useRef<HTMLCanvasElement>(null);  //게임화면
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -29,6 +32,16 @@ const TetrisSingle: React.FC = () => {
   playIngameSound();
 
   useEffect(() => {
+
+    setShootingStars(Array(20).fill(null).map((_, index) => {
+      const style = {
+        left: `${Math.random() * 100}%`, 
+        top: `${Math.random() * 100}%`,
+        animationDelay: `${Math.random() * 5}s`
+      };
+      return <ShootingStar style={style} key={index} />;
+    }));
+    
     if (!!!sceneRef.current) {
       console.log("sceneRef is null");
       return;
@@ -38,8 +51,17 @@ const TetrisSingle: React.FC = () => {
     sceneRef.current.height = 800;
     //fallingBlockGlow(game.fallingTetromino!);
     const CollisionEvent = ({game, bodyA, bodyB}: any) => {
-    
+      let collisionX = bodyA._parent.userData.type;
+      let collisionY = bodyB._parent.userData.type;
+      if ((collisionX === 'bomb' || collisionY === 'bomb') && 
+        collisionX !== 'ground' && collisionY !== 'ground' && 
+        collisionX !=='left_wall' && collisionY !=='left_wall' && 
+        collisionX !=='right_wall' && collisionY !=='right_wall') {
+        let ver = (collisionX === 'bomb') ? 0 : 1;
+        explodeBomb(game, bodyA, bodyB, ver);
     }
+  }
+  
 
     const preLandingEvent = ({game, bodyA, bodyB}: any) => {
       game.fallingTetromino?.rigidBody.resetForces(true);
@@ -67,7 +89,7 @@ const TetrisSingle: React.FC = () => {
       view: sceneRef.current,
       spawnX: sceneRef.current.width / 2,
       spawnY: 200,
-      blockCollisionCallback: () => {},
+      blockCollisionCallback: CollisionEvent,
       blockLandingCallback: LandingEvent,
       preBlockLandingCallback: preLandingEvent,
       stepCallback: StepCallback,
@@ -175,6 +197,12 @@ const TetrisSingle: React.FC = () => {
         }
         }}>안개~</button>
 
+        <button onClick={() => {
+        if (gameRef.current) {
+          bombHandle = spawnBomb(gameRef.current, 150, 100);
+        }
+        }}>폭탄</button>
+
       </SceneContainer>
     
       <VideoContainer>
@@ -182,6 +210,12 @@ const TetrisSingle: React.FC = () => {
         <VideoCanvas ref={canvasRef}/>
       </VideoContainer>
     </Container>
+
+    <BackgroundColor1>
+        <Night>
+          {shootingStars}
+        </Night>
+      </BackgroundColor1>
     </>
   );
 };
