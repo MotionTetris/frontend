@@ -36,7 +36,7 @@ export const SceneContainer = styled.div`
   width: 600px;
   height: 900px;
   position: absolute;
-  background: #4e9cad;
+  background: rgba(78, 156, 173, 1);
 `;
 
 export const PlayerContainer = styled.div`
@@ -108,3 +108,66 @@ export const MessageDiv = styled.div`
   transform: translate(-50%, -50%);  // 추가된 코드
 `;
 
+
+interface GameOverModalProps {
+  visible: boolean;
+}
+
+export const GameOverModal = styled.div<GameOverModalProps>`
+  position: fixed;
+  z-index: 10;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+  display: ${props => props.visible ? 'flex' : 'none'};
+  align-items: center;
+  justify-content: center;
+`;
+
+
+export const ModalMessage = styled.p`
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 80%;  
+  max-width: 800px; 
+  text-align: center;
+  font-size: 36px;
+`;
+
+
+interface GameResultProps {
+  result: string;
+  score: number;
+  maxCombo: number;
+  maxScore: number;
+}
+
+export const GameResult: React.FC<GameResultProps> = ({ result, score, maxCombo, maxScore }) => (
+  <ModalMessage id="modal-message">
+    게임 결과: {result}<br />
+    점수: {score}<br />
+    최대 콤보 수: {maxCombo}<br />
+    최대 득점량: {maxScore}
+  </ModalMessage>
+);
+
+
+export const GoLobbyButton = styled.button`
+  position: absolute;
+  top: 60%;
+  left:45%;
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+`;

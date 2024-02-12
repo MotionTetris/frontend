@@ -12,7 +12,10 @@ import * as io from 'socket.io-client';
 import  {useLocation} from "react-router-dom"
 import { GAME_SOCKET_URL } from "@src/config";
 import { useSelector } from 'react-redux';
-import { RootState } from "@app/store";
+import { RootState } from "@app/store.ts";
+import { KeyPoint, KeyPointCallback, KeyPointResult, loadPoseNet, processPose } from "./Rapier/PostNet.ts";
+import { PoseNet } from "@tensorflow-models/posenet";
+import { createLandingEvent, createUserEventCallback } from "./Rapier/TetrisCallback.ts";
 
 const eraseThreshold = 10000;
 const RAPIER = await import('@dimforge/rapier2d')
@@ -40,7 +43,7 @@ const Tetris: React.FC = () => {
     const max = queryParams.get('max')
     const token = localStorage.getItem('token')
 
-    socket.current = io.connect(`ws://15.164.166.146:3001?roomId=${roomId}&max=${max}`,{
+    socket.current = io.connect(`${GAME_SOCKET_URL}?roomId=${roomId}&max=${max}`,{
       auth:{
         token:`Bearer ${token}`
       }
@@ -172,11 +175,10 @@ const Tetris: React.FC = () => {
         }
       });
 
-      scoreTexts.current = showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts.current, eraseThreshold); // 수정
+      //scoreTexts.current = showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts.current, eraseThreshold); // 수정
       game.spawnBlock(0xFF0000, "O", true);
       fallingBlockGlow(game.fallingTetromino!);
     }
-
 
     const LandingEvent1 = ({game, bodyA, bodyB}: any) => {
       let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
@@ -243,8 +245,28 @@ const Tetris: React.FC = () => {
     otherGame.setWorld(initWorld(RAPIER, otherGameOption));
     otherGame.spawnBlock(0xFF0000, "T", true);
 
-    runPosenet(videoRef, canvasRef, game, socket.current);
-    
+    // runPosenet(videoRef, canvasRef, game, socket.current);
+    let poseNetResult: { poseNet: PoseNet; renderingContext: CanvasRenderingContext2D; } | undefined = undefined;
+    let prevResult: KeyPointResult = {
+      leftAngle: 0,
+      rightAngle: 0,
+      rightWristX: 0,
+      leftWristX: 0
+    }
+
+    const eventCallback = createUserEventCallback(game, socket.current);
+    const poseNetLoop = async () => {
+      if (!videoRef.current) {
+        return;
+      }
+
+      if (!poseNetResult) {
+        poseNetResult = await loadPoseNet(videoRef, canvasRef);
+      }
+      prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback);
+    }
+
+    setInterval(poseNetLoop, 250);
 
     socket.current?.on('go',(data:string)=>{
       console.log("시작!");
@@ -264,6 +286,7 @@ const Tetris: React.FC = () => {
   return () => {
     game.dispose();
     otherGame.dispose();
+
   }}, []);
 
   return (<>
