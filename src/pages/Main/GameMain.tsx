@@ -11,7 +11,7 @@ import {
 import CreateRoom from "./Modal/CreateRoom/CreateRoom";
 import { LobbyGameRoomCard } from "@type/Refactoring";
 import { useRoomSocket } from "@context/roomSocket";
-import RoomInfo from "../Main/Modal/RoomInfo/RoomInfo";
+import RoomInfo from "@pages/Main/Modal/RoomInfo/RoomInfo";
 import { requestRoomAPI } from "@api/room";
 import { Navigate } from "react-router-dom";
 

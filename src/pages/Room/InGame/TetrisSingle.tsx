@@ -11,7 +11,7 @@ import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } 
 import { PoseNet } from "@tensorflow-models/posenet";
 import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "./Rapier/PostNet";
 import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "./Rapier/TetrisCallback";
-import { BackgroundColor1, Night, ShootingStar } from "../../../BGstyles.ts";
+import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
 
 const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
