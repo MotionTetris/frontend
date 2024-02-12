@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { SignupState } from "../../types/signup";
+import { SignupState } from "@type/signup";
 
 const initialState: SignupState = {
   nickname: "",

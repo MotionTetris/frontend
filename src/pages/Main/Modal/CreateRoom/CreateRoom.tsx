@@ -6,16 +6,20 @@ import {
   CreateRoomYesButton,
   CreateRoomNoButton,
   CreateRoomMain,
+  RoomInput,
+  RoomLabel,
+  WarningMessage,
+  RoomSelect,
   CreateRoomInput,
   CreateRoomSelect,
   OutlinedInputWrapper,
   OutlinedSelectWrapper
 } from "./styles";
 import { useNavigate } from "react-router-dom";
-import { useRoomSocket, RoomSocketEvent } from "../../../../context/roomSocket";
-import { InGamePlayerCard, CreateRoomCard, LobbyGameRoomCard } from "../../../../types/Refactoring"
+import { useRoomSocket, RoomSocketEvent } from "@context/roomSocket";
+import { InGamePlayerCard, CreateRoomCard, LobbyGameRoomCard } from "@type/Refactoring"
 import { createRoomAPI } from "@api/room";
-import {ROOM_BG1_URL,ROOM_BG2_URL,ROOM_BG3_URL,ROOM_BG4_URL,ROOM_BG5_URL} from "../../../../config"
+import {ROOM_BG1_URL,ROOM_BG2_URL,ROOM_BG3_URL,ROOM_BG4_URL,ROOM_BG5_URL} from "@src/config"
 interface CreateCreateRoomProps {
   onClose: () => void;
 }
@@ -24,8 +28,21 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
   const navigate = useNavigate();
   const [roomName, setRoomName] = useState("");
   const [selectedOption, setSelectedOption] = useState(1);
-  const {roomSocket} = useRoomSocket();
+  const roomSocket = useRoomSocket();
   const [createRooms, setCreateRooms] = useState<LobbyGameRoomCard[]>();
+  const [warningMessage, setWarningMessage] = useState("");
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+  
+    // 입력값의 길이가 10자를 넘어가면 경고 메시지를 설정합니다.
+    if (value.length > 10) {
+      setWarningMessage("방 제목은 10자 이하로 구성되야합니다");
+    } else {
+      setWarningMessage("");  // 길이가 10자 이하면 경고 메시지를 비웁니다.
+      setRoomName(value);
+    }
+  };
 
   const rodomData: CreateRoomCard = {
     roomTitle: roomName,
@@ -39,10 +56,6 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
 
 
   console.assert(roomSocket, "socket is undefined");
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRoomName(e.target.value);
-  };
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(Number(e.target.value));
@@ -62,19 +75,20 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
     <CreateRoomBackground>
       <CreateRoomContainer>
         <CreateRoomMain>방 생성</CreateRoomMain>
-      <OutlinedInputWrapper>
-      <input value={roomName} onChange={handleInputChange} />
-      <label>방 제목</label>
-    </OutlinedInputWrapper>
-    <OutlinedSelectWrapper>
-  <label htmlFor="roomSelect">방 인원</label> {/* 예시 레이블, 실제 내용에 맞게 조정 필요 */}
-  <select id="roomSelect" value={selectedOption} onChange={handleSelectChange}>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-  </select>
-</OutlinedSelectWrapper>
+        <OutlinedInputWrapper>
+        <RoomInput value={roomName} onChange={handleInputChange} />
+        <RoomLabel>방 제목</RoomLabel>
+        {warningMessage && <WarningMessage>{warningMessage}</WarningMessage>}
+      </OutlinedInputWrapper>
+      <OutlinedSelectWrapper>
+        <RoomLabel htmlFor="roomSelect">방 인원</RoomLabel>
+        <RoomSelect id="roomSelect" value={selectedOption} onChange={handleSelectChange}>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </RoomSelect>
+      </OutlinedSelectWrapper>
 
         <CreateRoomActions>
           <CreateRoomNoButton onClick={onClose}>아니오</CreateRoomNoButton>

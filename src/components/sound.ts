@@ -1,4 +1,3 @@
-// sound.ts
 const BGSOUND1 = new Audio('src/assets/Game_Tetris_Loading1.wav');
 const BGSOUND2 = new Audio('src/assets/Game_Tetris_Loading2.wav');
 

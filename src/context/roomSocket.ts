@@ -1,28 +1,16 @@
 import * as io from "socket.io-client";
-import * as config from "../config";
+import * as config from "@src/config";
 import React, { useContext } from "react";
+import { Socket } from "socket.io-client";
 
 const loadToken = () => localStorage.getItem("token");
-// Socket.IO 연결 시 토큰을 auth 객체에 포함하여 전달
-export const createRoomSocket = ():io.Socket => {
+export const roomSocket = io.connect(config.ROOM_SOCKET_URL, {
+  auth: {
+    token: `Bearer ${loadToken()}`
+  }
+})
 
-  const token =`Bearer ${loadToken()}`;
-
-  return io.connect(config.ROOM_SOCKET_URL, {
-    auth: {
-      token
-    },
-  });
-};
-
-export type RoomSocketContextType = {
-  roomSocket: io.Socket | null;
-  setRoomSocket: React.Dispatch<React.SetStateAction<io.Socket | null>>;
-}
-
-export const RoomSocketContext = React.createContext<RoomSocketContextType| undefined>(
-  undefined,
-);
+export const RoomSocketContext = React.createContext<Socket | undefined>(undefined);
 export const useRoomSocket = () => {
   const context = useContext(RoomSocketContext);
 
@@ -39,6 +27,7 @@ export enum RoomSocketEvent {
   EMIT_CREATE_ROOM = "createRoom",
   EMIT_GAME_READY = "gameReady",
   EMIT_GAME_START = "gameStart",
+  
   ON_ERROR = "error",
   ON_JOIN_ROOM = "joinUser",
   ON_MODIFY_ROOM = "modifyRoomInfo",

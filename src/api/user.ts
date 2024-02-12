@@ -6,6 +6,7 @@ export const userProfileAPI = async (nickname: string) => {
       Authorization: "Bearer " + localStorage.getItem("token"),
     },
   });
+  console.log('API response:', response); // 콘솔 로그를 추가합니다.
   return response.data;
 };
 

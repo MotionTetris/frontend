@@ -10,6 +10,7 @@
     "skipLibCheck": true,
     "baseUrl": "src",
     "paths": {
+      "@src/*": ["./*"],
       "@api/*": ["api/*"],
       "@app/*": ["app/*"],
       "@assets/*": ["assets/*"],
@@ -18,7 +19,8 @@
       "@mocks/*": ["mocks/*"],
       "@pages/*": ["pages/*"],
       "@util/*": ["util/*"],
-      "@types/*": ["types/*"],
+      "@type/*": ["types/*"],
+      "@context/*": ["context/*"]
     },
     /* Bundler mode */
     "moduleResolution": "node",

@@ -1,21 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
+
 import { TetrisGame } from "./Rapier/TetrisGame.ts";
 import { initWorld } from "./Rapier/World.ts";
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer, GameOverModal, ModalMessage, GameResult, GoLobbyButton } from "./style.tsx";
 import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, rotateViewport, resetRotateViewport, flipViewport, resetFlipViewport, addFog, removeGlowWithDelay, fallingBlockGlowWithDelay, spawnBomb, explodeBomb} from "./Rapier/Effect.ts";
+import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake, handleComboEffect} from "./Rapier/Effect";
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
-import { TetrisOption } from "./Rapier/TetrisOption.ts";
-import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } from "./Rapier/Sound.ts";
+import { TetrisOption } from "./Rapier/TetrisOption";
+import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } from "./Rapier/Sound";
 import { PoseNet } from "@tensorflow-models/posenet";
-import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "./Rapier/PostNet.ts";
-import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "./Rapier/TetrisCallback.ts";
+import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "./Rapier/PostNet";
+import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "./Rapier/TetrisCallback";
 import { BackgroundColor1, Night, ShootingStar } from "../../../BGstyles.ts";
-
 
 const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
-
 const TetrisSingle: React.FC = () => {
   const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
   const sceneRef = useRef<HTMLCanvasElement>(null);  //게임화면

@@ -1,5 +1,5 @@
-import { LobbyGameRoomCard } from "../../types/Refactoring";
-import { RoomStatuses } from "../../types/RefactoringStatuses";
+import { LobbyGameRoomCard } from "@type/Refactoring";
+import { RoomStatuses } from "@type/RefactoringStatuses";
 import {
   RoomContainer,
   RoomBackground,

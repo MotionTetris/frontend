@@ -1,22 +1,21 @@
-// src/app/store.ts
 import { configureStore } from "@reduxjs/toolkit";
-import profileReducer from "../redux/profile/profileSlice";
-import rankingReducer from "../redux/ranking/rankingSlice";
-import roomStatusReducer from "../redux/roomStatus/roomStatusSlice";
-import gameReducer from "../redux/game/gameSlice";
-import homepageReducer from "../redux/hompage/homepageSlice";
-import signupReducer from "../redux/hompage/signupSlice";
-import socketReducer from "../redux/socket/socketReducer";
-import { CommonState } from "../types/common";
-import { GameState } from "../types/game";
-import { HomepageState } from "../types/homepage";
-import { ProfileState } from "../types/profile";
-import { RankingState } from "../types/ranking";
-import { RoomState } from "../types/room";
-import { SignupState } from "../types/signup";
-import { BannerState } from "../types/banner";
+import profileReducer from "@redux/profile/profileSlice";
+import rankingReducer from "@redux/ranking/rankingSlice";
+import roomStatusReducer from "@redux/roomStatus/roomStatusSlice";
+import gameReducer from "@redux/game/gameSlice";
+import homepageReducer from "@redux/hompage/homepageSlice";
+import signupReducer from "@redux/hompage/signupSlice";
+import socketReducer from "@redux/socket/socketReducer";
+import { CommonState } from "@type/common";
+import { GameState } from "@type/game";
+import { HomepageState } from "@type/homepage";
+import { ProfileState } from "@type/profile";
+import { RankingState } from "@type/ranking";
+import { RoomState } from "@type/room";
+import { SignupState } from "@type/signup";
+import { BannerState } from "@type/banner";
 import { Socket } from "socket.io-client";
-import { InGamePlayerCard } from "../types/Refactoring";
+import { InGamePlayerCard } from "@type/Refactoring";
 
 export const store = configureStore({
   reducer: {

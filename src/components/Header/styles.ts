@@ -1,7 +1,7 @@
 // Headercomponent
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import { StyledLinkProps } from "../../types/common";
+import { StyledLinkProps } from "@type/common";
 
 export const HeaderContainer = styled.header`
   position: relative;

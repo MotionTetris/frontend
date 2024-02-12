@@ -1,16 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
-import { TetrisGame } from "./Rapier/TetrisGame.ts";
-import { initWorld } from "./Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer, PlayerContainer } from "./style.tsx";
-import { changeBlockGlow, collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, performPushEffect, removeGlow, showScore, starParticleEffect, startShake } from "./Rapier/Effect.ts";
+import { TetrisGame } from "./Rapier/TetrisGame";
+import { initWorld } from "./Rapier/World";
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer, PlayerContainer } from "./style";
+import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake } from "./Rapier/Effect";
 import * as PIXI from "pixi.js";
+import { runPosenet } from "./Rapier/WebcamPosenet";
 import "@tensorflow/tfjs";
-import { TetrisOption } from "./Rapier/TetrisOption.ts";
-import { TetrisMultiplayView } from "./Rapier/TetrisMultiplayView.ts";
+import { TetrisOption } from "./Rapier/TetrisOption";
+import { TetrisMultiplayView } from "./Rapier/TetrisMultiplayView";
 import * as io from 'socket.io-client';
 import  {useLocation} from "react-router-dom"
-import { GAME_SOCKET_URL } from "../../../config.ts";
-import {  useSelector } from 'react-redux';
+import { GAME_SOCKET_URL } from "@src/config";
+import { useSelector } from 'react-redux';
 import { RootState } from "@app/store.ts";
 import { KeyPoint, KeyPointCallback, KeyPointResult, loadPoseNet, processPose } from "./Rapier/PostNet.ts";
 import { PoseNet } from "@tensorflow-models/posenet";

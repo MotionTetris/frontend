@@ -1,5 +1,3 @@
-// @types/room.ts
-
 export interface RoomStatus {
   showStatusMessage: boolean;
   statusMessage: string;

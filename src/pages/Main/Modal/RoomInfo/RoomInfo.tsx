@@ -7,9 +7,9 @@ import {
   RoomInfoButton,
 } from "./styles";
 import { useNavigate } from "react-router-dom";
-import { LobbyGameRoomCard } from "../../../../types/Refactoring";
-import { RoomStatuses } from "../../../../types/RefactoringStatuses";
-import { useRoomSocket, RoomSocketEvent } from "../../../../context/roomSocket";
+import { LobbyGameRoomCard } from "@type/Refactoring";
+import { RoomStatuses } from "@type/RefactoringStatuses";
+import { useRoomSocket, RoomSocketEvent } from "@context/roomSocket";
 import { RoomId } from "@components/Room/styles";
 
 interface RoomInfoProps {

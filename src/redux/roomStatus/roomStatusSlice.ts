@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RoomData, RoomStatus } from "../../types/room";
+import { RoomData, RoomStatus } from "@type/room";
 
 interface RoomStatusState extends RoomStatus {
   rooms: Record<string, RoomData>;

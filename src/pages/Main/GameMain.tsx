@@ -8,10 +8,11 @@ import {
   CreateRoomButton,
 } from "./styles";
 import CreateRoom from "./Modal/CreateRoom/CreateRoom";
-import { LobbyGameRoomCard } from "../../types/Refactoring";
-import { useRoomSocket } from "../../context/roomSocket";
+import { LobbyGameRoomCard } from "@type/Refactoring";
+import { useRoomSocket } from "@context/roomSocket";
 import RoomInfo from "../Main/Modal/RoomInfo/RoomInfo";
 import { requestRoomAPI } from "@api/room";
+import { Navigate } from "react-router-dom";
 
 const GameMain = () => {
   const [rooms, setRooms] = useState<LobbyGameRoomCard[]>([]);
@@ -58,8 +59,11 @@ const GameMain = () => {
     );
   };
 
-  const {roomSocket} = useRoomSocket();
+  let roomSocket = useRoomSocket();
   console.assert(roomSocket, "socket is undefined");
+  if (!roomSocket) {
+    return <Navigate to="/" replace></Navigate>
+  }
 
   useEffect(() => {
     (async()=>{

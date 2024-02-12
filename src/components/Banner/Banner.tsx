@@ -1,4 +1,3 @@
-// src/components/Banner.tsx
 import { useState, useEffect } from "react";
 import {
   BannerContainer,
@@ -29,7 +28,7 @@ const Banner: React.FC = () => {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
-
+  
   return (
     <BannerContainer>
       <BannerArrowButton

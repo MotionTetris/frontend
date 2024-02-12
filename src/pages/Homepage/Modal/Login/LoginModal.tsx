@@ -17,14 +17,14 @@ import {
 } from "./styles";
 import SignupModal from "@pages/Homepage/Modal/Signup/SignupModal";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "../../../../redux/hompage/homepageSlice";
+import { setUser } from "@redux/hompage/homepageSlice";
 import { loginAPI } from "@api/auth";
 import { FaUserAlt } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 
 import { RiLockPasswordFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
-import { createRoomSocket, useRoomSocket } from "../../../../context/roomSocket"
+import { useRoomSocket } from "@context/roomSocket"
 import { RootState } from "@app/store";
 const LoginModal: React.FC = () => {
   
@@ -33,7 +33,7 @@ const LoginModal: React.FC = () => {
   const [isSignupModalOpen, setSignupModalOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const {setRoomSocket} = useRoomSocket()
+  const roomSocket = useRoomSocket();
 
   const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -56,7 +56,6 @@ const LoginModal: React.FC = () => {
         }),
       );
       localStorage.setItem("token", response.access_token);
-      setRoomSocket(createRoomSocket())
       navigate("/gamelobby");
     } catch (error) {
       console.log(error);
@@ -105,7 +104,7 @@ const LoginModal: React.FC = () => {
                   onChange={handlePasswordChange}
                   minLength={8}
                   pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
-                  title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"
+                  title="적어도 하나의 숫자와 대문자, 소문자를 포함해야 하며, 길이는 최소 8자 이상이어야 합니다."
                   placeholder="비밀번호"
                 />
                 <Icon>

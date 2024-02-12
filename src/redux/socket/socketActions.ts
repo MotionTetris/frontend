@@ -1,4 +1,4 @@
-import { RoomData } from "../../types/room";
+import { RoomData } from "@type/room";
 
 export const SET_SOCKET_STATUS = "SET_SOCKET_STATUS";
 export const SOCKET_CONNECTED = "SOCKET_CONNECTED";

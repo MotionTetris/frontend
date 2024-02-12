@@ -1,9 +1,8 @@
-// HomePage.tsx
 import { useEffect, useState } from "react";
 import { HomepageContainer } from "./styles";
 import LoginModal from "@pages/Homepage/Modal/Login/LoginModal";
-import { BackgroundColor1, ShootingStar, Night } from "../../BGstyles";
-import Volume from '../../components/volume';
+import { BackgroundColor1, ShootingStar, Night } from "@src/BGstyles";
+import Volume from '@components/volume';
 
 const HomePage: React.FC = () => {
   const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
