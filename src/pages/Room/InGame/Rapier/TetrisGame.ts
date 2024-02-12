@@ -226,6 +226,11 @@ export class TetrisGame {
             type: 'block'
         };
 
+        newBody.rigidBody.userData = {
+            color: color,
+            type: 'block'
+        }
+        
         newBody.rigidBody.setLinearDamping(0.25);
         newBody.rigidBody.setAngularDamping(10);
         
