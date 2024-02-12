@@ -30,7 +30,6 @@ const TetrisSingle: React.FC = () => {
   );
   const lineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
   
-  playIngameSound();
 
   useEffect(() => {
 
@@ -99,7 +98,7 @@ const TetrisSingle: React.FC = () => {
       wallColor: 0xFF0000,
       wallAlpha: 0.1,
       backgroundColor: 0x222929,
-      backgroundAlpha: 1
+      backgroundAlpha: 0
     };
     
     const game = new TetrisGame(TetrisOption, "user");
@@ -134,7 +133,7 @@ const TetrisSingle: React.FC = () => {
       if (!poseNetResult) {
         poseNetResult = await loadPoseNet(videoRef, canvasRef);
       }
-      
+      playIngameSound();
       game.run();
       setMessage("게임 시작!");
       scoreTexts.current.forEach((text) => {
@@ -211,7 +210,7 @@ const TetrisSingle: React.FC = () => {
       </VideoContainer>
 
       <GameOverModal visible={isGameOver}>
-        <GameResult result="패배" score={2434131} maxCombo={123} maxScore={456} />
+        <GameResult result="패배" score={playerScore} maxCombo={123} maxScore={456} />
         <GoLobbyButton id="go-home" onClick={() => window.location.href = '/'}>홈으로 이동하기</GoLobbyButton>
       </GameOverModal>
 

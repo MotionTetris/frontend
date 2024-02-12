@@ -2,7 +2,7 @@ import { Socket } from "socket.io-client";
 import { changeBlockGlow, collisionParticleEffect, fallingBlockGlow, handleComboEffect, lightEffectToLine, loadStarImage, performPushEffect, starParticleEffect } from "./Effect";
 import { KeyPointCallback, KeyPoint } from "./PostNet";
 import { TetrisGame } from "./TetrisGame";
-import { playDefeatSound, playExplodeSound, playLandingSound } from "./Sound";
+import { playDefeatSound, playExplodeSound, playLandingSound, stopIngameSound } from "./Sound";
 import * as PIXI from "pixi.js";
 import { BlockType, BlockTypeList } from "./Tetromino";
 import { showGameOverModal } from "./Effect";
@@ -64,10 +64,11 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
         let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
         playLandingSound();
         if (bodyA.translation().y > 0 && bodyB.translation().y > 0) {
+            stopIngameSound();
             playDefeatSound();
             setMessage("게임오버");
             setIsGameOver(true);
-            showGameOverModal("당신의 스코어는 ");
+            //showGameOverModal("당신의 스코어는 ");
             game.pause();
             return;
         }

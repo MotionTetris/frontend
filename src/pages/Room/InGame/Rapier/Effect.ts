@@ -4,7 +4,7 @@ import {GlowFilter} from '@pixi/filter-glow';
 import { Tetromino } from "./Tetromino";
 import { gsap } from 'gsap';
 import { Graphics } from "./Graphics";
-import { playDoubleComboSound, playSingleComboSound, playTripleComboSound } from "./Sound";
+import { playBombExplodeSound, playBombSound, playBombSpawnSound, playDoubleComboSound, playFlipSound, playSingleComboSound, playTripleComboSound } from "./Sound";
 import { TetrisGame } from "./TetrisGame";
 import * as particles from '@pixi/particle-emitter'
 import * as RAPIER from "@dimforge/rapier2d";
@@ -252,12 +252,12 @@ export function showScore(scoreList: number [], scoreTexts : PIXI.Text[], thresh
     let alpha = scoreList[i]/threshold;
     scoreTexts[i].y = 600 - 32*i;
     if (alpha >= 1) {
-      scoreTexts[i].x = 40;
+      scoreTexts[i].x = 0;
       scoreTexts[i].text = "폭파예정!";
       scoreTexts[i].style.fill = '#ff8000';
     }
     else if (alpha >= 0.95) {
-      scoreTexts[i].x = 40;
+      scoreTexts[i].x = 0;
       scoreTexts[i].text = "폭파직전!";
       scoreTexts[i].style.fill = '#ffff00';
     }
@@ -432,7 +432,7 @@ export function resetRotateViewport(viewport: Viewport) {
 
 
 export function flipViewport(viewport: Viewport) {
-  // 좌우 반전
+  playFlipSound();
   viewport.scale.x = -1;
   viewport.x += 600;
 }
@@ -569,7 +569,7 @@ export function lineGlowEffect(graphics: PIXI.Graphics) {
 
 
 export function spawnBomb(game: TetrisGame, x: number, y: number): number {
-  
+  playBombSpawnSound();
   let radius = 50;
   let rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
   let rigidBody = game.world?.createRigidBody(rigidBodyDesc);
@@ -601,6 +601,7 @@ export function explodeBomb(game: TetrisGame, bodyA: RAPIER.Collider, bodyB: RAP
   let rigidBody = game.world!.getRigidBody(rigidBodyHandle!);
   rigidBody.setTranslation({x: 10000, y: 0}, false);
   loadExplosionImage().then((explodeTexture: PIXI.Texture) => {
+    playBombExplodeSound();
     createExplosion(game.graphics.viewport, explodeTexture, explosionPoint.x, explosionPoint.y);
     const graphics = game.graphics.coll2gfx.get((ver ? bodyA : bodyB).handle);
     if (graphics) {

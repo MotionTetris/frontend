@@ -36,7 +36,7 @@ export const SceneContainer = styled.div`
   width: 600px;
   height: 900px;
   position: absolute;
-  background: #4e9cad;
+  background: rgba(78, 156, 173, 1);
 `;
 
 export const PlayerContainer = styled.div`
