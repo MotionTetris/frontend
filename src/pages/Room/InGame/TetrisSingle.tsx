@@ -4,7 +4,6 @@ import { TetrisGame } from "./Rapier/TetrisGame.ts";
 import { initWorld } from "./Rapier/World.ts";
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer, GameOverModal, ModalMessage, GameResult, GoLobbyButton } from "./style.tsx";
 import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, rotateViewport, resetRotateViewport, flipViewport, resetFlipViewport, addFog, removeGlowWithDelay, fallingBlockGlowWithDelay, spawnBomb, explodeBomb} from "./Rapier/Effect.ts";
-import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake, handleComboEffect} from "./Rapier/Effect";
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "./Rapier/TetrisOption";
