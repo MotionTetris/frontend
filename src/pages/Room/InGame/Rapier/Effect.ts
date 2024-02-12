@@ -4,9 +4,11 @@ import {GlowFilter} from '@pixi/filter-glow';
 import { Tetromino } from "./Tetromino";
 import { gsap } from 'gsap';
 import { Graphics } from "./Graphics";
-import { number } from "prop-types";
-import Tetris from "../Tetris";
-import { playDoubleComboSound, playSingleComboSound, playTripleComboSound } from "./Sound";
+import { playBombExplodeSound, playBombSound, playBombSpawnSound, playDoubleComboSound, playFlipSound, playSingleComboSound, playTripleComboSound } from "./Sound";
+import { TetrisGame } from "./TetrisGame";
+import * as particles from '@pixi/particle-emitter'
+import * as RAPIER from "@dimforge/rapier2d";
+
 
 export const explodeParticleEffect = (x: number, y: number, graphics: Graphics ) => {
   const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
@@ -96,41 +98,6 @@ export const starParticleEffect = (x: number, y: number, graphics: Graphics,  st
 };
 
 
-export function explodeImageEffect(
-  explosionSprite: PIXI.DisplayObject, 
-  app: PIXI.Application, 
-  i: number
-): void {
-  explosionSprite.alpha = 1; // 알파값 초기화
-
-  // 스프라이트가 이미 부모에 추가되어 있으면 제거
-  if (explosionSprite.parent) { 
-      explosionSprite.parent.removeChild(explosionSprite);
-  }
-
-  // 스프라이트 위치 설정 및 추가
-  explosionSprite.x = 140;
-  explosionSprite.y = i * 32 - 200;
-  explosionSprite.alpha = 0.5;
-  app.stage.addChild(explosionSprite);
-
-
-  let ticker = PIXI.Ticker.shared;
-          let timeElapsed = 0; // 경과 시간
-          const handleTick = (deltaTime: number) => {
-            timeElapsed += deltaTime;
-            if (timeElapsed >= 60) { // 약 1초 후
-              ticker.remove(handleTick); // 애니메이션 제거
-              if (explosionSprite.parent) { // 스프라이트가 부모에 추가되어 있다면 제거
-                explosionSprite.parent.removeChild(explosionSprite);
-              }
-            }
-          };
-          ticker.add(handleTick);
-}
-
-
-
 export function collisionParticleEffect(
   x: number,
   y: number,
@@ -201,12 +168,14 @@ export function createRectangle(container: PIXI.Container, imagePath: string, wi
 
 
 export function performPushEffect(firstRectangle: PIXI.Sprite, secondRectangle: PIXI.Sprite, alpha: number, firstOriginal: number, secondOriginal: number) {
-  console.log("First,", firstRectangle);
-  console.log("Second,", secondRectangle);
-  firstRectangle.alpha = 1;
-  secondRectangle.alpha = 0;
+  // 진행 중인 애니메이션 중단
+  gsap.killTweensOf(secondRectangle.position);
+
+  // 두 번째 사각형의 위치를 원래 위치로 복원
   secondRectangle.x = secondOriginal;
 
+  firstRectangle.alpha = 1;
+  secondRectangle.alpha = 0;
 
   let targetX = firstOriginal + 50 * alpha;
   targetX = alpha > 0 ? firstOriginal + 50 : firstOriginal - 50;
@@ -236,90 +205,68 @@ export function performPushEffect(firstRectangle: PIXI.Sprite, secondRectangle: 
 
 
 
-
-  export function createLineEffect(i: number, viewport: Viewport, lines: PIXI.Graphics[]): void {
-    let line = new PIXI.Graphics();
-    line.lineStyle(1, 0xFFF000, 0.2); // 선의 두께는 1, 색상은 검정색, 투명도는 1(불투명)
-    line.beginFill(0x000000, 0); 
-    line.drawRect(100, i * 32 - 20, 420, 32); // 32픽셀 간격으로 높이를 설정
-    line.endFill();
-    line.name = 'lineGrid'
-    lines.push(line); // lines 배열에 추가
-    viewport.addChild(line); // stage에 추가
-}
-
-
-export function createScoreBasedGrid(viewport: Viewport, scoreList: number []) {
-  //make lineGrids
-  let lineGrids: PIXI.Graphics[] = [];
-   // Clean up the old grids
-  for (let i = 0; i < viewport.children.length; i++) {
-    if (viewport.children[i].name === 'lineGrid') {
-      viewport.removeChild(viewport.children[i]);
-      i--; // Adjust index due to removal of child
-    }
-  }
-  for (let i = 0 ; i < 20; i ++) {
-      createLineEffect(i, viewport, lineGrids);
-  }
+export function createScoreBasedGrid(lineGrids: PIXI.Graphics[], scoreList: number [], threshold: number) {
   for (let i = 0; i < lineGrids.length; i++) {
-    const alpha = scoreList[i]/ 10000; // 점수를 투명도로 변환 (0 ~ 1 사이의 값)
-    console.log("alpha", alpha);
-    let line = lineGrids[i];
-    line.clear(); // 이전 라인 스타일 제거
-  
-    line.beginFill(0xff00f0, alpha/4);
-    line.filters = null; // glow 효과 제거
-    
-    line.drawRect(100, -i * 32 + 588, 410, 32); // 32픽셀 간격으로 높이를 설정
-    line.endFill();
+    const alpha = scoreList[i] / threshold; // 점수를 투명도로 변환 (0 ~ 1 사이의 값)
+    lineGrids[i].clear();
+    lineGrids[i].beginFill(0xff00f0, alpha/4);
+    lineGrids[i].drawRect(100, -i * 32 +588, 420, 32); // 32픽셀 간격으로 높이를 설정
+    lineGrids[i].endFill();
   }  
 }
 
 
-export function showScore(viewport: Viewport, scoreList: number [], scoreTexts : PIXI.Text[], threshold: number): PIXI.Text[] {
-  console.log("length", scoreTexts.length);
-  for (let i = 0; i < scoreTexts.length; i++) {
-    if (viewport.children.includes(scoreTexts[i])) {
-      viewport.removeChild(scoreTexts[i]);
-    }
-  }
-  
-  let newScoreTexts: PIXI.Text[] = []; // 새로운 배열 생성
-  
+
+export function lightEffectToLine(lineGrids: PIXI.Graphics[], index: number) {
+  // Glow 효과를 위한 필터를 생성합니다.
+  const glowFilter = new GlowFilter({
+    color: 0xffff, // 노란색 빛
+    distance: 35, // 빛의 거리
+    quality: 0.5, // 빛의 품질
+  });
+
+  // 빛나는 효과를 주기 위해 필터를 설정합니다.
+  lineGrids[index].filters = [glowFilter];
+
+  // 색상을 잠시 노란색으로 변경합니다.
+  lineGrids[index].clear();
+  lineGrids[index].beginFill(0xffff00);
+  lineGrids[index].drawRect(100, -index * 32 +588, 420, 32);
+  lineGrids[index].endFill();
+
+  // 0.3초 후에 필터를 제거하고 색상을 원래대로 돌려놓습니다.
+  setTimeout(() => {
+    lineGrids[index].filters = [];
+    lineGrids[index].clear();
+    lineGrids[index].beginFill(0xff00f0, 0.25);
+    lineGrids[index].drawRect(100, -index * 32 +588, 420, 32);
+    lineGrids[index].endFill();
+  }, 400);
+}
+
+
+
+
+export function showScore(scoreList: number [], scoreTexts : PIXI.Text[], threshold: number) { 
   for (let i = 0; i < scoreList.length; i++) {
-    console.log("들어옴?");
     let alpha = scoreList[i]/threshold;
-    let scoreText: PIXI.Text;
-    scoreText = new PIXI.Text((alpha * 100).toFixed(2), {fontFamily : 'Arial', fontSize: 20, fill : 0xffffff, align : 'center'}); 
-    scoreText.x = 60;
-    scoreText.y = 600 - 32*i;
-    newScoreTexts[i] = scoreText; // 새로운 배열에 추가
-    viewport.addChild(scoreText);
-
-    // alpha가 0.95보다 크면, 폭파직전! 이라는 노란색 움직이는 글씨를 띄워준다.
-    if (alpha > 0.55) {
-      let warningText: PIXI.Text;
-      warningText = new PIXI.Text('폭파 직전!', {fontFamily : 'Arial', fontSize: 20, fill : 0xffff00, align : 'center'}); // 노란색
-      warningText.x = 600;
-      warningText.y = 560 - 32*i; // scoreText 위에 위치
-      viewport.addChild(warningText);
-      
-      // GSAP 애니메이션 추가
-      gsap.fromTo(warningText.scale, {
-        x: 1,
-        y: 1
-      }, {
-        x: 1.1,
-        y: 1.1,
-        duration: 0.3, // 0.3초 동안
-        repeat: -1, // 무한 반복
-        yoyo: true // 원래 크기로 돌아옴
-      });
+    scoreTexts[i].y = 600 - 32*i;
+    if (alpha >= 1) {
+      scoreTexts[i].x = 0;
+      scoreTexts[i].text = "폭파예정!";
+      scoreTexts[i].style.fill = '#ff8000';
+    }
+    else if (alpha >= 0.95) {
+      scoreTexts[i].x = 0;
+      scoreTexts[i].text = "폭파직전!";
+      scoreTexts[i].style.fill = '#ffff00';
+    }
+    else {
+      scoreTexts[i].x = 70;
+      scoreTexts[i].text = (alpha * 100).toFixed(0);
+      scoreTexts[i].style.fill = '#fff';
     }
   }
-
-  return newScoreTexts; // 새로운 배열 반환
 }
 
 interface ShakeOptions {
@@ -332,7 +279,6 @@ export function startShake(options: ShakeOptions) {
   const { viewport, strength, duration } = options;
   
   let remainingDuration = duration;
-  
   const ticker = new PIXI.Ticker();
   const originPosition = { x: viewport.position.x, y: viewport.position.y };
 
@@ -367,15 +313,27 @@ export function fallingBlockGlow(fallingBlock: Tetromino) {
   });
 }
 
+export function fallingBlockGlowWithDelay(fallingBlock: Tetromino) {
+  setTimeout(function() {
+    const glowFilter = new GlowFilter({ 
+      distance: 45, 
+      outerStrength: 2,
+      color: 0xffff 
+    });
+    
+    fallingBlock.graphics.forEach(graphic => {
+      graphic.filters = [...(graphic.filters || []), glowFilter];
+    });
+  }, 50); // 100 밀리세컨드 후에 함수를 실행합니다.
+}
+
 
 export function changeBlockGlow(fallingBlock: Tetromino, colorIndex: number) {
-  // 색상 리스트
+  
   const colorList = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
 
-  // 인덱스를 증가시키고, 색상 리스트의 길이에 도달하면 0으로 초기화
   const nextColorIndex = (colorIndex + 1) % colorList.length;
 
-  // 새로운 색상으로 GlowFilter 생성
   const glowFilter = new GlowFilter({ 
     distance: 45, 
     outerStrength: 2,
@@ -383,13 +341,10 @@ export function changeBlockGlow(fallingBlock: Tetromino, colorIndex: number) {
   });
 
   fallingBlock.graphics.forEach(graphic => {
-    // 모든 필터 제거
     graphic.filters = [];
-    // 새 GlowFilter 추가
     graphic.filters = [glowFilter];
   });
 
-  // 다음 색상의 인덱스를 반환
   return nextColorIndex;
 }
 
@@ -397,17 +352,27 @@ export function changeBlockGlow(fallingBlock: Tetromino, colorIndex: number) {
 export function removeGlow(fallingBlock: Tetromino) {
   fallingBlock.graphics.forEach(graphic => {
     if (graphic.filters) {
-      // GlowFilter 인스턴스를 찾아 제거
       graphic.filters = graphic.filters.filter(filter => !(filter instanceof GlowFilter));
     }
   });
 }
 
+export function removeGlowWithDelay(fallingBlock: Tetromino) {
+  setTimeout(function() {
+    fallingBlock.graphics.forEach(graphic => {
+      if (graphic.filters) {
+        graphic.filters = graphic.filters.filter(filter => !(filter instanceof GlowFilter));
+      }
+    });
+  }, 200); // 500 밀리세컨드 후에 함수를 실행합니다.
+}
+
+
 
 export function loadStarImage() {
   return new Promise((resolve, reject) => {
     if (PIXI.Loader.shared.resources['src/assets/whitestar.png']) {
-      // 이미 로드된 이미지라면 즉시 resolve를 호출합니다.
+      // 이미 로드된 이미지라면 즉시 resolve를 호출.
       resolve(PIXI.Loader.shared.resources['src/assets/whitestar.png'].texture);
     } else {
       PIXI.Loader.shared.add('src/assets/whitestar.png').load((loader, resources) => {
@@ -427,6 +392,7 @@ export function handleComboEffect(combo: number, graphics: Graphics): string {
   startShake({ viewport: graphics.viewport, strength: 5 + 10 * combo, duration: 400 + 50 * combo})
   if (combo === 1) {
     playSingleComboSound();
+    explodeParticleEffect(300, 700, graphics);
     return "Single Combo!";
   }
   else if (combo === 2) {
@@ -437,5 +403,263 @@ export function handleComboEffect(combo: number, graphics: Graphics): string {
     playTripleComboSound();
     explodeParticleEffect(300, 700, graphics);
     return "Fantastic!";
+  }
+}
+
+
+//item-region
+
+export function rotateViewport(viewport: Viewport, degree: number) {
+  console.log("original", viewport.x);
+  const angleInRadians = degree * (Math.PI / 180);
+  viewport.rotation = angleInRadians;
+  viewport.scale.x *= 0.8;
+  viewport.scale.y *= 0.8;
+  if (degree < 0) {
+    ;
+  }
+  else {
+    viewport.x += 200;
+  }
+}
+
+export function resetRotateViewport(viewport: Viewport) {
+  viewport.rotation = 0;
+  viewport.scale.x = 1;
+  viewport.scale.y = 1;
+  viewport.x = 0;;
+}
+
+
+export function flipViewport(viewport: Viewport) {
+  playFlipSound();
+  viewport.scale.x = -1;
+  viewport.x += 600;
+}
+
+export function resetFlipViewport(viewport: Viewport) {
+  viewport.scale.x = 1;
+  viewport.x -= 600;
+}
+
+
+export function addFog(game: TetrisGame) {
+
+  var emitter = new particles.Emitter(
+    game.graphics.viewport,
+
+    {
+        lifetime: {
+            min: 1,
+            max: 2
+        },
+        frequency: 0.008,
+        spawnChance: 1,
+        particlesPerWave: 1,
+        emitterLifetime: 0.31,
+        maxParticles: 1000,
+        pos: {
+            x: 0,
+            y: 0
+        },
+        addAtBack: false,
+        behaviors: [
+            {
+                type: 'alpha',
+                config: {
+                    alpha: {
+                        list: [
+                            {
+                                value: 0.8,
+                                time: 0
+                            },
+                            {
+                                value: 0.1,
+                                time: 1
+                            }
+                        ],
+                    },
+                }
+            },
+            {
+                type: 'scale',
+                config: {
+                    scale: {
+                        list: [
+                            {
+                                value: 1,
+                                time: 0
+                            },
+                            {
+                                value: 0.3,
+                                time: 1
+                            }
+                        ],
+                    },
+                }
+            },
+            {
+                type: 'moveSpeed',
+                config: {
+                    speed: {
+                        list: [
+                            {
+                                value: 200,
+                                time: 0
+                            },
+                            {
+                                value: 100,
+                                time: 1
+                            }
+                        ],
+                        isStepped: false
+                    },
+                }
+            },
+            {
+                type: 'rotationStatic',
+                config: {
+                    min: 0,
+                    max: 360
+                }
+            },
+            {
+                type: 'spawnShape',
+                config: {
+                    type: 'torus',
+                    data: {
+                        x: 300,
+                        y: 500,
+                        radius: 10
+                    }
+                }
+            },
+            {
+                type: 'textureSingle',
+                config: {
+                    texture: PIXI.Texture.from('src/assets/fog.png')
+                }
+            }
+        ],
+    }
+);
+  game.graphics.ticker.add((delta) => {
+    emitter.update(delta * 0.01);
+  });
+
+  emitter.emit = true;
+  game.graphics.ticker.start();
+};
+
+
+
+export function lineGlowEffect(graphics: PIXI.Graphics) {
+  const glowFilter = new GlowFilter({ 
+    distance: 45, 
+    outerStrength: 2,
+    color: 0xffff // 흰색
+  });
+
+  graphics.filters = [...(graphics.filters || []), glowFilter];
+
+  gsap.delayedCall(0.3, function() {
+    graphics.filters = graphics.filters!.filter(filter => filter !== glowFilter);
+  });
+}
+
+
+export function spawnBomb(game: TetrisGame, x: number, y: number): number {
+  playBombSpawnSound();
+  let radius = 50;
+  let rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
+  let rigidBody = game.world?.createRigidBody(rigidBodyDesc);
+  rigidBody!.userData = {type: 'bomb'};
+
+  let colliderDesc = RAPIER.ColliderDesc.ball(radius).setMass(100000);
+  let collider = game.world?.createCollider(colliderDesc, rigidBody);
+
+  let graphics = new PIXI.Graphics();  
+  graphics.beginFill(0xFF0000); // 빨간색
+  graphics.drawCircle(0, 0, radius);
+  graphics.endFill();
+  game.graphics.viewport.addChild(graphics);
+  game.graphics.coll2gfx.set(collider!.handle, graphics);
+
+  setTimeout(() => {
+    //game.world!.removeCollider(collider!, false);
+    rigidBody?.setTranslation({x: 10000, y: 0}, false);
+    game.graphics.viewport.removeChild(graphics);
+    game.graphics.coll2gfx.delete(collider!.handle);
+  }, 4000);  
+  return collider!.handle;
+}
+
+
+export function explodeBomb(game: TetrisGame, bodyA: RAPIER.Collider, bodyB: RAPIER.Collider, ver: number) {
+  const explosionPoint = ver ? bodyA.translation() : bodyB.translation();
+  let rigidBodyHandle = (ver ? bodyA : bodyB).parent()?.handle;
+  let rigidBody = game.world!.getRigidBody(rigidBodyHandle!);
+  rigidBody.setTranslation({x: 10000, y: 0}, false);
+  loadExplosionImage().then((explodeTexture: PIXI.Texture) => {
+    playBombExplodeSound();
+    createExplosion(game.graphics.viewport, explodeTexture, explosionPoint.x, explosionPoint.y);
+    const graphics = game.graphics.coll2gfx.get((ver ? bodyA : bodyB).handle);
+    if (graphics) {
+      game.graphics.viewport.removeChild(graphics);
+      game.graphics.coll2gfx.delete((ver ? bodyA : bodyB).handle);
+    }
+  }).catch((error: any) => {
+    console.error(error);
+  });
+}
+
+
+export function loadExplosionImage(): Promise<PIXI.Texture> {
+  return new Promise((resolve, reject) => {
+    const imagePath = 'src/assets/explosion.png';
+    if (PIXI.Loader.shared.resources[imagePath]?.texture) {
+      resolve(PIXI.Loader.shared.resources[imagePath].texture);
+    } else {
+      PIXI.Loader.shared.add(imagePath).load((loader, resources) => {
+        if (resources[imagePath]?.texture) {
+          console.log("폭발 이미지 로드 성공");
+          resolve(resources[imagePath].texture);
+        } else {
+          reject("폭발 이미지 로드 실패");
+        }
+      });
+    }
+  });
+}
+
+
+export const createExplosion = (viewport: Viewport, texture: PIXI.Texture, x: number, y: number) => {
+  const explosion = new PIXI.Sprite(texture);
+  explosion.width = 150; // 원하는 폭발 이미지의 너비로 설정하세요.
+  explosion.height = 150; 
+  explosion.anchor.set(0.5, 0.5);
+  explosion.x = x;
+  explosion.y = -y;
+  viewport.addChild(explosion);
+  setTimeout(() => {
+      viewport.removeChild(explosion);
+  }, 300);
+};
+
+
+export function showGameOverModal(message: string) {
+  console.log('showGameOverModal called');  // 이 로그가 출력되는지 확인
+  
+  let modalMessage = document.getElementById('modal-message');
+  let gameOverModal = document.getElementById('game-over-modal');
+  console.log(modalMessage, gameOverModal);
+  if(modalMessage && gameOverModal) {
+    // 모달 창에 표시할 메시지를 설정
+    modalMessage.innerText = message;
+
+    // 모달 창을 보이게 설정
+    gameOverModal.style.display = 'block';
+  } else {
+    console.error('Modal elements not found');
   }
 }

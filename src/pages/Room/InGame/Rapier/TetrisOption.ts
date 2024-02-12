@@ -1,4 +1,5 @@
 import { TetrisGame } from "./TetrisGame";
+import { BlockType } from "./Tetromino";
 
 export interface BlockCollisionCallbackParam {
     game: TetrisGame,
@@ -11,6 +12,7 @@ export interface TetrisOption {
     blockLandingCallback?: (result: BlockCollisionCallbackParam) => void;
     preBlockLandingCallback?: (result: BlockCollisionCallbackParam) => void;
     stepCallback?: (game: TetrisGame, currentStep: number) => void;
+    blockSpawnCallback?: (game: TetrisGame, blockType: BlockType, blockColor: number, nextBlockType: BlockType, nextBlockColor: number) => void;
     wallColor?: number;
     wallAlpha?: number;
     backgroundColor?: number;

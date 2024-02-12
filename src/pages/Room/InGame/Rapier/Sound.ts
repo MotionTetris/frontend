@@ -1,12 +1,15 @@
-const singleComboSound = new Audio('src/assets/sound/Tetris_combo1.wav');
-const doubleComboSound = new Audio('src/assets/sound/Tetris_combo2.wav');
-const tripleComboSound = new Audio('src/assets/sound/Tetris_combo3.wav');
+const singleComboSound = new Audio('src/assets/sound/Tetris_Combo1.wav');
+const doubleComboSound = new Audio('src/assets/sound/Tetris_Combo2.wav');
+const tripleComboSound = new Audio('src/assets/sound/Tetris_Combo3.wav');
 const explodeSound = new Audio('src/assets/sound/Tetris_Bomb1.wav');
 const defeatSound = new Audio('src/assets/sound/Tetris_Defeat2.wav');
 const ingameSound = new Audio('src/assets/sound/Tetris_Ingame2.wav');
 const loadingSound = new Audio('src/assets/sound/Tetris_Loading2.wav');
 const landingSound = new Audio('src/assets/sound/Tetris_Dusted.wav');
-
+const bombExplodeSound = new Audio('src/assets/sound/Tetris_ExplodeBomb.wav');
+const bombSpawnSound = new Audio('src/assets/sound/Tetris_SpawnBomb.wav');
+const gameEndSound = new Audio('src/assets/sound/Tetris_GameEnd.wav');
+const flipSound = new Audio('src/assets/sound/Tetris_Flip.wav');
 export function playSingleComboSound() {
     if (singleComboSound) {
         singleComboSound.play();
@@ -36,8 +39,8 @@ export function playExplodeSound() {
 }
 
 export function playDefeatSound() {
-    if (defeatSound) {
-        defeatSound.play();
+    if (gameEndSound) {
+        gameEndSound.play();
     }
 }
 
@@ -51,7 +54,31 @@ export function playLoadingSound() {
 
 export function playIngameSound() {
     if (ingameSound) {
+        ingameSound.volume = 0.7;
         ingameSound.loop = true; 
         ingameSound.play();
+    }
+}
+
+export function stopIngameSound() {
+    if (ingameSound) {
+        ingameSound.pause();
+    }
+}
+
+export function playFlipSound() {
+    if (flipSound) {
+        flipSound.play();
+    }
+}
+export function playBombExplodeSound() {
+    if (bombExplodeSound) {
+        bombExplodeSound.play();
+    }
+}
+
+export function playBombSpawnSound() {
+    if (bombSpawnSound) {
+        bombSpawnSound.play()
     }
 }
