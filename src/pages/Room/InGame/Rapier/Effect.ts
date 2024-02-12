@@ -250,9 +250,22 @@ export function lightEffectToLine(lineGrids: PIXI.Graphics[], index: number) {
 export function showScore(scoreList: number [], scoreTexts : PIXI.Text[], threshold: number) { 
   for (let i = 0; i < scoreList.length; i++) {
     let alpha = scoreList[i]/threshold;
-    scoreTexts[i].x = 70;
     scoreTexts[i].y = 600 - 32*i;
-    scoreTexts[i].text = (alpha * 100).toFixed(0);
+    if (alpha >= 1) {
+      scoreTexts[i].x = 40;
+      scoreTexts[i].text = "폭파예정!";
+      scoreTexts[i].style.fill = '#ff8000';
+    }
+    else if (alpha >= 0.95) {
+      scoreTexts[i].x = 40;
+      scoreTexts[i].text = "폭파직전!";
+      scoreTexts[i].style.fill = '#ffff00';
+    }
+    else {
+      scoreTexts[i].x = 70;
+      scoreTexts[i].text = (alpha * 100).toFixed(0);
+      scoreTexts[i].style.fill = '#fff';
+    }
   }
 }
 
@@ -408,7 +421,6 @@ export function rotateViewport(viewport: Viewport, degree: number) {
   else {
     viewport.x += 200;
   }
-  
 }
 
 export function resetRotateViewport(viewport: Viewport) {
@@ -620,9 +632,7 @@ export function loadExplosionImage(): Promise<PIXI.Texture> {
 }
 
 
-
 export const createExplosion = (viewport: Viewport, texture: PIXI.Texture, x: number, y: number) => {
-
   const explosion = new PIXI.Sprite(texture);
   explosion.width = 150; // 원하는 폭발 이미지의 너비로 설정하세요.
   explosion.height = 150; 
@@ -634,3 +644,21 @@ export const createExplosion = (viewport: Viewport, texture: PIXI.Texture, x: nu
       viewport.removeChild(explosion);
   }, 300);
 };
+
+
+export function showGameOverModal(message: string) {
+  console.log('showGameOverModal called');  // 이 로그가 출력되는지 확인
+  
+  let modalMessage = document.getElementById('modal-message');
+  let gameOverModal = document.getElementById('game-over-modal');
+  console.log(modalMessage, gameOverModal);
+  if(modalMessage && gameOverModal) {
+    // 모달 창에 표시할 메시지를 설정
+    modalMessage.innerText = message;
+
+    // 모달 창을 보이게 설정
+    gameOverModal.style.display = 'block';
+  } else {
+    console.error('Modal elements not found');
+  }
+}
