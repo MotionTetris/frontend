@@ -226,7 +226,7 @@ export class TetrisGame {
         newBody.rigidBody.setAngularDamping(10);
         
         if (!spawnedForFalling) {
-            this.tetrominos.add(newBody);
+            this.tetrominos.set(newBody.rigidBody.handle, newBody);
         } else {
             this.fallingTetromino = newBody;
             this._nextBlock = BlockTypeList.at(this.getRandomInt(0, BlockTypeList.length - 1)); 
@@ -236,7 +236,6 @@ export class TetrisGame {
             this.option.blockSpawnCallback(this, blockType, 0, this._nextBlock!, this.nextBlockColor);
         }
 
-        this.tetrominos.set(newBody.rigidBody.handle, newBody);
         return newBody;
     }
 
