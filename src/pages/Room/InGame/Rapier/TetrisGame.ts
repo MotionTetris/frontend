@@ -69,6 +69,10 @@ export class TetrisGame {
         this.removeBodies.push(body);
     }
 
+    public getTetrominoFromHandle(handle: number) {
+        return this.tetrominos.get(handle);
+    }
+
     public setWorld(world: RAPIER.World) {
         document.onkeyup = null;
         document.onkeydown = null;
@@ -130,7 +134,7 @@ export class TetrisGame {
         this.sequence += 1;
     }
 
-    public run(time: number) {
+    public run(time?: number) {
         time ??= 0;
         let dt = time - this.lastRenderingTime;
         
