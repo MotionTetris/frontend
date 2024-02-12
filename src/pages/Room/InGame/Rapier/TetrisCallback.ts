@@ -5,6 +5,7 @@ import { TetrisGame } from "./TetrisGame";
 import { playDefeatSound, playExplodeSound, playLandingSound } from "./Sound";
 import * as PIXI from "pixi.js";
 import { BlockType, BlockTypeList } from "./Tetromino";
+import { showGameOverModal } from "./Effect";
 
 export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
     let nextColorIndex = 0;
@@ -56,22 +57,20 @@ export function createBlockSpawnEvent(socket?: Socket) {
     }
 }
 
-export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void) {
+export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsGameOver: (isGameOver: boolean)=>void) {
     return ({ game, bodyA, bodyB }: any) => {
         
-
         let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
         let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
         playLandingSound();
         if (bodyA.translation().y > 0 && bodyB.translation().y > 0) {
             playDefeatSound();
             setMessage("게임오버");
+            setIsGameOver(true);
+            showGameOverModal("당신의 스코어는 ");
             game.pause();
             return;
         }
-
-        //collisionParticleEffect(bodyA.translation().x, -bodyB.translation().y, game.graphics);
-        //collisionParticleEffect(bodyB.translation().x, -bodyB.translation().y, game.graphics);
 
         const checkResult = game.checkLine(eraseThreshold);
         const scoreList = checkResult.scoreList;

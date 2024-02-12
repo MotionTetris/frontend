@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "./Rapier/TetrisGame.ts";
 import { initWorld } from "./Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer } from "./style.tsx";
-import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake, handleComboEffect, rotateViewport, resetRotateViewport, flipViewport, resetFlipViewport, addFog, removeGlowWithDelay, fallingBlockGlowWithDelay, spawnBomb, explodeBomb} from "./Rapier/Effect.ts";
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer, GameOverModal, ModalMessage, GameResult, GoLobbyButton } from "./style.tsx";
+import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, rotateViewport, resetRotateViewport, flipViewport, resetFlipViewport, addFog, removeGlowWithDelay, fallingBlockGlowWithDelay, spawnBomb, explodeBomb} from "./Rapier/Effect.ts";
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "./Rapier/TetrisOption.ts";
@@ -15,7 +15,7 @@ import { BackgroundColor1, Night, ShootingStar } from "../../../BGstyles.ts";
 
 const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
-let bombHandle = 0;
+
 const TetrisSingle: React.FC = () => {
   const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
   const sceneRef = useRef<HTMLCanvasElement>(null);  //게임화면
@@ -23,6 +23,7 @@ const TetrisSingle: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
   const [playerScore, setPlayerScore] = useState(0);
+  const [isGameOver, setIsGameOver] = useState(false);
   const gameRef = useRef<TetrisGame | null>(null);
   const scoreTexts = useRef(
     Array.from({ length: 21 }, () => new PIXI.Text('0', {fontFamily: 'Arial', fontSize: 24, fill: '#ffffff'}))
@@ -49,7 +50,6 @@ const TetrisSingle: React.FC = () => {
     
     sceneRef.current.width = 600;
     sceneRef.current.height = 800;
-    //fallingBlockGlow(game.fallingTetromino!);
     const CollisionEvent = ({game, bodyA, bodyB}: any) => {
       let collisionX = bodyA._parent.userData.type;
       let collisionY = bodyB._parent.userData.type;
@@ -70,7 +70,7 @@ const TetrisSingle: React.FC = () => {
       removeGlowWithDelay(game.fallingTetromino);
     }
   
-    const LandingEvent = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore);
+    const LandingEvent = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore, setIsGameOver);
 
     const StepCallback = (game: TetrisGame, step: number) => {
       if (step % 15 != 0) {
@@ -199,7 +199,7 @@ const TetrisSingle: React.FC = () => {
 
         <button onClick={() => {
         if (gameRef.current) {
-          bombHandle = spawnBomb(gameRef.current, 150, 100);
+          spawnBomb(gameRef.current, 150, 100);
         }
         }}>폭탄</button>
 
@@ -209,8 +209,13 @@ const TetrisSingle: React.FC = () => {
         <Video ref={videoRef} autoPlay/>
         <VideoCanvas ref={canvasRef}/>
       </VideoContainer>
-    </Container>
 
+      <GameOverModal visible={isGameOver}>
+        <GameResult result="패배" score={2434131} maxCombo={123} maxScore={456} />
+        <GoLobbyButton id="go-home" onClick={() => window.location.href = '/'}>홈으로 이동하기</GoLobbyButton>
+      </GameOverModal>
+
+    </Container>
     <BackgroundColor1>
         <Night>
           {shootingStars}
