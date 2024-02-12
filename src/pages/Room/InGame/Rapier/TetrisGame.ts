@@ -199,6 +199,7 @@ export class TetrisGame {
             }
 
             newBody.rigidBody.collider(i).setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+            newBody.rigidBody.collider(i).setRestitution(0);
         }
 
         newBody.userData = {
@@ -269,6 +270,7 @@ export class TetrisGame {
 
             for (const collider of coliderDesc) {
                 collider.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+                collider.setRestitution(0);
                 this.world.createCollider(collider, body);
             }
 
