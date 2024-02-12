@@ -261,3 +261,18 @@ export const GoLobbyButton = styled.button`
   margin: 4px 2px;
   cursor: pointer;
 `;
+
+export const TetrisNextBlock = styled.div`
+  position: absolute;
+  top: 12.4vh;
+  right: 15.5vw;
+  width: 23vw;
+  height: 9.1vh;
+  border: 2px solid black;
+  font-family: "DNFBitBitv2", sans-serif;
+  font-style: light;
+  font-weight: 100;
+  font-size: 20px;
+  color: lightblue;
+  background: gray;
+`;

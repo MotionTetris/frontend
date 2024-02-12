@@ -136,20 +136,6 @@ export const PlayerStatus = styled.span<PlayerStatusProps>`
     transform 0.3s; // 배경색과 변형에 애니메이션 효과 적용
 `;
 
-export const TetrisNextBlock = styled.div`
-  position: absolute;
-  top: 12.4vh;
-  right: 15.5vw;
-  width: 23vw;
-  height: 9.1vh;
-  border: 2px solid black;
-  font-family: "DNFBitBitv2", sans-serif;
-  font-style: light;
-  font-weight: 100;
-  font-size: 20px;
-  color: lightblue;
-  background: gray;
-`;
 
 export const VideoContainer = styled.video`
   position: absolute;
