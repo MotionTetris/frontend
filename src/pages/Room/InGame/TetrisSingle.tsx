@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { TetrisGame } from "./Rapier/TetrisGame.ts";
 import { initWorld } from "./Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer, GameOverModal, ModalMessage, GameResult, GoLobbyButton } from "./style.tsx";
-import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, rotateViewport, resetRotateViewport, flipViewport, resetFlipViewport, addFog, removeGlowWithDelay, fallingBlockGlowWithDelay, spawnBomb, explodeBomb} from "./Rapier/Effect.ts";
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer, GameOverModal, ModalMessage, GameResult, GoLobbyButton, TetrisNextBlock } from "./style.tsx";
+import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, rotateViewport, resetRotateViewport, flipViewport, resetFlipViewport, addFog, removeGlowWithDelay, fallingBlockGlowWithDelay, spawnBomb, explodeBomb, getNextBlockImage} from "./Rapier/Effect.ts";
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "./Rapier/TetrisOption";
@@ -20,6 +20,7 @@ const TetrisSingle: React.FC = () => {
   const sceneRef = useRef<HTMLCanvasElement>(null);  //게임화면
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [nextBlock, setNextBlock] = useState("");
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
   const [playerScore, setPlayerScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -49,13 +50,16 @@ const TetrisSingle: React.FC = () => {
     sceneRef.current.width = 600;
     sceneRef.current.height = 800;
     const CollisionEvent = ({game, bodyA, bodyB}: any) => {
-      let collisionX = bodyA._parent.userData.type;
-      let collisionY = bodyB._parent.userData.type;
+      console.log(bodyA, bodyB);
+      let collisionX = game.getTetrominoFromHandle(bodyA.parent().handle).userData.type;
+      let collisionY = game.getTetrominoFromHandle(bodyB.parent().handle).userData.type;
+      console.log("coll", collisionX, collisionY);
       if ((collisionX === 'bomb' || collisionY === 'bomb') && 
         collisionX !== 'ground' && collisionY !== 'ground' && 
         collisionX !=='left_wall' && collisionY !=='left_wall' && 
         collisionX !=='right_wall' && collisionY !=='right_wall') {
         let ver = (collisionX === 'bomb') ? 0 : 1;
+        console.log("폭탄맞음");
         explodeBomb(game, bodyA, bodyB, ver);
     }
   }
@@ -91,7 +95,7 @@ const TetrisSingle: React.FC = () => {
       blockLandingCallback: LandingEvent,
       preBlockLandingCallback: preLandingEvent,
       stepCallback: StepCallback,
-      blockSpawnCallback: createBlockSpawnEvent(),
+      blockSpawnCallback: createBlockSpawnEvent(undefined, setNextBlock),
       worldHeight: 800,
       worldWidth: 600,
       wallColor: 0xFF0000,
@@ -202,7 +206,10 @@ const TetrisSingle: React.FC = () => {
         }}>폭탄</button>
 
       </SceneContainer>
-    
+      <TetrisNextBlock>
+        다음 블록은~?
+        <img src={getNextBlockImage(nextBlock)} />
+      </TetrisNextBlock>
       <VideoContainer>
         <Video ref={videoRef} autoPlay/>
         <VideoCanvas ref={canvasRef}/>

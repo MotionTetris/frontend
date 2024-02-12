@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import {Viewport} from "pixi-viewport";
 import {GlowFilter} from '@pixi/filter-glow';
-import { Tetromino } from "./Tetromino";
+import { BlockTypeList, Tetromino } from "./Tetromino";
 import { gsap } from 'gsap';
 import { Graphics } from "./Graphics";
 import { playBombExplodeSound, playBombSound, playBombSpawnSound, playDoubleComboSound, playFlipSound, playSingleComboSound, playTripleComboSound } from "./Sound";
@@ -590,7 +590,7 @@ export function spawnBomb(game: TetrisGame, x: number, y: number): number {
     rigidBody?.setTranslation({x: 10000, y: 0}, false);
     game.graphics.viewport.removeChild(graphics);
     game.graphics.coll2gfx.delete(collider!.handle);
-  }, 4000);  
+  }, 5000);  
   return collider!.handle;
 }
 
@@ -662,4 +662,9 @@ export function showGameOverModal(message: string) {
   } else {
     console.error('Modal elements not found');
   }
+}
+
+export function getNextBlockImage(nextBlock: string) {
+  const imgPath = `src/assets/blocks/${nextBlock}block.png`
+  return imgPath;
 }
