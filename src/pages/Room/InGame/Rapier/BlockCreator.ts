@@ -4,24 +4,38 @@ import * as RAPIER from "@dimforge/rapier2d";
 
 export class BlockCreator {
     public static createTetromino(blockSize: number, blockType: BlockType) {
+        let block = undefined;
         switch (blockType) {
             case "I":
-                return this.createI(blockSize / 2);
+                block = this.createI(blockSize / 2);
+                break;
             case "O":
-                return this.createO(blockSize / 2);
+                block = this.createO(blockSize / 2);
+                break;
             case "T":
-                return this.createT(blockSize / 2);
+                block = this.createT(blockSize / 2);
+                break;
             case "S":
-                return this.createS(blockSize / 2);
+                block = this.createS(blockSize / 2);
+                break;
             case "Z":
-                return this.createZ(blockSize / 2);
+                block = this.createZ(blockSize / 2);
+                break;
             case "J":
-                return this.createJ(blockSize / 2);
+                block = this.createJ(blockSize / 2);
+                break;
             case "L":
-                return this.createL(blockSize / 2);
+                block = this.createL(blockSize / 2);
+                break;
             default:
                 throw new Error("Failed to create block: Unkown block type");
         }
+
+        for (let i = 0; i < block.length; i++) {
+            block[i].setRestitution(0).setFriction(1.0);
+        }
+
+        return block;
     }
 
     public static createPolygon(x: number, y: number, coords: Float32Array | number[]) {

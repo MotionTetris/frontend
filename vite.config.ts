@@ -29,12 +29,17 @@ export default defineConfig({
         rewrite: (path) => {
           const newPath = path.replace(/^\/api/, '');
           console.log(newPath);
-          return newPath
+          return newPath;
         }
       },
-      "/room": {
+      "/room-api": {
         target: "http://54.180.148.103:3000/",
-        changeOrigin: true
+        changeOrigin: true,
+        rewrite: (path) => {
+          const newPath = path.replace('/room-api', '/room');
+          console.log(newPath);
+          return newPath;
+        }
       }
     }
   }

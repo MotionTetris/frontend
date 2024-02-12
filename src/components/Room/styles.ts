@@ -23,8 +23,7 @@ export const RoomContainer = styled.div`
   position: relative;
   width: 200px;
   height: 300px;
-  top: 10vw;
-  right: 2vw;
+  top: 200px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
@@ -44,7 +43,7 @@ export const RoomContainer = styled.div`
 `;
 export const RoomTitleContainer = styled.div`
   position: relative;
-  top: 25vh;
+  top: 200px;
   height: 37%;
   display: flex;
   flex-direction: column;
@@ -61,7 +60,7 @@ export const RoomTitleContainer = styled.div`
 
 export const RoomTitle = styled.h3`
   position: absolute;
-  top: 0vh;
+  top: 0;
   font-size: 32px;
   color: white;
   margin-bottom: 10px;
@@ -69,8 +68,8 @@ export const RoomTitle = styled.h3`
 
 export const RoomId = styled.h3`
   position: absolute;
-  left:0.4vw;
-  top: -0.3vh;
+  left: 5px;
+  top: 0;
   scale: 1;
   font-size: 8px;
   font-weight: 100;
@@ -81,15 +80,13 @@ export const RoomId = styled.h3`
 `;
 
 export const RoomStatus = styled.div<{ status: "READY" | "START" | "WAIT" }>`
-  display: inline-block;
   position: absolute;
-  top: 10vh;
-  scale: 0.8;
-  right: 4.5vw;
-  padding: 5px 10px;
-  border-radius: 20px;
+  left: 20px;
+  bottom: 20px;
   color: #666;
-  margin-bottom: 10px;
+  font-size: 10px;
+  padding: 6px 10px;
+  border-radius: 50px;
   background-color: ${({ status }) => {
     switch (status) {
       case "WAIT":
@@ -115,17 +112,16 @@ export const RoomCreateProfile = styled.img`
 `;
 
 export const RoomCreateNickname = styled.div`
-  position: absolute;
-  right: 0vw;
-  top: 0.3vh;
-  scale:0.8;
-  color: #666;
-  font-size: 10px;
-  background-color: white;
-  padding: 7px 10px;
-  border-radius: 50px;
-  display: inline-block;
-  white-space: nowrap;
+position: absolute;
+right: 5px;
+top: 8.5px;
+scale: 1;
+font-size: 8px;
+font-weight: 100;
+color: #666;
+background-color: white;
+padding: 5px 8px;
+border-radius: 50px;
 `;
 
 export const GameMainContainer = styled.div`
@@ -135,8 +131,8 @@ export const GameMainContainer = styled.div`
 
 export const RoomCount = styled.div`
   position: absolute;
-  right: 1vw;
-  bottom: 2vh;
+  right: 20px;
+  bottom: 20px;
   color: #666;
   font-size: 10px;
   background-color: white;

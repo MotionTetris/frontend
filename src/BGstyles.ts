@@ -52,7 +52,6 @@ export const BackgroundColor3 = styled.div`
     flex-direction: column;
     align-items: stretch;
     justify-content: space-evenly;
-    overflow: hidden;
 
   &::before, 
   &::after {

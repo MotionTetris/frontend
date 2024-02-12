@@ -9,10 +9,9 @@ import { GlobalStyles } from "./GloabalStyles";
 import Tetris from "@pages/Room/InGame/Tetris";
 import { RoomSocketContext, roomSocket } from "./context/roomSocket";
 import Header from "./components/Header/Header";
-import * as io from "socket.io-client";
 import GameRoom from "@pages/Room/GameRoom";
 import TetrisSingle from "@pages/Room/InGame/TetrisSingle";
-import { jwtDecode } from "jwt-decode";
+import { getExpiresAt, getUserNickname, removeToken } from "./data-store/token";
 const WithHeader: React.FC<{ component: React.ComponentType }> = ({ component: Component }) => (
   <>
     <Header />
@@ -20,19 +19,18 @@ const WithHeader: React.FC<{ component: React.ComponentType }> = ({ component: C
   </>
 );
 const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
-  const token = localStorage.getItem('token');
+  const token = getUserNickname();
   
   if (token) {
-    const decodeResult = jwtDecode(token);
     const now = Math.floor(Date.now() / 1000);
-    if (!decodeResult.exp) {
-      localStorage.setItem('token', '');
+    if (getExpiresAt() === 0) {
+      removeToken();
       alert("로그인이 만료되었습니다.");
       return children;
     }
 
-    if (decodeResult.exp < now) {
-      localStorage.setItem('token', '');
+    if (getExpiresAt() < now) {
+      removeToken();
       alert("로그인이 만료되었습니다.");
       return children;
     }

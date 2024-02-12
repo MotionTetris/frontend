@@ -6,6 +6,7 @@ import {
   GameContainer,
   GamePaginationButton,
   CreateRoomButton,
+  ButtonContainer,
 } from "./styles";
 import CreateRoom from "./Modal/CreateRoom/CreateRoom";
 import { LobbyGameRoomCard } from "@type/Refactoring";
@@ -59,9 +60,15 @@ const GameMain = () => {
     );
   };
 
+  const handleRefresh = async () => {
+    setRooms(await requestRoomAPI());
+  }
+  
   let roomSocket = useRoomSocket();
   console.assert(roomSocket, "socket is undefined");
-  if (!roomSocket) {
+
+  if (!roomSocket || !roomSocket.connected) {
+    alert("게임 서버와의 연결에 실패하였습니다!");
     return <Navigate to="/" replace></Navigate>
   }
 
@@ -82,9 +89,14 @@ const GameMain = () => {
 
   return (
     <GameContainer>
+      <ButtonContainer>
+      <CreateRoomButton onClick={handleRefresh}>
+        새로고침
+      </CreateRoomButton>
       <CreateRoomButton onClick={handleCreateRoomClick}>
         + 방 생성
       </CreateRoomButton>
+      </ButtonContainer>
       <GameRoomGrid>
         {currentRooms.map((room) => (
           <RoomCardComponent

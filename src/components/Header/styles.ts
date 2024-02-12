@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { StyledLinkProps } from "@type/common";
 
 export const HeaderContainer = styled.header`
-  position: relative;
   height: 100px;
   background: url("/src/assets/HeaderBackground.png") no-repeat center center;
   background-size: cover;
