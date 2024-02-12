@@ -157,7 +157,7 @@ export class TetrisGame {
         this.updateWorld();
         this.graphics.render(this.world);
         requestAnimationFrame((time) => this.run(time));
-        }
+    }
 
     public updateWorld() {
         this.world.step(this.events);
@@ -357,14 +357,14 @@ export class TetrisGame {
     }
 
     public onRotateLeft() {
-        this.fallingTetromino?.rigidBody.setAngvel(10, false);
+        this.fallingTetromino?.rigidBody.setAngvel(28, false);
         const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.TURN_LEFT);
         this.updateSequence();
         return event;
     }
 
     public onRotateRight() {
-        this.fallingTetromino?.rigidBody.setAngvel(-10, false);
+        this.fallingTetromino?.rigidBody.setAngvel(-28, false);
         const event =  KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.TURN_RIGHT);
         this.updateSequence();
         return event;
