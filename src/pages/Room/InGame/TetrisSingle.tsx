@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { TetrisGame } from "./Rapier/TetrisGame.ts";
 import { initWorld } from "./Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer, GameOverModal, ModalMessage, GameResult, GoLobbyButton } from "./style.tsx";
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer,  } from "./style.tsx";
 import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, rotateViewport, resetRotateViewport, flipViewport, resetFlipViewport, addFog, removeGlowWithDelay, fallingBlockGlowWithDelay, spawnBomb, explodeBomb} from "./Rapier/Effect.ts";
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
@@ -12,18 +12,31 @@ import { PoseNet } from "@tensorflow-models/posenet";
 import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "./Rapier/PostNet";
 import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "./Rapier/TetrisCallback";
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
+import { jwtDecode } from "jwt-decode";
 
 const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
 const TetrisSingle: React.FC = () => {
   const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
-  const sceneRef = useRef<HTMLCanvasElement>(null);  //게임화면
+  const sceneRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
   const [playerScore, setPlayerScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const gameRef = useRef<TetrisGame | null>(null);
+  const [nickname, setNickname] = useState("");
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+    const decoded = jwtDecode(token);
+    const nickname = decoded.sub || "";
+    setNickname(nickname);
+    }
+  },);
+
+
   const scoreTexts = useRef(
     Array.from({ length: 21 }, () => new PIXI.Text('0', {fontFamily: 'Arial', fontSize: 24, fill: '#ffffff'}))
   );
@@ -154,59 +167,39 @@ const TetrisSingle: React.FC = () => {
   return (<>
     <Container>
       <SceneContainer>
-        <UserNickName> 유저닉: </UserNickName>
         <MessageDiv>  {message} </MessageDiv>
-        <Score> 점수: {playerScore} </Score>
-        <SceneCanvas id = "game" ref = {sceneRef}> </SceneCanvas>
-        <button onClick={() => {
-        if (gameRef.current) {
-          rotateViewport(gameRef.current.graphics.viewport, 15);
-        }
-        }}>우회전</button>
-
-        <button onClick={() => {
-        if (gameRef.current) {
-          rotateViewport(gameRef.current.graphics.viewport, -15);
-        }
-        }}>좌회전</button>
-
-
-        <button onClick={() => {
-        if (gameRef.current) {
-          resetRotateViewport(gameRef.current.graphics.viewport);
-        }
-        }}>회전원복</button>
-
-        <button onClick={() => {
-        if (gameRef.current) {
-          flipViewport(gameRef.current.graphics.viewport);
-        }
-        }}>좌우대칭</button>
-
-        <button onClick={() => {
-        if (gameRef.current) {
-          resetFlipViewport(gameRef.current.graphics.viewport);
-        }
-        }}>좌우원복</button>
-
-        <button onClick={() => {
-        if (gameRef.current) {
-          addFog(gameRef.current);
-        }
-        }}>안개~</button>
-
-        <button onClick={() => {
-        if (gameRef.current) {
-          spawnBomb(gameRef.current, 150, 100);
-        }
-        }}>폭탄</button>
-
+        <SceneCanvas id="game" ref={sceneRef}></SceneCanvas>
       </SceneContainer>
-    
       <VideoContainer>
+      <ButtonContainer>
+  <RotateRightButton onClick={() => gameRef.current && rotateViewport(gameRef.current.graphics.viewport, 15)}>
+    <span>우회전</span>
+  </RotateRightButton>
+  <RotateLeftButton onClick={() => gameRef.current && rotateViewport(gameRef.current.graphics.viewport, -15)}>
+    <span>좌회전</span>
+  </RotateLeftButton>
+  <ResetRotationButton onClick={() => gameRef.current && resetRotateViewport(gameRef.current.graphics.viewport)}>
+    <span>회전원복</span>
+  </ResetRotationButton>
+  <FlipButton onClick={() => gameRef.current && flipViewport(gameRef.current.graphics.viewport)}>
+    <span>좌우대칭</span>
+  </FlipButton>
+  <ResetFlipButton onClick={() => gameRef.current && resetFlipViewport(gameRef.current.graphics.viewport)}>
+    <span>좌우원복</span>
+  </ResetFlipButton>
+  <FogButton onClick={() => gameRef.current && addFog(gameRef.current)}>
+    <span>안개</span>
+  </FogButton>
+  <BombButton onClick={() => gameRef.current && spawnBomb(gameRef.current, 150, 100)}>
+    <span>폭탄</span>
+  </BombButton>
+  </ButtonContainer>
+      <UserNickName>{nickname}</UserNickName>
+      <Score> Score: {playerScore} </Score>
         <Video ref={videoRef} autoPlay/>
         <VideoCanvas ref={canvasRef}/>
       </VideoContainer>
+      <UserBackGround/>
 
       <GameOverModal visible={isGameOver}>
         <GameResult result="패배" score={playerScore} maxCombo={123} maxScore={456} />
