@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "./Rapier/TetrisGame";
 import { initWorld } from "./Rapier/World";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer } from "./style";
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, UserBackGround } from "./style";
 import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake, handleComboEffect} from "./Rapier/Effect";
 import * as PIXI from "pixi.js";
 import { runPosenet } from "./Rapier/WebcamPosenet";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "./Rapier/TetrisOption";
 import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } from "./Rapier/Sound";
-
+import { jwtDecode } from "jwt-decode";
 
 const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
@@ -18,8 +18,17 @@ const TetrisSingle: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
   const [playerScore, setPlayerScore] = useState(0);
+  const [nickname, setNickname] = useState("");
   const scoreTexts = useRef<PIXI.Text[]>([]);
   playIngameSound();
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+    const decoded = jwtDecode(token);
+    const nickname = decoded.sub || "";
+    setNickname(nickname);
+    }
+  },);
 
   useEffect(() => {
     
@@ -152,17 +161,17 @@ const TetrisSingle: React.FC = () => {
   return (<>
     <Container>
       <SceneContainer>
-        <UserNickName> 유저닉: </UserNickName>
-        <MessageDiv>  {message} </MessageDiv>
-        <Score> 점수: {playerScore} </Score>
+        <MessageDiv> {message} </MessageDiv>
         <SceneCanvas id = "game" ref = {sceneRef}> </SceneCanvas>
       </SceneContainer>
     
       <VideoContainer>
+      <UserBackGround/>
+      <UserNickName>{nickname}</UserNickName>
+      <Score> SCORE {playerScore} </Score>
         <Video ref={videoRef} autoPlay/>
         <VideoCanvas ref={canvasRef}/>
       </VideoContainer>
-    
     </Container>
     </>
   );

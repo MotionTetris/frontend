@@ -40,7 +40,7 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     console.log('header nickname::::::',nickname)
-  }, [nickname]); // 의존성 배열에 nickname 추가
+  }, [nickname]);
 
   const backgroundCircles = useMemo(() => (
     <BackgroundColor3></BackgroundColor3>

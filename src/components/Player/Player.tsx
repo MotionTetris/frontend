@@ -36,12 +36,13 @@ const Player: React.FC<PlayerProps> = ({ nickname, isCreator, scale, position, t
   }, []);
 
   return (
-    <PlayerContainer style={{ transform: `scale(${scale})`, position, top, left }}>
+    <PlayerContainer style={{ transform: `scale(${scale})`,top, left }}>
       <PlayerBackground/>
       <PlayerNickName>{nickname}</PlayerNickName>
       {isCreator && <Badge>방장</Badge>}
       <VideoContainer ref={videoRef} autoPlay playsInline />
     </PlayerContainer>
+    
   );
 };
 

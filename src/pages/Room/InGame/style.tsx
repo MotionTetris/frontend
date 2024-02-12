@@ -2,32 +2,38 @@ import styled from "styled-components";
 
 export const Container = styled.div`
     display: flex;
-    justifyContent: center;
-    alignItems: center;
-    height: 100vh;
-    overflow: hidden;
+    justify-content: center;
+    align-items: center;
 `;
 
 export const UserNickName = styled.div`
-  position: relative;
-  top: 0px;
-  left: 350px;
-  color: black;
-
-  padding: 0px;
-  font-size: 36px;
-  z-index: 5;
+  position: absolute;
+  top: 5px;
+  left: 20%;
+  transform: translateX(-50%);
+  color: #FFF;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid #FFF;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 24px;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 `;
 
 export const Score = styled.div`
-  position: relative;
-  top: -35px;  
-  left: 20px;
-  color: black;
-  padding: 0px;
-  font-size: 48px;
-  z-index: 5;
-
+  position: absolute;
+  top: 5px;
+  left: 60%;
+  transform: translateX(-50%);
+  color: #FFF;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid #FFF;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 24px;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 `;
 
 export const SceneContainer = styled.div`
@@ -67,32 +73,42 @@ export const SceneCanvas = styled.canvas`
     position: absolute;
 `;
 
+export const  UserBackGround = styled.div`
+  width: 100%;
+  height: 100%;
+
+`;
+
 
 export const VideoContainer = styled.div`
-  top: 55%;
-  left: 57.5%;
   position: relative;
-  width: 450px;
-  height: 300px;
-  
+  top: 10vh;
+  left: 25vw;
+  width: 30vw;
+  height: 100vh;
+  border: 2px solid black;
+  background-color: white;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 `;
 
 
 export const Video = styled.video`
   position: absolute;
-  top: 0;
-  left: 0;
-  transform: scaleX(-1);
-  width: 100%;
-  height: 100%;
+  top: 10vh;
+  left: 0vw;
+  width: 30vw;
+  height: 90vh;
+  object-fit: cover;
 `;
 
 export const VideoCanvas = styled.canvas`
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 480px;
-  height: 320px;
+  top: 10vh;
+  left: 0vw;
+  width: 30vw;
+  height: 90vh;
+  object-fit: cover;
 `;
 
 
