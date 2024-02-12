@@ -375,14 +375,14 @@ export class TetrisGame {
     }
 
     public onRotateLeft() {
-        this.fallingTetromino?.rigidBody.setAngvel(28, false);
+        this.fallingTetromino?.rigidBody.setAngvel(14, false);
         const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.TURN_LEFT);
         this.updateSequence();
         return event;
     }
 
     public onRotateRight() {
-        this.fallingTetromino?.rigidBody.setAngvel(-28, false);
+        this.fallingTetromino?.rigidBody.setAngvel(-14, false);
         const event =  KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.TURN_RIGHT);
         this.updateSequence();
         return event;
