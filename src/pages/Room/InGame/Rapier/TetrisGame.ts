@@ -29,8 +29,8 @@ export class TetrisGame {
     running: boolean;
     private removeBodies: Array<RAPIER.RigidBody>;
     private walls: Map<number, Wall>
-    
-    private readonly defaultWallColor = 0x222929
+    private readonly defaultWallColor = 0x222929;
+    protected lastRenderingTime: number;
     public constructor(option: TetrisOption, userId: string) {
         if (!option.view) {
             throw new Error("Canvas is null");
@@ -48,6 +48,7 @@ export class TetrisGame {
         this.stepId = 0;
         this.removeBodies = [];
         this.walls = new Map();
+        this.lastRenderingTime = 0;
     }
 
     public set landingCallback(callback: ((result: BlockCollisionCallbackParam) => void)) {
@@ -127,7 +128,10 @@ export class TetrisGame {
         this.sequence += 1;
     }
 
-    public run() {
+    public run(time: number) {
+        time ??= 0;
+        let dt = time - this.lastRenderingTime;
+        
         if (!this.world) {
             console.error("Failed to run. world is not set");
             return;
@@ -137,6 +141,12 @@ export class TetrisGame {
             return;
         }
 
+        if (dt < 1000 / 63) {
+            requestAnimationFrame((time) => this.run(time));
+            return;
+        }
+
+        this.lastRenderingTime = time;
         if (this.preTimestepAction) {
             this.preTimestepAction(this.graphics);
         }
@@ -144,10 +154,14 @@ export class TetrisGame {
         if (this.option.stepCallback) {
             this.option.stepCallback(this, this.stepId);
         }
+        this.updateWorld();
+        this.graphics.render(this.world);
+        requestAnimationFrame((time) => this.run(time));
+        }
 
+    public updateWorld() {
         this.world.step(this.events);
         this.stepId += 1;
-        this.graphics.render(this.world);
         this.events.drainCollisionEvents((handle1: number, handle2: number, started: boolean) => {
             if (!started) {
                 return;
@@ -168,7 +182,6 @@ export class TetrisGame {
             this.world.removeRigidBody(body);
         }
         this.removeBodies = [];
-        requestAnimationFrame(() => this.run());
     }
 
     public pause() {
@@ -177,7 +190,7 @@ export class TetrisGame {
 
     public resume() {
         this.running = true;
-        requestAnimationFrame(() => this.run());
+        requestAnimationFrame((time) => this.run(time));
     }
 
     public removeBlock(block: Tetromino) {
