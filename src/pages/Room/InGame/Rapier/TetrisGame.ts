@@ -21,6 +21,7 @@ export class TetrisGame {
     snapStepId?: number;
     option: TetrisOption;
     tetrominos: Map<number, Tetromino>;
+    snapTetrominos?: Map<number, Tetromino>;
     fallingTetromino?: Tetromino;
     lines: Line[];
     sequence: number;
@@ -110,6 +111,7 @@ export class TetrisGame {
 
         this.snap = this.world.takeSnapshot();
         this.snapStepId = this.stepId;
+        this.snapTetrominos = new Map(this.tetrominos);
     }
 
     public restoreSnapshot() {
@@ -117,15 +119,7 @@ export class TetrisGame {
             this.world.free();
             this.world = RAPIER.World.restoreSnapshot(this.snap);
             this.stepId = this.snapStepId;
-            this.tetrominos.clear();
-            
-            this.world.bodies.forEach((value) => {
-                // @ts-ignore
-                if (value.userData && value.userData.type && value.userData.type === 'block') {
-                    // @ts-ignore
-                    this.tetrominos.push(this.spawnFromRigidBody(value.userData.color, value));
-                }
-            });
+            this.tetrominos = new Map(this.snapTetrominos);
         }
     }
 
