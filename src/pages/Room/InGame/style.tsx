@@ -120,7 +120,7 @@ export const SceneContainer = styled.div`
   top: 0%;
   left: 0%;
   width: 600px;
-  height: 900px;
+  height: 800px;
   position: absolute;
   background: #4e9cad;
 `;
@@ -147,17 +147,17 @@ export const SceneCanvas = styled.canvas`
     width: 600px;
     height: 800px;
     left: 0%;
-    top: 100px;
+    top: 0%;
     position: absolute;
 `;
 
 
 export const VideoContainer = styled.div`
-  position: relative;
-  top: 30%;
-  left: 57%;
-  width: 800px;
-  height: 600px;
+  position: absolute;
+  top: 40%;
+  left: 42%;
+  width: 600px;
+  height: 450px;
   border: 2px solid black;
   background-color: white;
   border-top-left-radius: 20px;
@@ -171,6 +171,7 @@ export const Video = styled.video`
   left: 0vw;
   width: 100%;
   height: 80%;
+  transform: scaleX(-1);
   object-fit: cover;
 `;
 
@@ -264,15 +265,33 @@ export const GoLobbyButton = styled.button`
 
 export const TetrisNextBlock = styled.div`
   position: absolute;
-  top: 12.4vh;
-  right: 15.5vw;
-  width: 23vw;
-  height: 9.1vh;
+  top: 0%;
+  left: 45%;
+  width: 300px;
+  height: 200px;
   border: 2px solid black;
   font-family: "DNFBitBitv2", sans-serif;
   font-style: light;
   font-weight: 100;
   font-size: 20px;
   color: lightblue;
-  background: gray;
+  background: #d71f1f;
 `;
+
+export const TetrisNextBlockImage = styled.img`
+  object-fit: cover; // 이미지 비율을 유지하면서 채우기
+  margin-top: 10px; // 상단 여백
+`;
+
+export const ItemContainer = styled.div`
+  position: absolute;
+  top: 28%;
+  left: 45%;
+  width: 300px;
+  height: 100px;
+  background: #dfdafe
+`;
+
+export const ItemImage = styled.img`
+
+`

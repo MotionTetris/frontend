@@ -184,7 +184,7 @@ export class TetrisGame {
         });
         
         for (let body of this.removeBodies) {
-            console.log(this.removeBodies);
+            //console.log(this.removeBodies);
             this.world.removeRigidBody(body);
         }
         this.removeBodies = [];

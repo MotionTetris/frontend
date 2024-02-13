@@ -28,7 +28,7 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
             }
             let alpha = (nose.x - centerX) / 300;
             let forceMagnitude = Math.abs(nose.x - centerX) / (centerX);
-            performPushEffect(game.graphics.rectangles[0], game.graphics.rectangles[1], alpha, 80, 470);
+            //performPushEffect(game.graphics.rectangles[0], game.graphics.rectangles[1], alpha, 80, 470);
             const event = game.onMoveLeft(forceMagnitude);
             socket?.emit('eventOn', event);
         },
@@ -40,7 +40,7 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
             }
             let alpha = (nose.x - centerX) / 300;
             let forceMagnitude = Math.abs(nose.x - centerX) / (centerX);
-            performPushEffect(game.graphics.rectangles[1], game.graphics.rectangles[0], alpha, 470, 80);
+            //performPushEffect(game.graphics.rectangles[1], game.graphics.rectangles[0], alpha, 470, 80);
             const event = game.onMoveRight(forceMagnitude);
             socket?.emit('eventOn', event);
         }

@@ -1,41 +1,52 @@
 import React, { useEffect, useRef, useState } from "react";
-import { TetrisGame } from "./Rapier/TetrisGame";
-import { initWorld } from "./Rapier/World";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, MultiplayContainer, PlayerContainer } from "./style";
-import { collisionParticleEffect, createScoreBasedGrid, explodeParticleEffect, fallingBlockGlow, loadStarImage, removeGlow, showScore, starParticleEffect, startShake } from "./Rapier/Effect";
+import { TetrisGame } from "./Rapier/TetrisGame.ts";
+import { initWorld } from "./Rapier/World.ts";
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer, TetrisNextBlock, MultiplayContainer,  } from "./style.tsx";
+import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage} from "./Rapier/Effect.ts";
+import { rotateViewport, resetRotateViewport, flipViewport, resetFlipViewport, addFog, spawnBomb} from "./Rapier/Item.ts";
+import * as io from 'socket.io-client';
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "./Rapier/TetrisOption";
 import { TetrisMultiplayView } from "./Rapier/TetrisMultiplayView";
-import * as io from 'socket.io-client';
-import  {useLocation} from "react-router-dom"
-import { GAME_SOCKET_URL } from "@src/config";
+import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } from "./Rapier/Sound";
+import { PoseNet } from "@tensorflow-models/posenet";
+import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "./Rapier/PostNet";
+import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "./Rapier/TetrisCallback";
+import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
+import { jwtDecode } from "jwt-decode";
 import { useSelector } from 'react-redux';
 import { RootState } from "@app/store";
-import { getToken } from "@src/data-store/token";
-import { KeyPoint, KeyPointCallback, KeyPointResult, loadPoseNet, processPose } from "./Rapier/PostNet.ts";
-import { PoseNet } from "@tensorflow-models/posenet";
-import { createLandingEvent, createUserEventCallback } from "./Rapier/TetrisCallback.ts";
+import { GAME_SOCKET_URL } from "@src/config";
 
-const eraseThreshold = 10000;
+const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
 const Tetris: React.FC = () => {
-  const sceneRef = useRef<HTMLCanvasElement>(null);  //게임화면
+  const sceneRef = useRef<HTMLCanvasElement>(null);
   const otherSceneRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [message, setMessage] = useState("게임이 곧 시작됩니다");
+  const gameRef = useRef<TetrisGame | null>(null);
   const socket = useRef<io.Socket>()
+  const otherNicknames = useSelector((state: RootState) => state.game.playersNickname);
+  const [nextBlock, setNextBlock] = useState("");
+  const [message, setMessage] = useState("게임이 곧 시작됩니다");
   const [playerScore, setPlayerScore] = useState(0);
-  const scoreTexts = useRef<PIXI.Text[]>([]);
+  const [isGameOver, setIsGameOver] = useState(false);
+  const [nickname, setNickname] = useState("");
+  const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
+  const [otherPlayers, setOtherPlayers] = useState<string[]>([]);
   const [user, setUser] = useState<string>('')
   const [other, setOther] = useState<string>('')
-  const location = useLocation();
-  const currentPlayerNickname = useSelector((state: RootState) => state.homepage.nickname);
-  const [otherPlayers, setOtherPlayers] = useState<string[]>([]);  
-  const otherNicknames = useSelector((state: RootState) => state.game.playersNickname);
-  console.log("딴놈 닉", Array.from(otherNicknames));
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+    const decoded = jwtDecode(token);
+    const nickname = decoded.sub || "";
+    setNickname(nickname);
+    }
+  },);
 
   useEffect(()=>{ 
     const queryParams = new URLSearchParams(location.search);
@@ -67,45 +78,82 @@ const Tetris: React.FC = () => {
     }
   },[])
 
+  const scoreTexts = useRef(
+    Array.from({ length: 21 }, () => new PIXI.Text('0', {fontFamily: 'Arial', fontSize: 24, fill: '#ffffff'}))
+  );
+  const lineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
+  
+
   useEffect(() => {
 
+    setShootingStars(Array(20).fill(null).map((_, index) => {
+      const style = {
+        left: `${Math.random() * 100}%`, 
+        top: `${Math.random() * 100}%`,
+        animationDelay: `${Math.random() * 5}s`
+      };
+      return <ShootingStar style={style} key={index} />;
+    }));
+    
     if (!!!sceneRef.current) {
       console.log("sceneRef is null");
       return;
     }
-    if (!!!otherSceneRef.current) {
-      console.log("sceneRef is null");
-      return;
-    }
+    
     sceneRef.current.width = 600;
     sceneRef.current.height = 800;
     otherSceneRef.current.width = 600;
     otherSceneRef.current.height = 800;
-
-    //fallingBlockGlow(game.fallingTetromino!);
     const CollisionEvent = ({game, bodyA, bodyB}: any) => {
-    
+      let collisionX = game.getTetrominoFromHandle(bodyA.parent().handle).userData.type;
+      let collisionY = game.getTetrominoFromHandle(bodyB.parent().handle).userData.type;
+      console.log("coll", collisionX, collisionY);
+      if ((collisionX === 'bomb' || collisionY === 'bomb') && 
+        collisionX !== 'ground' && collisionY !== 'ground' && 
+        collisionX !=='left_wall' && collisionY !=='left_wall' && 
+        collisionX !=='right_wall' && collisionY !=='right_wall') {
+        let ver = (collisionX === 'bomb') ? 0 : 1;
+        explodeBomb(game, bodyA, bodyB, ver);
     }
-
-    const CollisionEvent1 = ({game, bodyA, bodyB}: any) => {
-
-    }
+  }
+  
+  const CollisionEvent1 = ({game, bodyA, bodyB}: any) => {
+    let collisionX = game.getTetrominoFromHandle(bodyA.parent().handle).userData.type;
+    let collisionY = game.getTetrominoFromHandle(bodyB.parent().handle).userData.type;
+    console.log("coll", collisionX, collisionY);
+    if ((collisionX === 'bomb' || collisionY === 'bomb') && 
+      collisionX !== 'ground' && collisionY !== 'ground' && 
+      collisionX !=='left_wall' && collisionY !=='left_wall' && 
+      collisionX !=='right_wall' && collisionY !=='right_wall') {
+      let ver = (collisionX === 'bomb') ? 0 : 1;
+      explodeBomb(game, bodyA, bodyB, ver);
+  }
+  }
 
     const preLandingEvent = ({game, bodyA, bodyB}: any) => {
       game.fallingTetromino?.rigidBody.resetForces(true);
       removeGlow(game.fallingTetromino);
+      fallingBlockGlowWithDelay(game.fallingTetromino);
+      removeGlowWithDelay(game.fallingTetromino);
     }
 
     const preLandingEvent1 = ({game, bodyA, bodyB}: any) => {
       game.fallingTetromino?.rigidBody.resetForces(true);
+      removeGlow(game.fallingTetromino);
+      fallingBlockGlowWithDelay(game.fallingTetromino);
+      removeGlowWithDelay(game.fallingTetromino);
     }
+
+    const LandingEvent = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore, setIsGameOver);
+
+    const LandingEvent1 = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore, setIsGameOver);
 
     const StepCallback = (game: TetrisGame, step: number) => {
       if (step % 15 != 0) {
         return;
       }
       const checkResult = game.checkLine(eraseThreshold);
-      createScoreBasedGrid(game.graphics.viewport, checkResult.scoreList);
+      createScoreBasedGrid(lineGrids, checkResult.scoreList, eraseThreshold);
       
       scoreTexts.current.forEach((text) => {
         if (game.graphics.viewport.children.includes(text)) {
@@ -113,87 +161,9 @@ const Tetris: React.FC = () => {
         }
       });
 
-      scoreTexts.current = showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts.current, eraseThreshold);
+      showScore(checkResult.scoreList, scoreTexts.current, eraseThreshold);
     }
 
-    const LandingEvent = ({game, bodyA, bodyB}: any) => {
-      let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
-      let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
-      
-      if (bodyA.translation().y > 0 && bodyB.translation().y > 0) {
-        setMessage("게임오버")
-        game.pause();
-        return;
-      }
-      
-      collisionParticleEffect(bodyA.translation().x, -bodyB.translation().y, game.graphics);
-      collisionParticleEffect(bodyB.translation().x, -bodyB.translation().y, game.graphics);
-      
-      const checkResult = game.checkLine(eraseThreshold);
-      const scoreList = checkResult.scoreList;
-      let combo = 0;
-      for (let i = 0; i < checkResult.scoreList.length; i++) {
-        if (scoreList[i] >= eraseThreshold) {
-          setPlayerScore(prevScore => Math.round(prevScore + scoreList[i]));
-          combo += 1;
-        }
-      }
-    
-      if (game.removeLines(checkResult.lines)) {
-        console.log("combois ", combo)
-        if (combo == 1) {
-          startShake({ viewport: game.graphics.viewport, strength: 15, duration: 500 });
-          setMessage("Single Combo!");
-        }
-        if (combo == 2) {
-          startShake({ viewport: game.graphics.viewport, strength: 25, duration: 500 });
-          explodeParticleEffect(300, 700, game.graphics);
-          setMessage("Double Combo!");
-        }
-        else {
-          startShake({ viewport: game.graphics.viewport, strength: 35, duration: 500 });
-          setMessage("Fantastic!")
-        }
-        setTimeout(() => {
-          setMessage("");
-        }, 1000);
-      
-        loadStarImage().then((starTexture: PIXI.Texture) => {
-          starParticleEffect(0, 600, game.graphics ,starTexture);
-          starParticleEffect(450, 600, game.graphics, starTexture);
-        }).catch((error: any) => {
-          console.error(error);
-        });
-      }
-
-      //make lineGrids score
-      createScoreBasedGrid(game.graphics.viewport, checkResult.scoreList);
-      
-      scoreTexts.current.forEach((text) => {
-        if (game.graphics.viewport.children.includes(text)) {
-          game.graphics.viewport.removeChild(text);
-        }
-      });
-
-      //scoreTexts.current = showScore(game.graphics.viewport, checkResult.scoreList, scoreTexts.current, eraseThreshold); // 수정
-      game.spawnBlock(0xFF0000, "O", true);
-      fallingBlockGlow(game.fallingTetromino!);
-    }
-
-    const LandingEvent1 = ({game, bodyA, bodyB}: any) => {
-      let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
-      let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
-      
-      if (bodyA.translation().y > 0 && bodyB.translation().y > 0) {
-        setMessage("게임오버")
-        game.pause();
-        return;
-      }
-      const checkResult = game.checkLine(eraseThreshold);
-      game.removeLines(checkResult.lines)
-      game.spawnBlock(0xFF0000, "O", true);
-    }
-    
     const TetrisOption: TetrisOption = {
       blockFriction: 1.0,
       blockSize: 32,
@@ -205,28 +175,30 @@ const Tetris: React.FC = () => {
       blockCollisionCallback: CollisionEvent,
       blockLandingCallback: LandingEvent,
       preBlockLandingCallback: preLandingEvent,
+      stepCallback: StepCallback,
+      blockSpawnCallback: createBlockSpawnEvent(undefined, setNextBlock),
       worldHeight: 800,
       worldWidth: 600,
       wallColor: 0xFF0000,
       wallAlpha: 0.1,
       backgroundColor: 0x222929,
-      backgroundAlpha: 1,
-      stepCallback: StepCallback
+      backgroundAlpha: 0
     };
     
     const game = new TetrisGame(TetrisOption, "user");
+    gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
     game.running = true;
     game.spawnBlock(0xFF0000, "T", true);
     fallingBlockGlow(game.fallingTetromino!);
-
+    
     const otherGameOption = {
       blockFriction: 1.0,
       blockSize: 32,
       blockRestitution: 0.0,
       combineDistance: 1,
       view: otherSceneRef.current,
-      spawnX: otherSceneRef.current.width / 2,
+      spawnX: otherSceneRef.current!.width / 2,
       spawnY: 200,
       blockCollisionCallback: CollisionEvent1,
       blockLandingCallback: LandingEvent1,
@@ -245,7 +217,6 @@ const Tetris: React.FC = () => {
     otherGame.setWorld(initWorld(RAPIER, otherGameOption));
     otherGame.spawnBlock(0xFF0000, "T", true);
 
-    // runPosenet(videoRef, canvasRef, game, socket.current);
     let poseNetResult: { poseNet: PoseNet; renderingContext: CanvasRenderingContext2D; } | undefined = undefined;
     let prevResult: KeyPointResult = {
       leftAngle: 0,
@@ -254,7 +225,7 @@ const Tetris: React.FC = () => {
       leftWristX: 0
     }
 
-    const eventCallback = createUserEventCallback(game, socket.current);
+    let eventCallback = createUserEventCallback(game, socket.current);
     const poseNetLoop = async () => {
       if (!videoRef.current) {
         return;
@@ -263,60 +234,104 @@ const Tetris: React.FC = () => {
       if (!poseNetResult) {
         poseNetResult = await loadPoseNet(videoRef, canvasRef);
       }
-      prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback);
+      prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback); 
     }
 
-    setInterval(poseNetLoop, 250);
-
-    socket.current?.on('go',(data:string)=>{
-      console.log("시작!");
+    let id: any;
+    const run = async() => {
+      if (!poseNetResult) {
+        poseNetResult = await loadPoseNet(videoRef, canvasRef);
+      }
+      playIngameSound();
+      game.run();
       otherGame.run();
-      game.run(); 
       setMessage("게임 시작!");
-      setTimeout(() => {
-        setMessage("");
-      }, 3000); 
-      socket.current?.on('eventOn',(event:any)=>{
-        otherGame.receiveKeyFrameEvent(event)
+      scoreTexts.current.forEach((text) => {
+        game.graphics.viewport.addChild(text);
       });
-    })
-    
-    
-    //game.run(); 
+      lineGrids.forEach((line) => {
+        game.graphics.viewport.addChild(line);
+      });
+      setTimeout(() => {setMessage("")}, 3000);
+      id = setInterval(poseNetLoop, 250);
+    }
+
+    socket.current?.on('go', (data: string) => {
+      run();
+      console.log("Go!");
+      socket.current?.on('eventOn', (event: any) => {
+        otherGame.receiveKeyFrameEvent(event);
+        console.log(event);
+      });
+    });
+
   return () => {
     game.dispose();
-    otherGame.dispose();
-
+    clearInterval(id);
   }}, []);
 
   return (<>
     <Container>
-
-      
-      <PlayerContainer>
-        <SceneContainer>
-          <UserNickName> 유저닉: {currentPlayerNickname} </UserNickName>
-          <MessageDiv>  {message} </MessageDiv>
-          <Score> 점수: {playerScore} </Score>
-          <SceneCanvas id = "game" ref = {sceneRef}> </SceneCanvas>
-        </SceneContainer>
-      
-    
+      <SceneContainer>
+        <MessageDiv>  {message} </MessageDiv>
+        <SceneCanvas id="game" ref={sceneRef}></SceneCanvas>
+      </SceneContainer>
+      <TetrisNextBlock>
+        다음 블록은~?
+        <img src={getNextBlockImage(nextBlock)} />
+      </TetrisNextBlock>
       <VideoContainer>
+      <ButtonContainer>
+  <RotateRightButton onClick={() => gameRef.current && rotateViewport(gameRef.current.graphics.viewport, 15)}>
+    <span>우회전</span>
+  </RotateRightButton>
+  <RotateLeftButton onClick={() => gameRef.current && rotateViewport(gameRef.current.graphics.viewport, -15)}>
+    <span>좌회전</span>
+  </RotateLeftButton>
+  <ResetRotationButton onClick={() => gameRef.current && resetRotateViewport(gameRef.current.graphics.viewport)}>
+    <span>회전원복</span>
+  </ResetRotationButton>
+  <FlipButton onClick={() => gameRef.current && flipViewport(gameRef.current.graphics.viewport)}>
+    <span>좌우대칭</span>
+  </FlipButton>
+  <ResetFlipButton onClick={() => gameRef.current && resetFlipViewport(gameRef.current.graphics.viewport)}>
+    <span>좌우원복</span>
+  </ResetFlipButton>
+  <FogButton onClick={() => gameRef.current && addFog(gameRef.current)}>
+    <span>안개</span>
+  </FogButton>
+  <BombButton onClick={() => gameRef.current && spawnBomb(gameRef.current, 150, 100)}>
+    <span>폭탄</span>
+  </BombButton>
+  </ButtonContainer>
+      <UserNickName>{nickname}</UserNickName>
+      <Score> Score: {playerScore} </Score>
         <Video ref={videoRef} autoPlay/>
         <VideoCanvas ref={canvasRef}/>
       </VideoContainer>
-      </PlayerContainer>
+      <UserBackGround/>
 
-              <MultiplayContainer>
-        <SceneCanvas id="otherGame" ref={otherSceneRef} />
-        {Array.from(otherNicknames).map((nickname, index) => (
-          <div key={index}>
-            <UserNickName>유저닉: {nickname}</UserNickName>
-          </div>
-        ))}
-      </MultiplayContainer>
+      {/* <GameOverModal visible={isGameOver}>
+        <GameResult result="패배" score={playerScore} maxCombo={123} maxScore={456} />
+        <GoLobbyButton id="go-home" onClick={() => window.location.href = '/'}>홈으로 이동하기</GoLobbyButton>
+      </GameOverModal> */}
+
+      
+<MultiplayContainer>
+<SceneCanvas id="otherGame" ref={otherSceneRef} />
+{Array.from(otherNicknames).map((nickname, index) => (
+  <div key={index}>
+    <UserNickName>유저닉: {nickname}</UserNickName>
+  </div>
+))}
+</MultiplayContainer>
+
     </Container>
+    <BackgroundColor1>
+        <Night>
+          {shootingStars}
+        </Night>
+      </BackgroundColor1>
     </>
   );
 };
