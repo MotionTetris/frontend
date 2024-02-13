@@ -6,11 +6,11 @@ import GameLobby from "./pages/Lobby/GameLobby";
 import GameDashBoard from "./pages/DashBoard/GameDashBoard";
 import HomePage from "./pages/Homepage/HomePage";
 import { GlobalStyles } from "./GloabalStyles";
-import Tetris from "@pages/Room/InGame/Tetris";
+import Tetris from "@src/pages/Room/InGame/Multi/Tetris";
 import { RoomSocketContext, roomSocket } from "./context/roomSocket";
 import Header from "./components/Header/Header";
 import GameRoom from "@pages/Room/GameRoom";
-import TetrisSingle from "@pages/Room/InGame/TetrisSingle";
+import TetrisSingle from "@pages/Room/InGame/Single/TetrisSingle";
 import { getExpiresAt, getUserNickname, removeToken } from "./data-store/token";
 const WithHeader: React.FC<{ component: React.ComponentType }> = ({ component: Component }) => (
   <>
