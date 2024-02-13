@@ -60,10 +60,8 @@ export function createBlockSpawnEvent(socket?: Socket, setNextBlock?: any) {
 export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsGameOver: (isGameOver: boolean)=>void) {
     return ({ game, bodyA, bodyB }: any) => {
         
-        let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
-        let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
         playLandingSound();
-        if (bodyA.translation().y > 0 && bodyB.translation().y > 0) {
+        if (bodyA.parent()?.userData.type != 'bomb' && bodyB.parent()?.userData.type!= 'bomb' && bodyA.translation().y > 0 && bodyB.translation().y > 0) {
             stopIngameSound();
             playDefeatSound();
             setMessage("게임오버");

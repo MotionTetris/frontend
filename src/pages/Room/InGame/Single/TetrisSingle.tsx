@@ -1,11 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
-
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer, TetrisNextBlock,  } from "./style.tsx";
-import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, rotateViewport, resetRotateViewport, flipViewport, resetFlipViewport, addFog, removeGlowWithDelay, fallingBlockGlowWithDelay, spawnBomb, explodeBomb, getNextBlockImage} from "../Rapier/Effect.ts";
-
+import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage} from "../Rapier/Effect.ts";
+import { rotateViewport, resetRotateViewport, spawnBomb, flipViewport, resetFlipViewport, addFog, getRandomItem, } from "../Rapier/Item.ts";
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "../Rapier/TetrisOption";
@@ -15,6 +13,7 @@ import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } 
 import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "../Rapier/TetrisCallback";
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
 import { jwtDecode } from "jwt-decode";
+import { BOMB_URL,FOG_URL,FLIP_URL,ROTATE_LEFT_URL,ROTATE_RIGHT_URL } from "@src/config"
 
 const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
@@ -24,6 +23,7 @@ const TetrisSingle: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [nextBlock, setNextBlock] = useState("");
+  const [item, setItem] = useState("");
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
   const [playerScore, setPlayerScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -67,16 +67,15 @@ const TetrisSingle: React.FC = () => {
     sceneRef.current.width = 600;
     sceneRef.current.height = 800;
     const CollisionEvent = ({game, bodyA, bodyB}: any) => {
-      console.log(bodyA, bodyB);
-      let collisionX = game.getTetrominoFromHandle(bodyA.parent().handle).userData.type;
-      let collisionY = game.getTetrominoFromHandle(bodyB.parent().handle).userData.type;
-      console.log("coll", collisionX, collisionY);
+      
+      let collisionX = bodyA.parent()?.userData.type;
+      let collisionY = bodyB.parent()?.userData.type;
+      
       if ((collisionX === 'bomb' || collisionY === 'bomb') && 
         collisionX !== 'ground' && collisionY !== 'ground' && 
         collisionX !=='left_wall' && collisionY !=='left_wall' && 
         collisionX !=='right_wall' && collisionY !=='right_wall') {
         let ver = (collisionX === 'bomb') ? 0 : 1;
-        console.log("폭탄맞음");
         explodeBomb(game, bodyA, bodyB, ver);
     }
   }
@@ -92,8 +91,13 @@ const TetrisSingle: React.FC = () => {
     const LandingEvent = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore, setIsGameOver);
 
     const StepCallback = (game: TetrisGame, step: number) => {
+
       if (step % 15 != 0) {
         return;
+      }
+      if (step!=0 && step % 600 == 0) {
+        console.log("아이템", step);
+        setItem(getRandomItem(gameRef.current!));
       }
       const checkResult = game.checkLine(eraseThreshold);
       createScoreBasedGrid(lineGrids, checkResult.scoreList, eraseThreshold);
@@ -180,32 +184,34 @@ const TetrisSingle: React.FC = () => {
       </SceneContainer>
       <TetrisNextBlock>
         다음 블록은~?
-        <img src={getNextBlockImage(nextBlock)} />
+        <TetrisNextBlockImage src={getNextBlockImage(nextBlock)} />
       </TetrisNextBlock>
+      <ItemContainer>
+        현재 아이템
+        <ItemImage src= {item}/> 
+      </ItemContainer>
+
       <VideoContainer>
       <ButtonContainer>
-  <RotateRightButton onClick={() => gameRef.current && rotateViewport(gameRef.current.graphics.viewport, 15)}>
-    <span>우회전</span>
-  </RotateRightButton>
-  <RotateLeftButton onClick={() => gameRef.current && rotateViewport(gameRef.current.graphics.viewport, -15)}>
-    <span>좌회전</span>
-  </RotateLeftButton>
-  <ResetRotationButton onClick={() => gameRef.current && resetRotateViewport(gameRef.current.graphics.viewport)}>
-    <span>회전원복</span>
-  </ResetRotationButton>
-  <FlipButton onClick={() => gameRef.current && flipViewport(gameRef.current.graphics.viewport)}>
-    <span>좌우대칭</span>
-  </FlipButton>
-  <ResetFlipButton onClick={() => gameRef.current && resetFlipViewport(gameRef.current.graphics.viewport)}>
-    <span>좌우원복</span>
-  </ResetFlipButton>
-  <FogButton onClick={() => gameRef.current && addFog(gameRef.current)}>
-    <span>안개</span>
-  </FogButton>
-  <BombButton onClick={() => gameRef.current && spawnBomb(gameRef.current, 150, 100)}>
-    <span>폭탄</span>
-  </BombButton>
-  </ButtonContainer>
+        여기는 디버깅용~
+        <RotateRightButton onClick={() => gameRef.current && rotateViewport(gameRef.current.graphics.viewport, 15)}>
+          <span>우회전</span>
+        </RotateRightButton>
+        <RotateLeftButton onClick={() => gameRef.current && rotateViewport(gameRef.current.graphics.viewport, -15)}>
+          <span>좌회전</span>
+        </RotateLeftButton>
+
+        <FlipButton onClick={() => gameRef.current && flipViewport(gameRef.current.graphics.viewport)}>
+          <span>좌우대칭</span>
+        </FlipButton>
+
+        <FogButton onClick={() => gameRef.current && addFog(gameRef.current)}>
+          <span>안개</span>
+        </FogButton>
+        <BombButton onClick={() => gameRef.current && spawnBomb(gameRef.current, 150, 100)}>
+          <span>폭탄</span>
+        </BombButton>
+      </ButtonContainer>
       <UserNickName>{nickname}</UserNickName>
       <Score> Score: {playerScore} </Score>
         <Video ref={videoRef} autoPlay/>

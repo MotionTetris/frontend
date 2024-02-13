@@ -6,7 +6,6 @@ const defeatSound = new Audio('src/assets/sound/Tetris_Defeat2.wav');
 const ingameSound = new Audio('src/assets/sound/Tetris_Ingame2.wav');
 const loadingSound = new Audio('src/assets/sound/Tetris_Loading2.wav');
 const landingSound = new Audio('src/assets/sound/Tetris_Dusted.wav');
-const bombExplodeSound = new Audio('src/assets/sound/Tetris_ExplodeBomb.wav');
 const bombSpawnSound = new Audio('src/assets/sound/Tetris_SpawnBomb.wav');
 const gameEndSound = new Audio('src/assets/sound/Tetris_GameEnd.wav');
 const flipSound = new Audio('src/assets/sound/Tetris_Flip.wav');
@@ -72,9 +71,11 @@ export function playFlipSound() {
     }
 }
 export function playBombExplodeSound() {
-    if (bombExplodeSound) {
-        bombExplodeSound.play();
-    }
+    const bombExplodeSound = new Audio('src/assets/sound/Tetris_ExplodeBomb.wav');
+    // bombExplodeSound.pause();
+    // bombExplodeSound.currentTime = 0;
+    bombExplodeSound.play();
+    
 }
 
 export function playBombSpawnSound() {
