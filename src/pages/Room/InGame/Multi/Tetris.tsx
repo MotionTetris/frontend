@@ -34,6 +34,10 @@ const Tetris: React.FC = () => {
   const [playerScore, setPlayerScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const [nickname, setNickname] = useState("");
+  const scoreTexts = useRef(
+    Array.from({ length: 21 }, () => new PIXI.Text('0', {fontFamily: 'Arial', fontSize: 24, fill: '#ffffff'}))
+  );
+  const lineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
   const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
   const [otherPlayers, setOtherPlayers] = useState<string[]>([]);
   const [user, setUser] = useState<string>('')
@@ -80,10 +84,6 @@ const Tetris: React.FC = () => {
     }
   },[])
 
-  const scoreTexts = useRef(
-    Array.from({ length: 21 }, () => new PIXI.Text('0', {fontFamily: 'Arial', fontSize: 24, fill: '#ffffff'}))
-  );
-  const lineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
   
 
   useEffect(() => {
@@ -161,13 +161,6 @@ const Tetris: React.FC = () => {
       }
       const checkResult = game.checkLine(eraseThreshold);
       createScoreBasedGrid(lineGrids, checkResult.scoreList, eraseThreshold);
-      
-      scoreTexts.current.forEach((text) => {
-        if (game.graphics.viewport.children.includes(text)) {
-          game.graphics.viewport.removeChild(text);
-        }
-      });
-
       showScore(checkResult.scoreList, scoreTexts.current, eraseThreshold);
     }
 

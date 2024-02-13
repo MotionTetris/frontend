@@ -9,6 +9,9 @@ const landingSound = new Audio('src/assets/sound/Tetris_Dusted.wav');
 const bombSpawnSound = new Audio('src/assets/sound/Tetris_SpawnBomb.wav');
 const gameEndSound = new Audio('src/assets/sound/Tetris_GameEnd.wav');
 const flipSound = new Audio('src/assets/sound/Tetris_Flip.wav');
+const rotateItemSound = new Audio('src/assets/sound/Tetris_Rotate.wav');
+const fogSound = new Audio('src/assets/sound/Tetris_Fog.wav');
+const blockRotateSound = new Audio('src/assets/sound/Block_Rotate.wav');
 export function playSingleComboSound() {
     if (singleComboSound) {
         singleComboSound.play();
@@ -72,14 +75,30 @@ export function playFlipSound() {
 }
 export function playBombExplodeSound() {
     const bombExplodeSound = new Audio('src/assets/sound/Tetris_ExplodeBomb.wav');
-    // bombExplodeSound.pause();
-    // bombExplodeSound.currentTime = 0;
     bombExplodeSound.play();
     
 }
 
 export function playBombSpawnSound() {
     if (bombSpawnSound) {
-        bombSpawnSound.play()
+        bombSpawnSound.play();
+    }
+}
+
+export function playRotateSound() {
+    if (rotateItemSound) {
+        rotateItemSound.play();
+    }
+}
+
+export function playFogSound() {
+    if (fogSound) {
+        fogSound.play();
+    }
+}
+
+export function playBlockRotateSound() {
+    if (blockRotateSound) {
+        blockRotateSound.play();
     }
 }

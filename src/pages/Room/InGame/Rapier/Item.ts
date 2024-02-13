@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import RAPIER from "@dimforge/rapier2d";
-import { playBombSpawnSound, playFlipSound } from "./Sound";
+import { playBombSpawnSound, playFlipSound, playFogSound, playRotateSound } from "./Sound";
 import { TetrisGame } from "./TetrisGame";
 import { Viewport } from "pixi-viewport";
 import * as particles from '@pixi/particle-emitter'
@@ -35,35 +35,47 @@ export function getRandomItem(game: TetrisGame) {
     return randomURL;
 }
 
-
 export function spawnBomb(game: TetrisGame, x: number, y: number): number {
     playBombSpawnSound();
-    let radius = 50;
+    let radius = 100;
     let rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
     let rigidBody = game.world?.createRigidBody(rigidBodyDesc);
     rigidBody!.userData = {type: 'bomb'};
-    let colliderDesc = RAPIER.ColliderDesc.ball(radius).setMass(100000);
+    let colliderDesc = RAPIER.ColliderDesc.ball(radius).setMass(10000);
     let collider = game.world?.createCollider(colliderDesc, rigidBody);
-    let graphics = new PIXI.Graphics();  
-    graphics.beginFill(0xFF0000); // 빨간색
-    graphics.drawCircle(0, 0, radius);
-    graphics.endFill();
-    game.graphics.viewport.addChild(graphics);
-    game.graphics.coll2gfx.set(collider!.handle, graphics);
+    
+    let bombSprite : PIXI.Sprite;
+    let bombTexture = PIXI.Loader.shared.resources['src/assets/items/Bomb.png']?.texture;
+    if (!bombTexture) {
+        PIXI.Loader.shared.add('src/assets/items/Bomb.png').load((loader, resources) => {
+            bombTexture = resources['src/assets/items/Bomb.png'].texture;
+            createSprite(bombTexture!);
+        });
+    } else {
+        createSprite(bombTexture);
+    }
 
-    setTimeout(() => {
-      //game.world!.removeCollider(collider!, false);
-    rigidBody?.setTranslation({x: -10000, y: 0}, false);
-    game.graphics.viewport.removeChild(graphics);
-    game.graphics.coll2gfx.delete(collider!.handle);
-    }, 5000);  
+    function createSprite(texture: PIXI.Texture) {
+        bombSprite = new PIXI.Sprite(texture);
+        bombSprite.anchor.set(0.5, 0.5);
+        const scale = radius * 2 / Math.max(texture.width, texture.height);
+        bombSprite.scale.set(scale, scale);
+        game.graphics.viewport.addChild(bombSprite);
+        game.graphics.coll2gfx.set(collider!.handle, bombSprite);
+        setTimeout(() => {
+            rigidBody?.setTranslation({x: -10000, y: 0}, false);
+            game.graphics.viewport.removeChild(bombSprite);
+            game.graphics.coll2gfx.delete(collider!.handle);
+        }, 5000);  
+    }
+
     return collider!.handle;
-
 }
 
 
+
 export function rotateViewport(viewport: Viewport, degree: number) {
-    console.log("original", viewport.x);
+    playRotateSound();
     const angleInRadians = degree * (Math.PI / 180);
     viewport.rotation = angleInRadians;
     viewport.scale.x *= 0.8;
@@ -75,7 +87,7 @@ export function rotateViewport(viewport: Viewport, degree: number) {
     {
         viewport.x += 200;
     }
-    // 5초 후에 resetRotateViewport 함수 호출
+    
     setTimeout(() => {
         resetRotateViewport(viewport);
     }, 5000);
@@ -106,6 +118,7 @@ export function resetFlipViewport(viewport: Viewport) {
 
 
 export function addFog(game: TetrisGame) {
+  playFogSound();
   var emitter = new particles.Emitter(
     game.graphics.viewport,
 
