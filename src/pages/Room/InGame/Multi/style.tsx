@@ -77,8 +77,8 @@ export const Container = styled.div`
 `;
 export const UserNickName = styled.div`
   position: absolute;
-  top: -163px;
-  left: 352px;
+  top: -104px;
+  left: 355px;
   transform: translate(-50%, -50%);
   width: 260px;
   height: 20px;
@@ -96,8 +96,8 @@ export const UserNickName = styled.div`
 
 export const Score = styled.div`
   position: absolute;
-  top: -101px;
-  left: 352px;
+  top: -42px;
+  left: 355px;
   transform: translate(-50%, -50%);
   width: 259px;
   height: 59px;
@@ -142,35 +142,35 @@ export const SceneCanvas = styled.canvas`
   height: 800px;
   position: absolute;
   top: ${({ id }) => (id === 'otherGame' ? '100px' : '100px')};
-  left: ${({ id }) => (id === 'otherGame' ? '-10px' : '70px')};
+  left: ${({ id }) => (id === 'otherGame' ? '-30px' : '110px')};
 `;
 
 export const VideoContainer = styled.div`
   position: absolute;
-  top: 280px;
-  left: 660px;
-  width: 500px;
-  height: 618px;
+  top: 228px;
+  left: 710px;
+  width: 503px;
+  height: 668px;
   border: 2px solid black;
   background-color: white;
   `;
 
 export const Video = styled.video`
   position: absolute;
-  top: 20%;
+  top: 0%;
   left: 0vw;
   width: 100%;
-  height: 80%;
+  height: 100%;
   transform: scaleX(-1);
   object-fit: cover;
 `;
 
 export const VideoCanvas = styled.canvas`
   position: absolute;
-  top: 20%;
+  top: 0%;
   left: 0vw;
   width: 100%;
-  height: 80%;
+  height: 100%;
   object-fit: cover;
 `;
 
@@ -255,8 +255,8 @@ export const GoLobbyButton = styled.button`
 
 export const TetrisNextBlockContainer = styled.div`
 position: relative;
-top: 90px;
-left: 552px;
+top: 97px;
+left: 602px;
 display: flex;
 flex-direction: column;
 align-items: center;
@@ -268,7 +268,7 @@ export const TextContainer = styled.div`
   position: absolute;
   top: 0;
   left: 100px;
-  width: 200px;
+  width: 202px;
   background: #212121;
   display: flex;
   justify-content: center;
@@ -294,7 +294,7 @@ export const NextBlockImage = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 40px;
-  width: 200px;
+  width: 203px;
   height: 20%;
   border: 2px solid black;
   background: white;
@@ -320,4 +320,36 @@ export const OtherNickName = styled.div`
   align-items: center;
   font-size: 20px;
   font-weight: bold;
+`;
+
+export const CardContainer = styled.div`
+  position: absolute;
+  top: 200px;
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+  z-index: 50;
+`;
+
+export const Card = styled.div`
+  width: 400px;
+  height: 600px;
+  margin: 0 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+  transition: opacity 1s ease-in-out;
+  z-index: 50;
+  &:focus {
+    box-shadow: 0 0 20px rgba(0, 0, 255, 0.8);
+  }
+`;
+
+export const StyledImage = styled.img`
+  width: 270px;
+  height: 270px;
 `;

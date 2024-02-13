@@ -81,7 +81,7 @@ const Header: React.FC = () => {
             to="/gamedashboard"
             image="src/assets/DashBoard.png"
           >
-            대시보드
+            랭킹
           </HeaderStyledLink>
         </HeaderStyledLinkContainer>
       </HeaderContainer>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName,  } from "./style.tsx"
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, StyledImage,  } from "./style.tsx"
 import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage} from "../Rapier/Effect.ts";
 import * as io from 'socket.io-client';
 import * as PIXI from "pixi.js";
@@ -16,7 +16,7 @@ import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
 import { jwtDecode } from "jwt-decode";
 import { useSelector } from 'react-redux';
 import { RootState } from "@app/store";
-import { GAME_SOCKET_URL } from "@src/config";
+import { BOMB_URL, FLIP_URL, FOG_URL, GAME_SOCKET_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL } from "@src/config";
 import { addFog, flipViewport, resetFlipViewport, resetRotateViewport, rotateViewport, spawnBomb } from "../Rapier/Item.ts";
 
 const eraseThreshold = 8000;
@@ -38,6 +38,8 @@ const Tetris: React.FC = () => {
   const [otherPlayers, setOtherPlayers] = useState<string[]>([]);
   const [user, setUser] = useState<string>('')
   const [other, setOther] = useState<string>('')
+  const [showCardSelection, setShowCardSelection] = useState(false);
+  const [selectedCardIndex, setSelectedCardIndex] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -100,6 +102,10 @@ const Tetris: React.FC = () => {
       return;
     }
     
+    if (!!!otherSceneRef.current) {
+      return;
+    }
+
     sceneRef.current.width = 600;
     sceneRef.current.height = 800;
     otherSceneRef.current.width = 600;
@@ -116,6 +122,7 @@ const Tetris: React.FC = () => {
         explodeBomb(game, bodyA, bodyB, ver);
     }
   }
+
   
   const CollisionEvent1 = ({game, bodyA, bodyB}: any) => {
     let collisionX = game.getTetrominoFromHandle(bodyA.parent().handle).userData.type;
@@ -184,7 +191,7 @@ const Tetris: React.FC = () => {
       backgroundColor: 0x222929,
       backgroundAlpha: 0
     };
-    
+    //game.pause; game.resume settimeout 30초로 주기적으로 주면서 card 생성
     const game = new TetrisGame(TetrisOption, "user");
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
@@ -270,6 +277,40 @@ const Tetris: React.FC = () => {
     clearInterval(id);
   }}, []);
 
+  const itemImages = [
+    <StyledImage src={ROTATE_RIGHT_URL}/>,
+    <StyledImage src={ROTATE_LEFT_URL}/>,
+    <StyledImage src={FLIP_URL}/>,
+    <StyledImage src={FOG_URL}/>,
+    <StyledImage src={BOMB_URL}/>,
+  ];
+  
+  let items = [
+    "ROTATE_RIGHT", "ROTATE_LEFT", "FLIP", "FOG", "BOMB"
+  ]
+  // 버튼들을 랜덤하게 섞는 함수
+  const shuffleImage = (array: any) => {
+    let currentIndex = array.length, randomIndex;
+  
+    // 배열이 남아있는 동안 반복
+    while (currentIndex !== 0) {
+  
+      // 남은 요소 중에서 하나를 랜덤하게 선택
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+  
+      // 선택한 요소와 현재 요소를 교환
+      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+      [items[currentIndex], items[randomIndex]] = [items[randomIndex], items[currentIndex]];
+    }
+    return array;
+  };
+
+  const shuffledImages = shuffleImage([...itemImages]);
+  const itemMap = new Map<string, string>();
+  itemMap.set("item1", items[0]);
+  itemMap.set("item2", items[1]);
+  itemMap.set("item3", items[2]);
   return (<>
     <Container>
       <SceneContainer>
@@ -282,23 +323,12 @@ const Tetris: React.FC = () => {
         </TextContainer>
         <NextBlockImage><img src={getNextBlockImage(nextBlock)} /></NextBlockImage>
       </TetrisNextBlockContainer>
+      {/* <CardContainer>
+      <Card tabIndex={1} id="item1">{shuffledImages[0]}</Card>
+      <Card tabIndex={2} id="item2">{shuffledImages[1]}</Card>
+      <Card tabIndex={3} id="item3">{shuffledImages[2]}</Card>
+    </CardContainer> */}
       <VideoContainer>
-        <ButtonContainer>
-        <RotateRightButton onClick={() => gameRef.current && rotateViewport(gameRef.current.graphics.viewport, 15)}>
-        </RotateRightButton>
-        <RotateLeftButton onClick={() => gameRef.current && rotateViewport(gameRef.current.graphics.viewport, -15)}>
-        </RotateLeftButton>
-        <ResetRotationButton onClick={() => gameRef.current && resetRotateViewport(gameRef.current.graphics.viewport)}>
-        </ResetRotationButton>
-        <FlipButton onClick={() => gameRef.current && flipViewport(gameRef.current.graphics.viewport)}>
-        </FlipButton>
-        <ResetFlipButton onClick={() => gameRef.current && resetFlipViewport(gameRef.current.graphics.viewport)}>
-        </ResetFlipButton>
-        <FogButton onClick={() => gameRef.current && addFog(gameRef.current)}>
-        </FogButton>
-        <BombButton onClick={() => gameRef.current && spawnBomb(gameRef.current, 150, 100)}>
-        </BombButton>
-        </ButtonContainer>
         <UserNickName>{nickname}</UserNickName>
         <Score> Score: {playerScore} </Score>
         <Video ref={videoRef} autoPlay/>
@@ -311,7 +341,6 @@ const Tetris: React.FC = () => {
         <GoLobbyButton id="go-home" onClick={() => window.location.href = '/'}>홈으로 이동하기</GoLobbyButton>
       </GameOverModal> */}
 
-      
 <MultiplayContainer>
 <SceneCanvas id="otherGame" ref={otherSceneRef} />
 {Array.from(otherNicknames).map((nickname, index) => (

@@ -2,16 +2,16 @@
 import styled from "styled-components";
 
 export const BannerContainer = styled.div`
+  position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 70vw;
   height: 60vh;
-  right: 10vw;
-  top: 10vh;
+  right: 14vw;
+  top: 0vh;
   margin-top: calc((100vh - 100px - 280px - 20vh) / 2);
   margin-bottom: calc((100vh - 100px - 280px - 20vh) / 2);
-  position: relative;
   border-radius: 2vw;
   box-shadow: 0 2vw 4vw rgba(0, 0, 0, 0.1);
   overflow: hidden;
