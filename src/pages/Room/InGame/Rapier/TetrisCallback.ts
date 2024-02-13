@@ -2,7 +2,7 @@ import { Socket } from "socket.io-client";
 import { changeBlockGlow, collisionParticleEffect, fallingBlockGlow, handleComboEffect, lightEffectToLine, loadStarImage, performPushEffect, starParticleEffect } from "./Effect";
 import { KeyPointCallback, KeyPoint } from "./PostNet";
 import { TetrisGame } from "./TetrisGame";
-import { playDefeatSound, playExplodeSound, playLandingSound, stopIngameSound } from "./Sound";
+import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, stopIngameSound } from "./Sound";
 import * as PIXI from "pixi.js";
 import { BlockType, BlockTypeList } from "./Tetromino";
 import { showGameOverModal } from "./Effect";
@@ -11,11 +11,13 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
     let nextColorIndex = 0;
     let eventCallback: KeyPointCallback = {
         onRotateLeft: function (keypoints: Map<string, KeyPoint>): void {
+            playBlockRotateSound();
             nextColorIndex = changeBlockGlow(game.fallingTetromino!, nextColorIndex);
             let event = game.onRotateLeft();
             socket?.emit('eventOn', event);
         },
         onRotateRight: function (keypoints: Map<string, KeyPoint>): void {
+            playBlockRotateSound();
             nextColorIndex = changeBlockGlow(game.fallingTetromino!, nextColorIndex);
             const event = game.onRotateRight();
             socket?.emit('eventOn', event);
@@ -61,7 +63,7 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
     return ({ game, bodyA, bodyB }: any) => {
         
         playLandingSound();
-        if (bodyA.parent()?.userData.type != 'bomb' && bodyB.parent()?.userData.type!= 'bomb' && bodyA.translation().y > 0 && bodyB.translation().y > 0) {
+        if (bodyA.parent()?.userData.type == 'block' && bodyB.parent()?.userData.type == 'block' && bodyA.translation().y > 0 && bodyB.translation().y > 0) {
             stopIngameSound();
             playDefeatSound();
             setMessage("게임오버");

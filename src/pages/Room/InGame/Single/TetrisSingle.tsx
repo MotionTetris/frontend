@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer, TetrisNextBlock, TetrisNextBlockImage, ItemContainer, ItemImage,  } from "./style.tsx";
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer, TetrisNextBlock, TetrisNextBlockImage, ItemContainer, ItemImage, TetrisNextBlockContainer, TextContainer, NextBlockText, NextBlockImage,  } from "./style.tsx";
 import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage} from "../Rapier/Effect.ts";
 import { rotateViewport, resetRotateViewport, spawnBomb, flipViewport, resetFlipViewport, addFog, getRandomItem, } from "../Rapier/Item.ts";
 import * as PIXI from "pixi.js";
@@ -182,38 +182,31 @@ const TetrisSingle: React.FC = () => {
         <MessageDiv>  {message} </MessageDiv>
         <SceneCanvas id="game" ref={sceneRef}></SceneCanvas>
       </SceneContainer>
-      <TetrisNextBlock>
-        다음 블록은~?
-        <TetrisNextBlockImage src={getNextBlockImage(nextBlock)} />
-      </TetrisNextBlock>
-      <ItemContainer>
-        현재 아이템
-        <ItemImage src= {item}/> 
-      </ItemContainer>
-
+      <TetrisNextBlockContainer>
+        <TextContainer>
+        <NextBlockText>NEXT BLOCK</NextBlockText>
+        </TextContainer>
+        <NextBlockImage><img src={getNextBlockImage(nextBlock)} /></NextBlockImage>
+      </TetrisNextBlockContainer>
       <VideoContainer>
-      <ButtonContainer>
-        여기는 디버깅용~
+        <ButtonContainer>
         <RotateRightButton onClick={() => gameRef.current && rotateViewport(gameRef.current.graphics.viewport, 15)}>
-          <span>우회전</span>
         </RotateRightButton>
         <RotateLeftButton onClick={() => gameRef.current && rotateViewport(gameRef.current.graphics.viewport, -15)}>
-          <span>좌회전</span>
         </RotateLeftButton>
-
+        <ResetRotationButton onClick={() => gameRef.current && resetRotateViewport(gameRef.current.graphics.viewport)}>
+        </ResetRotationButton>
         <FlipButton onClick={() => gameRef.current && flipViewport(gameRef.current.graphics.viewport)}>
-          <span>좌우대칭</span>
         </FlipButton>
-
+        <ResetFlipButton onClick={() => gameRef.current && resetFlipViewport(gameRef.current.graphics.viewport)}>
+        </ResetFlipButton>
         <FogButton onClick={() => gameRef.current && addFog(gameRef.current)}>
-          <span>안개</span>
         </FogButton>
         <BombButton onClick={() => gameRef.current && spawnBomb(gameRef.current, 150, 100)}>
-          <span>폭탄</span>
         </BombButton>
-      </ButtonContainer>
-      <UserNickName>{nickname}</UserNickName>
-      <Score> Score: {playerScore} </Score>
+        </ButtonContainer>
+        <UserNickName>{nickname}</UserNickName>
+        <Score> Score: {playerScore} </Score>
         <Video ref={videoRef} autoPlay/>
         <VideoCanvas ref={canvasRef}/>
       </VideoContainer>
@@ -221,7 +214,7 @@ const TetrisSingle: React.FC = () => {
 
       <GameOverModal visible={isGameOver}>
         <GameResult result="패배" score={playerScore} maxCombo={123} maxScore={456} />
-        <GoLobbyButton id="go-home" onClick={() => window.location.href = '/'}>홈으로 이동하기</GoLobbyButton>
+        <GoLobbyButton id="go-home" onClick={() => window.location.href = '/gameLobby'}>홈으로 이동하기</GoLobbyButton>
       </GameOverModal>
 
     </Container>

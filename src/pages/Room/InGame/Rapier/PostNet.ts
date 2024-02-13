@@ -148,11 +148,11 @@ export async function processPose(poseNet: PoseNet.PoseNet, video: HTMLVideoElem
     }
 
     if (leftAngleDelta > rightAngleDelta) {
-        if (leftAngleDelta > 35 && leftAngleInDegrees > prevResult.leftAngle && leftWristX < prevResult.leftWristX - 20) {
+        if (leftAngleDelta > 35 && leftAngleInDegrees > prevResult.leftAngle && leftWristX < prevResult.leftWristX - 10) {
             eventCallback.onRotateLeft(new Map());
         }
     } else {
-        if (rightAngleDelta > 35 && rightAngleInDegrees > prevResult.rightAngle && rightWristX - 20 > prevResult.rightWristX) {
+        if (rightAngleDelta > 35 && rightAngleInDegrees > prevResult.rightAngle && rightWristX - 10 > prevResult.rightWristX) {
             eventCallback.onRotateRight(new Map());
         }
     }

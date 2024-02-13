@@ -168,10 +168,7 @@ export function createRectangle(container: PIXI.Container, imagePath: string, wi
 
 
 export function performPushEffect(firstRectangle: PIXI.Sprite, secondRectangle: PIXI.Sprite, alpha: number, firstOriginal: number, secondOriginal: number) {
-  // 진행 중인 애니메이션 중단
   gsap.killTweensOf(secondRectangle.position);
-
-  // 두 번째 사각형의 위치를 원래 위치로 복원
   secondRectangle.x = secondOriginal;
 
   firstRectangle.alpha = 1;

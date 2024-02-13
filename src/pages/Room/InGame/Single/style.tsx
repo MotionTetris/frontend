@@ -1,10 +1,10 @@
-import styled from 'styled-components';
-import { BOMB_URL,FOG_URL,FLIP_URL,FLIP_NOT_URL,ROTATE_NOT_URL,ROTATE_LEFT_URL,ROTATE_RIGHT_URL } from "@src/config"
+import styled, { keyframes } from 'styled-components';
+import { BOMB_URL,FOG_URL,FLIP_URL,FLIP_NOT_URL,ROTATE_NOT_URL,ROTATE_LEFT_URL,ROTATE_RIGHT_URL } from "../../../../config"
 
 
 export const ButtonContainer = styled.div`
   position: absolute;
-  top: 10%;
+  top: -10%;
   height: 9.3%;
   width: 100%;
   display: flex;
@@ -25,30 +25,20 @@ const IconButtonBase = styled.button`
   justify-content: flex-end;
   align-items: center;
   flex-direction: column;
-  border: 2px solid #fff;
-  border-radius: 5px;
+  border: 5px solid #fff;
+  border-radius: 20px;
   width: 68px;
   height: 68px;
   cursor: pointer;
   position: relative;
   background-repeat: no-repeat;
-  background-position: center 20px;
-  background-size: 38px 38px;
+  background-position: center 8px;
+  background-size: 42px 42px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   scale: 0.6;
   &:hover {
     transform: scale(1.1);
     box-shadow: 0 0 12px #fff;
-  }
-
-  span {
-    position: absolute;
-    bottom: 78%;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 8px;
-    font-weight: 600;
-    color: black;
   }
 `;
 export const RotateRightButton = styled(IconButtonBase)`
@@ -85,44 +75,49 @@ export const Container = styled.div`
     justify-content: center;
     align-items: center;
 `;
-
 export const UserNickName = styled.div`
   position: absolute;
-  top: 1%;
-  left: 15%;
-  transform: translateX(-50%);
+  top: -163px;
+  left: 352px;
+  transform: translate(-50%, -50%);
+  width: 260px;
+  height: 20px;
   color: #FFF;
-  background: rgba(0, 0, 0, 0.7);
-  border: 2px solid #FFF;
-  border-radius: 10px;
+  background: #323232;
+  border-top: 2px solid black;
+  border-right: 2px solid black;
   padding: 10px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: 24px;
   font-weight: bold;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 `;
 
 export const Score = styled.div`
   position: absolute;
-  top: 1%;
-  right: 10%;
-  transform: translateX(-50%);
+  top: -101px;
+  left: 352px;
+  transform: translate(-50%, -50%);
+  width: 259px;
+  height: 59px;
   color: #FFF;
-  background: rgba(0, 0, 0, 0.7);
-  border: 2px solid #FFF;
-  border-radius: 10px;
+  background: #0D7377;
   padding: 10px 20px;
+  border-right: 2px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: 24px;
   font-weight: bold;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 `;
 
 export const SceneContainer = styled.div`
   top: 0%;
   left: 0%;
   width: 600px;
-  height: 800px;
+  height: 900px;
   position: absolute;
-  background: #4e9cad;
 `;
 
 export const PlayerContainer = styled.div`
@@ -140,30 +135,25 @@ export const MultiplayContainer = styled.div`
   width: 600px;
   height: 800px;
   position: absolute;
-  background: #423eee;
 `
 
 export const SceneCanvas = styled.canvas`
-    width: 600px;
-    height: 800px;
-    left: 0%;
-    top: 0%;
-    position: absolute;
+  width: 600px;
+  height: 800px;
+  position: absolute;
+  top: ${({ id }) => (id === 'otherGame' ? '100px' : '100px')};
+  left: ${({ id }) => (id === 'otherGame' ? '-10px' : '70px')};
 `;
-
 
 export const VideoContainer = styled.div`
   position: absolute;
-  top: 40%;
-  left: 42%;
-  width: 600px;
-  height: 450px;
+  top: 280px;
+  left: 660px;
+  width: 500px;
+  height: 618px;
   border: 2px solid black;
   background-color: white;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-`;
-
+  `;
 
 export const Video = styled.video`
   position: absolute;
@@ -219,15 +209,6 @@ export const  UserBackGround = styled.div`
   height: 100%;
 `;
 
-export const ModalMessage = styled.p`
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 80%;  
-  max-width: 800px; 
-  text-align: center;
-  font-size: 36px;
-`;
 
 
 interface GameResultProps {
@@ -236,15 +217,6 @@ interface GameResultProps {
   maxCombo: number;
   maxScore: number;
 }
-
-export const GameResult: React.FC<GameResultProps> = ({ result, score, maxCombo, maxScore }) => (
-  <ModalMessage id="modal-message">
-    게임 결과: {result}<br />
-    점수: {score}<br />
-    최대 콤보 수: {maxCombo}<br />
-    최대 득점량: {maxScore}
-  </ModalMessage>
-);
 
 
 export const GoLobbyButton = styled.button`
@@ -263,40 +235,112 @@ export const GoLobbyButton = styled.button`
   cursor: pointer;
 `;
 
-export const TetrisNextBlock = styled.div`
+export const TetrisNextBlockContainer = styled.div`
+position: relative;
+top: 90px;
+left: 552px;
+display: flex;
+flex-direction: column;
+align-items: center;
+width: 600px;
+height: 400px;
+`;
+
+export const TextContainer = styled.div`
   position: absolute;
-  top: 0%;
-  left: 45%;
-  width: 300px;
-  height: 200px;
+  top: 0;
+  left: 100px;
+  width: 200px;
+  background: #212121;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border: 2px solid black;
-  font-family: "DNFBitBitv2", sans-serif;
-  font-style: light;
-  font-weight: 100;
-  font-size: 20px;
-  color: lightblue;
-  background: #d71f1f;
+  height: 40px;
+  z-index: 1;
 `;
 
-export const TetrisNextBlockImage = styled.img`
-  object-fit: cover; // 이미지 비율을 유지하면서 채우기
-  margin-top: 10px; // 상단 여백
-`;
 
-export const ItemContainer = styled.div`
+
+export const NextBlockText = styled.div`
   position: absolute;
-  top: 28%;
-  left: 45%;
-  width: 380px;
-  height: 100px;
-  background: #c27005;
+  font-size: 20px;
+  color: white;
+  font-weight: bold;
+`;
+
+export const NextBlockImage = styled.div`
+  position: absolute;
+  top: 0px; // 상단 정렬
+  left: 100px; // 좌측 정렬
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+  width: 200px;
+  height: 20%;
+  border: 2px solid black;
+  background: white;
+  img {
+    margin-top: 10px;
+    width: 60px;
+    height: 60px;
+  }
+`;
+
+export const OtherNickName = styled.div`
+  position: absolute;
+  top:55px;
+  left:-10px;
+  width: 260px;
+  height: 20px;
+  color: #FFF;
+  background: #323232;
+  border: 2px solid black;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  font-weight: bold;
+`;
+
+const fadeIn = keyframes`
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+`;
+
+export const ModalMessage = styled.p`
+  background: linear-gradient(45deg, #000080 30%, #000000 90%); // 남색에서 검정으로 변하는 그라디언트 배경 적용
+  padding: 20px;
+  border-radius: 10px;
+  width: 80%;  
+  max-width: 800px; 
+  text-align: center;
+  font-size: 36px;
+  color: white; // 텍스트 색상은 흰색 유지
+  box-shadow: 0 3px 5px 2px rgba(0, 0, 128, .3); // 그림자 색상을 남색 계열로 변경
+  transition: all 0.3s ease-out;
+  animation: ${fadeIn} 1s ease-in;
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 8px 3px rgba(0, 0, 128, .3);
+  }
 `;
 
 
+interface GameResultProps {
+  result: string;
+  score: number;
+  maxCombo: number;
+  maxScore: number;
+}
 
+export const GameResult: React.FC<GameResultProps> = ({ result, score, maxCombo, maxScore }) => (
+  <ModalMessage id="modal-message">
+    게임 결과: {result}<br />
+    나의 점수: {score}<br />
+    나의 최대 콤보 수: {maxCombo}<br />
+    나의 최대 득점량: {maxScore}<br />
+  </ModalMessage>
+);
 
-
-export const ItemImage = styled.img`
-  width: 75px;
-  height: 75px;
-`
