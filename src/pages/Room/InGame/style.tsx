@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { BOMB_URL,FOG_URL,FLIP_URL,FLIP_NOT_URL,ROTATE_NOT_URL,ROTATE_LEFT_URL,ROTATE_RIGHT_URL } from "../../../config"
 
 
@@ -287,11 +287,16 @@ export const ItemContainer = styled.div`
   position: absolute;
   top: 28%;
   left: 45%;
-  width: 300px;
+  width: 380px;
   height: 100px;
-  background: #dfdafe
+  background: #c27005;
 `;
 
-export const ItemImage = styled.img`
 
+
+
+
+export const ItemImage = styled.img`
+  width: 75px;
+  height: 75px;
 `

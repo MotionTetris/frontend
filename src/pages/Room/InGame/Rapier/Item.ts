@@ -12,6 +12,26 @@ export function getRandomItem(game: TetrisGame) {
     const randomIndex = Math.floor(Math.random() * itemImage.length);
     const randomURL = itemImage[randomIndex];
     
+    switch(randomIndex) {
+        case 0:
+            spawnBomb(game, 300, 0 );
+            break;
+        case 1:
+            addFog(game);
+            break;
+        case 2:
+            flipViewport(game.graphics.viewport);
+            break;
+        case 3:
+            rotateViewport(game.graphics.viewport, 15);
+            break;
+        case 4:
+            rotateViewport(game.graphics.viewport, -15);
+            break;
+        default:
+            console.log('Invalid index');
+    }
+
     return randomURL;
 }
 
@@ -33,7 +53,7 @@ export function spawnBomb(game: TetrisGame, x: number, y: number): number {
 
     setTimeout(() => {
       //game.world!.removeCollider(collider!, false);
-    rigidBody?.setTranslation({x: 10000, y: 0}, false);
+    rigidBody?.setTranslation({x: -10000, y: 0}, false);
     game.graphics.viewport.removeChild(graphics);
     game.graphics.coll2gfx.delete(collider!.handle);
     }, 5000);  
@@ -91,8 +111,8 @@ export function addFog(game: TetrisGame) {
 
     {
         lifetime: {
-            min: 1,
-            max: 2
+            min: 3,
+            max: 6
         },
         frequency: 0.008,
         spawnChance: 1,
@@ -145,11 +165,11 @@ export function addFog(game: TetrisGame) {
                     speed: {
                         list: [
                             {
-                                value: 200,
+                                value: 100,
                                 time: 0
                             },
                             {
-                                value: 100,
+                                value: 50,
                                 time: 1
                             }
                         ],

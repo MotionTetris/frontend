@@ -433,8 +433,8 @@ export function explodeBomb(game: TetrisGame, bodyA: RAPIER.Collider, bodyB: RAP
   let rigidBodyHandle = (ver ? bodyA : bodyB).parent()?.handle;
   let rigidBody = game.world!.getRigidBody(rigidBodyHandle!);
   rigidBody.setTranslation({x: 10000, y: 0}, false);
+  playBombExplodeSound();
   loadExplosionImage().then((explodeTexture: PIXI.Texture) => {
-    playBombExplodeSound();
     createExplosion(game.graphics.viewport, explodeTexture, explosionPoint.x, explosionPoint.y);
     const graphics = game.graphics.coll2gfx.get((ver ? bodyA : bodyB).handle);
     if (graphics) {

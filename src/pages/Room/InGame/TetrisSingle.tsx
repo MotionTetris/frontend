@@ -15,7 +15,7 @@ import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } 
 import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "./Rapier/TetrisCallback";
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles";
 import { jwtDecode } from "jwt-decode";
-import { BOMB_URL,FOG_URL,FLIP_URL,FLIP_NOT_URL,ROTATE_NOT_URL,ROTATE_LEFT_URL,ROTATE_RIGHT_URL } from "../../../config"
+import { BOMB_URL,FOG_URL,FLIP_URL,ROTATE_LEFT_URL,ROTATE_RIGHT_URL } from "../../../config"
 
 const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
@@ -70,13 +70,12 @@ const TetrisSingle: React.FC = () => {
       
       let collisionX = bodyA.parent()?.userData.type;
       let collisionY = bodyB.parent()?.userData.type;
-
+      
       if ((collisionX === 'bomb' || collisionY === 'bomb') && 
         collisionX !== 'ground' && collisionY !== 'ground' && 
         collisionX !=='left_wall' && collisionY !=='left_wall' && 
         collisionX !=='right_wall' && collisionY !=='right_wall') {
         let ver = (collisionX === 'bomb') ? 0 : 1;
-        console.log("폭탄맞음");
         explodeBomb(game, bodyA, bodyB, ver);
     }
   }
@@ -96,9 +95,9 @@ const TetrisSingle: React.FC = () => {
       if (step % 15 != 0) {
         return;
       }
-      if (step!=0 && step % 300 == 0) {
+      if (step!=0 && step % 600 == 0) {
         console.log("아이템", step);
-        //setItem(getRandomItem(gameRef.current!));
+        setItem(getRandomItem(gameRef.current!));
       }
       const checkResult = game.checkLine(eraseThreshold);
       createScoreBasedGrid(lineGrids, checkResult.scoreList, eraseThreshold);
@@ -188,7 +187,8 @@ const TetrisSingle: React.FC = () => {
         <TetrisNextBlockImage src={getNextBlockImage(nextBlock)} />
       </TetrisNextBlock>
       <ItemContainer>
-        <ItemImage src= {BOMB_URL}/> 
+        현재 아이템
+        <ItemImage src= {item}/> 
       </ItemContainer>
 
       <VideoContainer>

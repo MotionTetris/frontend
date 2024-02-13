@@ -28,7 +28,7 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
             }
             let alpha = (nose.x - centerX) / 300;
             let forceMagnitude = Math.abs(nose.x - centerX) / (centerX);
-            //performPushEffect(game.graphics.rectangles[0], game.graphics.rectangles[1], alpha, 80, 470);
+            performPushEffect(game.graphics.rectangles[0], game.graphics.rectangles[1], alpha, 80, 470);
             const event = game.onMoveLeft(forceMagnitude);
             socket?.emit('eventOn', event);
         },
@@ -40,7 +40,7 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
             }
             let alpha = (nose.x - centerX) / 300;
             let forceMagnitude = Math.abs(nose.x - centerX) / (centerX);
-            //performPushEffect(game.graphics.rectangles[1], game.graphics.rectangles[0], alpha, 470, 80);
+            performPushEffect(game.graphics.rectangles[1], game.graphics.rectangles[0], alpha, 470, 80);
             const event = game.onMoveRight(forceMagnitude);
             socket?.emit('eventOn', event);
         }
@@ -60,10 +60,8 @@ export function createBlockSpawnEvent(socket?: Socket, setNextBlock?: any) {
 export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsGameOver: (isGameOver: boolean)=>void) {
     return ({ game, bodyA, bodyB }: any) => {
         
-        let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
-        let collisionY = (bodyA.translation().y + bodyB.translation().y) / 2;
         playLandingSound();
-        if (bodyA.translation().y > 0 && bodyB.translation().y > 0) {
+        if (bodyA.parent()?.userData.type != 'bomb' && bodyB.parent()?.userData.type!= 'bomb' && bodyA.translation().y > 0 && bodyB.translation().y > 0) {
             stopIngameSound();
             playDefeatSound();
             setMessage("게임오버");
