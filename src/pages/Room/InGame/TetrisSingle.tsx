@@ -13,7 +13,7 @@ import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } 
 import { PoseNet } from "@tensorflow-models/posenet";
 import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "./Rapier/PostNet";
 import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "./Rapier/TetrisCallback";
-import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
+import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles";
 import { jwtDecode } from "jwt-decode";
 import { BOMB_URL,FOG_URL,FLIP_URL,FLIP_NOT_URL,ROTATE_NOT_URL,ROTATE_LEFT_URL,ROTATE_RIGHT_URL } from "../../../config"
 
@@ -68,8 +68,8 @@ const TetrisSingle: React.FC = () => {
     sceneRef.current.height = 800;
     const CollisionEvent = ({game, bodyA, bodyB}: any) => {
       
-      let collisionX = game.getTetrominoFromHandle(bodyA.parent().handle).userData.type;
-      let collisionY = game.getTetrominoFromHandle(bodyB.parent().handle).userData.type;
+      let collisionX = bodyA.parent()?.userData.type;
+      let collisionY = bodyB.parent()?.userData.type;
 
       if ((collisionX === 'bomb' || collisionY === 'bomb') && 
         collisionX !== 'ground' && collisionY !== 'ground' && 
