@@ -171,6 +171,7 @@ export const Video = styled.video`
   left: 0vw;
   width: 100%;
   height: 80%;
+  transform: scaleX(-1);
   object-fit: cover;
 `;
 
