@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { userChangePasswordAPI, userByeAPI } from "@api/user";
 import {ByeButton,ProfileHeader,ProfileChange, GameDashboardContainer, Button, Input, FormContainer } from "./styles";
 import {Circle, BackgroundColor1, Span, BackgroundColor2, BackgroundColor3} from "@src/BGstyles"
+import { removeToken } from "@src/data-store/token";
+import { useNavigate } from "react-router-dom";
 
 const GameDashboard = () => {
   const [activePath] = useState("/gamedashboard");
   const [nickname, setNickname] = useState("");
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const navigate = useNavigate();
 
   const handlePasswordChange = async () => {
     try {
@@ -33,6 +36,10 @@ const GameDashboard = () => {
     }
   };
 
+  const handleLogout = async () => {
+    removeToken();
+    navigate('/', {replace: true});
+  }
 return (
     <GameDashboardContainer>
       <ProfileHeader>비밀번호 변경</ProfileHeader>
@@ -62,6 +69,7 @@ return (
         >
           비밀번호 변경
         </Button>
+        <Button onClick={handleLogout}>로그아웃</Button>
         <ByeButton onClick={handleUserBye}>회원 탈퇴</ByeButton>
       </FormContainer>
     </GameDashboardContainer>

@@ -13,6 +13,8 @@ export interface TetrisOption {
     preBlockLandingCallback?: (result: BlockCollisionCallbackParam) => void;
     stepCallback?: (game: TetrisGame, currentStep: number) => void;
     blockSpawnCallback?: (game: TetrisGame, blockType: BlockType, blockColor: number, nextBlockType: BlockType, nextBlockColor: number) => void;
+    enginePauseCallback?: (game: TetrisGame) => void;
+    engineResumeCallback?: (game: TetrisGame) => void;
     wallColor?: number;
     wallAlpha?: number;
     backgroundColor?: number;

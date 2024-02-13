@@ -94,6 +94,10 @@ export class TetrisMultiplayView extends TetrisGame {
                     console.debug(`turn_left at ${this.stepId}, desired keyframe: ${event.keyframe}`);
                     this.onRotateRight();
                     break;
+                case PlayerEventType.BLOCK_SPAWNED:
+                    console.log("받음", event?.userData);
+                    this.spawnBlock(0xFF0000, event?.userData, true);
+                    break;
                 default:
                     console.debug(`undefined evnet at ${this.stepId}, desired keyframe: ${event.keyframe}`);
             }
