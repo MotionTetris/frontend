@@ -24,7 +24,10 @@ export enum PlayerEventType {
     MOVE_RIGHT = 1,
     TURN_LEFT = 2,
     TURN_RIGHT = 3,
-    BLOCK_SPAWNED = 4
+    BLOCK_SPAWNED = 4,
+    ENGINE_PAUSE = 5,
+    ENGINE_RESUME = 6,
+    ITEM_USED = 7,
 }
 
 export class MultiPlayerContext {

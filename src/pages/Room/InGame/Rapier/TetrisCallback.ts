@@ -51,13 +51,13 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
 export function createBlockSpawnEvent(socket?: Socket, setNextBlock?: any) {
     return (game: TetrisGame, blockType: BlockType, blockColor: number, nextBlockType: BlockType, nextBlockColor: number) => {
         let event = game.onBlockSpawned(blockType, blockColor, nextBlockType, nextBlockColor);
-        console.log(blockType, nextBlockType);
+        event.userData = blockType;
         setNextBlock(nextBlockType);
         socket?.emit('eventOn', event);   
     }
 }
 
-export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsGameOver: (isGameOver: boolean)=>void) {
+export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsGameOver: (isGameOver: boolean)=>void, needSpawn: boolean) {
     return ({ game, bodyA, bodyB }: any) => {
         
         let collisionX = (bodyA.translation().x + bodyB.translation().x) / 2;
@@ -105,7 +105,9 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
         }
         let blockToSpawn = game.nextBlock;
         
-        game.spawnBlock(0xFF0000, blockToSpawn, true);
-        fallingBlockGlow(game.fallingTetromino!);
+        if (needSpawn) {
+            game.spawnBlock(0xFF0000, blockToSpawn, true);
+            fallingBlockGlow(game.fallingTetromino!);
+        }
     }
 }

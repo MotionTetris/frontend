@@ -24,7 +24,7 @@ export class TetrisGame {
     snapTetrominos?: Map<number, Tetromino>;
     fallingTetromino?: Tetromino;
     lines: Line[];
-    protected sequence: number;
+    sequence: number;
     protected userId: string;
     running: boolean;
     private removeBodies: Array<RAPIER.RigidBody>;
@@ -191,10 +191,17 @@ export class TetrisGame {
 
     public pause() {
         this.running = false;
+        if (this.option.enginePauseCallback) {
+            this.option.enginePauseCallback(this);
+        }
     }
 
     public resume() {
         this.running = true;
+        if (this.option.engineResumeCallback) {
+            this.option.engineResumeCallback(this);
+        }
+        
         requestAnimationFrame((time) => this.run(time));
     }
 
@@ -242,6 +249,7 @@ export class TetrisGame {
 
         if (this.option.blockSpawnCallback) {
             this.option.blockSpawnCallback(this, blockType, 0, this._nextBlock!, this.nextBlockColor);
+            console.log("blockType", blockType);
         }
 
         return newBody;

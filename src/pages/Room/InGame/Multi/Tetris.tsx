@@ -143,9 +143,9 @@ const Tetris: React.FC = () => {
       removeGlowWithDelay(game.fallingTetromino);
     }
 
-    const LandingEvent = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore, setIsGameOver);
+    const LandingEvent = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore, setIsGameOver, true);
 
-    const LandingEvent1 = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore, setIsGameOver);
+    const LandingEvent1 = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore, setIsGameOver, false);
 
     const StepCallback = (game: TetrisGame, step: number) => {
       if (step % 15 != 0) {
@@ -175,7 +175,7 @@ const Tetris: React.FC = () => {
       blockLandingCallback: LandingEvent,
       preBlockLandingCallback: preLandingEvent,
       stepCallback: StepCallback,
-      blockSpawnCallback: createBlockSpawnEvent(undefined, setNextBlock),
+      blockSpawnCallback: createBlockSpawnEvent(socket.current, setNextBlock),
       worldHeight: 800,
       worldWidth: 600,
       wallColor: 0xFF0000,
@@ -188,15 +188,13 @@ const Tetris: React.FC = () => {
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
     game.running = true;
-    game.spawnBlock(0xFF0000, "T", true);
-    fallingBlockGlow(game.fallingTetromino!);
-    
-    const otherGameOption = {
+  
+    const otherGameOption: TetrisOption = {
       blockFriction: 1.0,
       blockSize: 32,
       blockRestitution: 0.0,
       combineDistance: 1,
-      view: otherSceneRef.current,
+      view: otherSceneRef.current!,
       spawnX: otherSceneRef.current!.width / 2,
       spawnY: 200,
       blockCollisionCallback: CollisionEvent1,
@@ -214,7 +212,6 @@ const Tetris: React.FC = () => {
     const otherGame = new TetrisMultiplayView(otherGameOption, userId);
     otherGame.running = false;
     otherGame.setWorld(initWorld(RAPIER, otherGameOption));
-    otherGame.spawnBlock(0xFF0000, "T", true);
 
     let poseNetResult: { poseNet: PoseNet; renderingContext: CanvasRenderingContext2D; } | undefined = undefined;
     let prevResult: KeyPointResult = {
@@ -253,6 +250,8 @@ const Tetris: React.FC = () => {
       });
       setTimeout(() => {setMessage("")}, 3000);
       id = setInterval(poseNetLoop, 250);
+      game.spawnBlock(0xFF0000, "T", true);
+      fallingBlockGlow(game.fallingTetromino!);
     }
 
     socket.current?.on('go', (data: string) => {
