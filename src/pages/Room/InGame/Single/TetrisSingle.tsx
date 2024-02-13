@@ -1,18 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import { TetrisGame } from "./Rapier/TetrisGame.ts";
-import { initWorld } from "./Rapier/World.ts";
+import { TetrisGame } from "../Rapier/TetrisGame.ts";
+import { initWorld } from "../Rapier/World.ts";
 
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer, TetrisNextBlock,  } from "./style.tsx";
-import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, rotateViewport, resetRotateViewport, flipViewport, resetFlipViewport, addFog, removeGlowWithDelay, fallingBlockGlowWithDelay, spawnBomb, explodeBomb, getNextBlockImage} from "./Rapier/Effect.ts";
+import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, rotateViewport, resetRotateViewport, flipViewport, resetFlipViewport, addFog, removeGlowWithDelay, fallingBlockGlowWithDelay, spawnBomb, explodeBomb, getNextBlockImage} from "../Rapier/Effect.ts";
 
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
-import { TetrisOption } from "./Rapier/TetrisOption";
-import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } from "./Rapier/Sound";
+import { TetrisOption } from "../Rapier/TetrisOption";
+import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } from "../Rapier/Sound";
 import { PoseNet } from "@tensorflow-models/posenet";
-import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "./Rapier/PostNet";
-import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "./Rapier/TetrisCallback";
+import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "../Rapier/PostNet";
+import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "../Rapier/TetrisCallback";
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
 import { jwtDecode } from "jwt-decode";
 
@@ -29,6 +29,11 @@ const TetrisSingle: React.FC = () => {
   const [isGameOver, setIsGameOver] = useState(false);
   const gameRef = useRef<TetrisGame | null>(null);
   const [nickname, setNickname] = useState("");
+  const scoreTexts = useRef(
+    Array.from({ length: 21 }, () => new PIXI.Text('0', {fontFamily: 'Arial', fontSize: 24, fill: '#ffffff'}))
+  );
+  const lineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -40,10 +45,7 @@ const TetrisSingle: React.FC = () => {
   },);
 
 
-  const scoreTexts = useRef(
-    Array.from({ length: 21 }, () => new PIXI.Text('0', {fontFamily: 'Arial', fontSize: 24, fill: '#ffffff'}))
-  );
-  const lineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
+  
   
 
   useEffect(() => {

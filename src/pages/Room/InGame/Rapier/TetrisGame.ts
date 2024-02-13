@@ -184,7 +184,6 @@ export class TetrisGame {
         });
         
         for (let body of this.removeBodies) {
-            console.log(this.removeBodies);
             this.world.removeRigidBody(body);
         }
         this.removeBodies = [];
@@ -325,7 +324,6 @@ export class TetrisGame {
                 }
             }
             this.tetrominos.set(shape.rigidBody.handle, shape);
-            console.log(shape.rigidBody.translation());
         }
         
         return shapes;
