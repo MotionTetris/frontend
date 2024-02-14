@@ -1,6 +1,7 @@
 import { TetrisOption } from "./TetrisOption";
 import { KeyFrameEvent, MultiPlayerContext, PlayerEventType } from "./Multiplay";
 import { TetrisGame } from "./TetrisGame";
+import { spawnBomb } from "./Item";
 
 export class TetrisMultiplayView extends TetrisGame {
     private multiPlayerContext?: MultiPlayerContext;
@@ -98,6 +99,11 @@ export class TetrisMultiplayView extends TetrisGame {
                     console.log("받음", event?.userData);
                     this.spawnBlock(0xFF0000, event?.userData, true);
                     break;
+                case PlayerEventType.ITEM_USED:
+                    console.log("폭탄상대화면뿌리기", event?.userData );
+                    spawnBomb(this, 300, 0 );
+                    break;
+                    //폭탄떨구기.
                 default:
                     console.debug(`undefined evnet at ${this.stepId}, desired keyframe: ${event.keyframe}`);
             }

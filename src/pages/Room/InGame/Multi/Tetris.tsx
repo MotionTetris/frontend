@@ -18,7 +18,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from "@app/store";
 import { BOMB_URL, FLIP_URL, FOG_URL, GAME_SOCKET_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL } from "@src/config";
 import { addFog, flipViewport, getItemWithIndex, resetFlipViewport, resetRotateViewport, rotateViewport, spawnBomb } from "../Rapier/Item.ts";
-import { KeyFrameEvent } from "../Rapier/Multiplay.ts";
+import { KeyFrameEvent, PlayerEventType } from "../Rapier/Multiplay.ts";
 
 const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
@@ -88,7 +88,7 @@ const Tetris: React.FC = () => {
     })
 
     //30초간격의 아이템고르는 이벤트
-    socket.current.on('itemSelectTime', (nickname: string, items: string[]) => {
+    socket.current.on('itemSelectTime', (items: string[]) => {
       gameRef.current!.pause();
       // 형식: "BOMB", "FOG",  "FLIP", "ROTATE_RIGHT", "ROTATE_LEFT",
       const itemImages = items.map(item => <ItemImage src={`${item}_URL`} />);
@@ -109,14 +109,15 @@ const Tetris: React.FC = () => {
           elem.style.opacity = '0';
         });
         const selectedItem = itemMap.get(document.activeElement?.id)
-        console.log(selectedItem); 
+        console.log("selectedItem:", selectedItem); 
         
 
         //폭탄은 eventOn 으로 주고
         // 그외는 'item'으로 준다. 
         if (selectedItem == "BOMB") {
-          let event = KeyFrameEvent.fromGame(gameRef.current, user, 7);
+          let event = KeyFrameEvent.fromGame(gameRef.current, user, PlayerEventType.ITEM_USED);
           socket.current!.emit('eventOn', event);
+          spawnBomb(gameRef.current, 300, 0);
         }
         else {
           let itemIndex : number = 0;
