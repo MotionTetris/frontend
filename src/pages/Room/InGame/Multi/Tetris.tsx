@@ -91,7 +91,31 @@ const Tetris: React.FC = () => {
     socket.current.on('itemSelectTime', (items: string[]) => {
       gameRef.current!.pause();
       // 형식: "BOMB", "FOG",  "FLIP", "ROTATE_RIGHT", "ROTATE_LEFT",
-      const itemImages = items.map(item => <ItemImage src={`${item}_URL`} />);
+      const itemImages = items.map(item => {
+        let itemUrl;
+        switch (item) {
+          case "BOMB":
+            itemUrl = BOMB_URL;
+            break;
+          case "FOG":
+            itemUrl = FOG_URL;
+            break;
+          case "FLIP":
+            itemUrl = FLIP_URL;
+            break;
+          case "ROTATE_RIGHT":
+            itemUrl = ROTATE_RIGHT_URL;
+            break;
+          case "ROTATE_LEFT":
+            itemUrl = ROTATE_LEFT_URL;
+            break;
+          default:
+            itemUrl = "";
+            break;
+        }
+    
+        return <ItemImage src={itemUrl} />;
+      });
       
       const itemMap = new Map<string, string>();
       itemMap.set("item1", items[0]);
@@ -220,9 +244,9 @@ const Tetris: React.FC = () => {
       removeGlowWithDelay(game.fallingTetromino);
     }
 
-    const LandingEvent = createLandingEvent(eraseThreshold, myLineGrids, setMessage, setPlayerScore, setIsGameOver, true, true);
+    const LandingEvent = createLandingEvent(eraseThreshold, myLineGrids, setMessage, setPlayerScore, setIsGameOver, setEndedPlayerCount, true, true);
 
-    const LandingEvent1 = createLandingEvent(eraseThreshold, otherLineGrids, setMessage, setPlayerScore, setIsGameOver, false, false);
+    const LandingEvent1 = createLandingEvent(eraseThreshold, otherLineGrids, setMessage, setPlayerScore, setIsGameOver, setEndedPlayerCount, false, false);
 
     const StepCallback = (game: TetrisGame, step: number) => {
       if (step % 15 != 0) {
