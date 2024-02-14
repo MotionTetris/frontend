@@ -184,6 +184,8 @@ const Tetris: React.FC = () => {
     socket.current.on('gameEnd', (isEnded: boolean)=> {
       setIsGameOver(isEnded);
       playGameEndSound();
+      gameRef.current!.pause();
+      otherGameRef.current!.pause();
     });
 
     //남은시간
@@ -418,7 +420,7 @@ const Tetris: React.FC = () => {
       <UserBackGround />
 
       <GameOverModal visible={isGameOver}>
-        <GameResult result="패배" score={playerScore} otherScore={otherScore} />
+        <GameResult score={playerScore} otherScore={otherScore} />
         <GoLobbyButton id="go-home" onClick={() => window.location.href = '/'}>홈으로 이동하기</GoLobbyButton>
       </GameOverModal> 
       <Timer timeLeft={timeLeft}/>
