@@ -20,6 +20,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from '@app/store';
 import { setOtherNickname, setCreatorNickname } from "@redux/game/gameSlice";
 import { getUserNickname } from "@src/data-store/token";
+import { ModalOverlay, StyledTutorial } from "./InGame/Single/style";
 
 
 const GameRoom: React.FC = () => {
@@ -34,6 +35,7 @@ const GameRoom: React.FC = () => {
   const currentPlayerNickname = getUserNickname();
   const [players, setPlayers] = useState<string[]>([]);
   const [isGameALLReady, setIsGameALLReady] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(true);
   const dispatch = useDispatch();
   const shootingStars = Array(20).fill(null).map((_, index) =>
     <ShootingStar
@@ -155,6 +157,8 @@ const GameRoom: React.FC = () => {
 
   return (
     <RoomContainer>
+            <ModalOverlay isOpen={isModalOpen} />
+      <StyledTutorial isOpen={isModalOpen} closeModal={() => setIsModalOpen(false)} />
       <GameRoomId>{inGameCard?.roomId}</GameRoomId>
       <GameRoomTitle>{inGameCard?.roomTitle}</GameRoomTitle>
       <FaBackspaced onClick={handleBackButtonClick} />
