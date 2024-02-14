@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, StyledImage,  } from "./style.tsx"
-import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage} from "../Rapier/Effect.ts";
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, StyledImage, } from "./style.tsx"
+import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage } from "../Rapier/Effect.ts";
 import * as io from 'socket.io-client';
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
@@ -35,73 +35,122 @@ const Tetris: React.FC = () => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [nickname, setNickname] = useState("");
   const scoreTexts = useRef(
-    Array.from({ length: 21 }, () => new PIXI.Text('0', {fontFamily: 'Arial', fontSize: 24, fill: '#ffffff'}))
+    Array.from({ length: 21 }, () => new PIXI.Text('0', { fontFamily: 'Arial', fontSize: 24, fill: '#ffffff' }))
   );
-  const lineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
+  const myLineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
+  const otherLineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
   const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
   const [otherPlayers, setOtherPlayers] = useState<string[]>([]);
   const [user, setUser] = useState<string>('')
   const [other, setOther] = useState<string>('')
   const [showCardSelection, setShowCardSelection] = useState(false);
   const [selectedCardIndex, setSelectedCardIndex] = useState(null);
-
+  const [shuffledCard, setShuffledCard] = useState([]);
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-    const decoded = jwtDecode(token);
-    const nickname = decoded.sub || "";
-    setNickname(nickname);
+      const decoded = jwtDecode(token);
+      const nickname = decoded.sub || "";
+      setNickname(nickname);
     }
   },);
 
-  useEffect(()=>{ 
+  useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const roomId = queryParams.get('roomId')
     const max = queryParams.get('max')
     const token = localStorage.getItem('token')
 
-    socket.current = io.connect(`${GAME_SOCKET_URL}?roomId=${roomId}&max=${max}`,{
-      auth:{
-        token:`Bearer ${token}`
+    socket.current = io.connect(`${GAME_SOCKET_URL}?roomId=${roomId}&max=${max}`, {
+      auth: {
+        token: `Bearer ${token}`
       }
     });
 
-    socket.current.on('myName',(nickname:string)=>{
+    socket.current.on('myName', (nickname: string) => {
       setUser(nickname)
     })
 
-    socket.current.on('userJoined',(nickname:string)=>{
-      console.log(nickname,'입장')
+    socket.current.on('userJoined', (nickname: string) => {
+      console.log(nickname, '입장')
     });
 
-    socket.current.on('userLeaved',(nickname:string)=>{
-      console.log(nickname,'도망감 ㅋㅋ')
+    socket.current.on('userLeaved', (nickname: string) => {
+      console.log(nickname, '도망감 ㅋㅋ')
       setOther(nickname)
     })
 
-    return ()=>{
+    socket.current.on('itemSelect', (nickname: string, items: string[]) => {
+      const itemImages = [
+        <StyledImage src={ROTATE_RIGHT_URL} />,
+        <StyledImage src={ROTATE_LEFT_URL} />,
+        <StyledImage src={FLIP_URL} />,
+        <StyledImage src={FOG_URL} />,
+        <StyledImage src={BOMB_URL} />,
+      ];
+
+      // let items = [
+      //   "ROTATE_RIGHT", "ROTATE_LEFT", "FLIP", "FOG", "BOMB"
+      // ]
+      // 버튼들을 랜덤하게 섞는 함수
+      const shuffleImage = (array: any): [] => {
+        let currentIndex = array.length, randomIndex;
+
+        // 배열이 남아있는 동안 반복
+        while (currentIndex !== 0) {
+
+          // 남은 요소 중에서 하나를 랜덤하게 선택
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex--;
+
+          // 선택한 요소와 현재 요소를 교환
+          [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+          [items[currentIndex], items[randomIndex]] = [items[randomIndex], items[currentIndex]];
+        }
+        return array;
+      };
+
+      const shuffledImages = shuffleImage([...itemImages]);
+      const itemMap = new Map<string, string>();
+      itemMap.set("item1", items[0]);
+      itemMap.set("item2", items[1]); 4
+      itemMap.set("item3", items[2]);
+      setShuffledCard([...shuffledImages]);
+      let cards = document.querySelectorAll('[tabindex]');
+      cards.forEach((elem) => {
+        elem.style.opacity = '1';
+      });
+      document.getElementById("item2")?.focus();
+      setTimeout(() => {
+        cards.forEach((elem) => {
+          elem.style.opacity = '0';
+        });
+        console.log(itemMap.get(document.activeElement?.id));
+      }, 5000);
+    });
+    return () => {
       socket.current?.disconnect();
     }
-  },[])
+  }, [])
 
-  
+
 
   useEffect(() => {
 
-    setShootingStars(Array(20).fill(null).map((_, index) => {
+    setShootingStars(Array(10).fill(null).map((_, index) => {
       const style = {
-        left: `${Math.random() * 100}%`, 
+        left: `${Math.random() * 100}%`,
         top: `${Math.random() * 100}%`,
         animationDelay: `${Math.random() * 5}s`
       };
       return <ShootingStar style={style} key={index} />;
     }));
-    
+
     if (!!!sceneRef.current) {
       console.log("sceneRef is null");
       return;
     }
-    
+
     if (!!!otherSceneRef.current) {
       return;
     }
@@ -110,57 +159,57 @@ const Tetris: React.FC = () => {
     sceneRef.current.height = 800;
     otherSceneRef.current.width = 600;
     otherSceneRef.current.height = 800;
-    const CollisionEvent = ({game, bodyA, bodyB}: any) => {
+    const CollisionEvent = ({ game, bodyA, bodyB }: any) => {
       let collisionX = game.getTetrominoFromHandle(bodyA.parent().handle).userData.type;
       let collisionY = game.getTetrominoFromHandle(bodyB.parent().handle).userData.type;
       console.log("coll", collisionX, collisionY);
-      if ((collisionX === 'bomb' || collisionY === 'bomb') && 
-        collisionX !== 'ground' && collisionY !== 'ground' && 
-        collisionX !=='left_wall' && collisionY !=='left_wall' && 
-        collisionX !=='right_wall' && collisionY !=='right_wall') {
+      if ((collisionX === 'bomb' || collisionY === 'bomb') &&
+        collisionX !== 'ground' && collisionY !== 'ground' &&
+        collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
+        collisionX !== 'right_wall' && collisionY !== 'right_wall') {
         let ver = (collisionX === 'bomb') ? 0 : 1;
         explodeBomb(game, bodyA, bodyB, ver);
+      }
     }
-  }
 
-  
-  const CollisionEvent1 = ({game, bodyA, bodyB}: any) => {
-    let collisionX = game.getTetrominoFromHandle(bodyA.parent().handle).userData.type;
-    let collisionY = game.getTetrominoFromHandle(bodyB.parent().handle).userData.type;
-    console.log("coll", collisionX, collisionY);
-    if ((collisionX === 'bomb' || collisionY === 'bomb') && 
-      collisionX !== 'ground' && collisionY !== 'ground' && 
-      collisionX !=='left_wall' && collisionY !=='left_wall' && 
-      collisionX !=='right_wall' && collisionY !=='right_wall') {
-      let ver = (collisionX === 'bomb') ? 0 : 1;
-      explodeBomb(game, bodyA, bodyB, ver);
-  }
-  }
 
-    const preLandingEvent = ({game, bodyA, bodyB}: any) => {
+    const CollisionEvent1 = ({ game, bodyA, bodyB }: any) => {
+      let collisionX = game.getTetrominoFromHandle(bodyA.parent().handle).userData.type;
+      let collisionY = game.getTetrominoFromHandle(bodyB.parent().handle).userData.type;
+      console.log("coll", collisionX, collisionY);
+      if ((collisionX === 'bomb' || collisionY === 'bomb') &&
+        collisionX !== 'ground' && collisionY !== 'ground' &&
+        collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
+        collisionX !== 'right_wall' && collisionY !== 'right_wall') {
+        let ver = (collisionX === 'bomb') ? 0 : 1;
+        explodeBomb(game, bodyA, bodyB, ver);
+      }
+    }
+
+    const preLandingEvent = ({ game, bodyA, bodyB }: any) => {
       game.fallingTetromino?.rigidBody.resetForces(true);
       removeGlow(game.fallingTetromino);
       fallingBlockGlowWithDelay(game.fallingTetromino);
       removeGlowWithDelay(game.fallingTetromino);
     }
 
-    const preLandingEvent1 = ({game, bodyA, bodyB}: any) => {
+    const preLandingEvent1 = ({ game, bodyA, bodyB }: any) => {
       game.fallingTetromino?.rigidBody.resetForces(true);
       removeGlow(game.fallingTetromino);
       fallingBlockGlowWithDelay(game.fallingTetromino);
       removeGlowWithDelay(game.fallingTetromino);
     }
 
-    const LandingEvent = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore, setIsGameOver, true);
+    const LandingEvent = createLandingEvent(eraseThreshold, myLineGrids, setMessage, setPlayerScore, setIsGameOver, true);
 
-    const LandingEvent1 = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore, setIsGameOver, false);
+    const LandingEvent1 = createLandingEvent(eraseThreshold, otherLineGrids, setMessage, setPlayerScore, setIsGameOver, false);
 
     const StepCallback = (game: TetrisGame, step: number) => {
       if (step % 15 != 0) {
         return;
       }
       const checkResult = game.checkLine(eraseThreshold);
-      createScoreBasedGrid(lineGrids, checkResult.scoreList, eraseThreshold);
+      createScoreBasedGrid(myLineGrids, checkResult.scoreList, eraseThreshold);
       showScore(checkResult.scoreList, scoreTexts.current, eraseThreshold);
     }
 
@@ -189,7 +238,7 @@ const Tetris: React.FC = () => {
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
     game.running = true;
-  
+
     const otherGameOption: TetrisOption = {
       blockFriction: 1.0,
       blockSize: 32,
@@ -231,11 +280,11 @@ const Tetris: React.FC = () => {
       if (!poseNetResult) {
         poseNetResult = await loadPoseNet(videoRef, canvasRef);
       }
-      prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback); 
+      prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback);
     }
 
     let id: any;
-    const run = async() => {
+    const run = async () => {
       if (!poseNetResult) {
         poseNetResult = await loadPoseNet(videoRef, canvasRef);
       }
@@ -246,10 +295,10 @@ const Tetris: React.FC = () => {
       scoreTexts.current.forEach((text) => {
         game.graphics.viewport.addChild(text);
       });
-      lineGrids.forEach((line) => {
+      myLineGrids.forEach((line) => {
         game.graphics.viewport.addChild(line);
       });
-      setTimeout(() => {setMessage("")}, 3000);
+      setTimeout(() => { setMessage("") }, 3000);
       id = setInterval(poseNetLoop, 250);
       game.spawnBlock(0xFF0000, "T", true);
       fallingBlockGlow(game.fallingTetromino!);
@@ -260,49 +309,15 @@ const Tetris: React.FC = () => {
       console.log("Go!");
       socket.current?.on('eventOn', (event: any) => {
         otherGame.receiveKeyFrameEvent(event);
-        console.log(event);
       });
     });
 
-  return () => {
-    game.dispose();
-    clearInterval(id);
-  }}, []);
-
-  const itemImages = [
-    <StyledImage src={ROTATE_RIGHT_URL}/>,
-    <StyledImage src={ROTATE_LEFT_URL}/>,
-    <StyledImage src={FLIP_URL}/>,
-    <StyledImage src={FOG_URL}/>,
-    <StyledImage src={BOMB_URL}/>,
-  ];
-  
-  let items = [
-    "ROTATE_RIGHT", "ROTATE_LEFT", "FLIP", "FOG", "BOMB"
-  ]
-  // 버튼들을 랜덤하게 섞는 함수
-  const shuffleImage = (array: any) => {
-    let currentIndex = array.length, randomIndex;
-  
-    // 배열이 남아있는 동안 반복
-    while (currentIndex !== 0) {
-  
-      // 남은 요소 중에서 하나를 랜덤하게 선택
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-  
-      // 선택한 요소와 현재 요소를 교환
-      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-      [items[currentIndex], items[randomIndex]] = [items[randomIndex], items[currentIndex]];
+    return () => {
+      game.dispose();
+      clearInterval(id);
     }
-    return array;
-  };
+  }, []);
 
-  const shuffledImages = shuffleImage([...itemImages]);
-  const itemMap = new Map<string, string>();
-  itemMap.set("item1", items[0]);
-  itemMap.set("item2", items[1]);
-  itemMap.set("item3", items[2]);
   return (<>
     <Container>
       <SceneContainer>
@@ -311,44 +326,43 @@ const Tetris: React.FC = () => {
       </SceneContainer>
       <TetrisNextBlockContainer>
         <TextContainer>
-        <NextBlockText>NEXT BLOCK</NextBlockText>
+          <NextBlockText>NEXT BLOCK</NextBlockText>
         </TextContainer>
         <NextBlockImage><img src={getNextBlockImage(nextBlock)} /></NextBlockImage>
       </TetrisNextBlockContainer>
-      {/* <CardContainer>
-      <Card tabIndex={1} id="item1">{shuffledImages[0]}</Card>
-      <Card tabIndex={2} id="item2">{shuffledImages[1]}</Card>
-      <Card tabIndex={3} id="item3">{shuffledImages[2]}</Card>
-    </CardContainer> */}
+      <CardContainer>
+        <Card tabIndex={1} id="item1">{shuffledCard[0]}</Card>
+        <Card tabIndex={2} id="item2">{shuffledCard[1]}</Card>
+        <Card tabIndex={3} id="item3">{shuffledCard[2]}</Card>
+      </CardContainer>
       <VideoContainer>
         <UserNickName>{nickname}</UserNickName>
         <Score> Score: {playerScore} </Score>
-        <Video ref={videoRef} autoPlay/>
-        <VideoCanvas ref={canvasRef}/>
+        <Video ref={videoRef} autoPlay />
+        <VideoCanvas ref={canvasRef} />
       </VideoContainer>
-      <UserBackGround/>
+      <UserBackGround />
 
       {/* <GameOverModal visible={isGameOver}>
         <GameResult result="패배" score={playerScore} maxCombo={123} maxScore={456} />
         <GoLobbyButton id="go-home" onClick={() => window.location.href = '/'}>홈으로 이동하기</GoLobbyButton>
       </GameOverModal> */}
 
-<MultiplayContainer>
-<SceneCanvas id="otherGame" ref={otherSceneRef} />
-{Array.from(otherNicknames).map((nickname, index) => (
-  <div key={index}>
-    <OtherNickName>상대방: {nickname}</OtherNickName>
-  </div>
-))}
-</MultiplayContainer>
-
+      <MultiplayContainer>
+        <SceneCanvas id="otherGame" ref={otherSceneRef} />
+        {Array.from(otherNicknames).map((nickname, index) => (
+          <div key={index}>
+            <OtherNickName>상대방: {nickname}</OtherNickName>
+          </div>
+        ))}
+      </MultiplayContainer>
     </Container>
     <BackgroundColor1>
-        <Night>
-          {shootingStars}
-        </Night>
-      </BackgroundColor1>
-    </>
+      <Night>
+        {shootingStars}
+      </Night>
+    </BackgroundColor1>
+  </>
   );
 };
 

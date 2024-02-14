@@ -341,11 +341,12 @@ export const Card = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  opacity: 1;
+  opacity: 0;
   transition: opacity 1s ease-in-out;
   z-index: 50;
   &:focus {
-    box-shadow: 0 0 20px rgba(0, 0, 255, 0.8);
+    box-shadow: 0 0 100px rgba(0, 0, 255, 0.8);
+    background-color: blue;
   }
 `;
 

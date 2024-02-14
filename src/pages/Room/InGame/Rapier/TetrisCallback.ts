@@ -11,12 +11,40 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
     let nextColorIndex = 0;
     let eventCallback: KeyPointCallback = {
         onRotateLeft: function (keypoints: Map<string, KeyPoint>): void {
+            if (game.running === true) {
+                var currentTab = document.activeElement;
+                if (!currentTab) {
+                    return
+                }
+                console.log("좌");
+                let tabIndex = parseInt(currentTab.getAttribute('tabIndex')!);
+                let nextTab = document.querySelector('[tabIndex="' + (tabIndex + -1) + '"]');
+
+                if (nextTab) {
+                    nextTab.focus();
+                }
+                return;
+            }
             playBlockRotateSound();
             nextColorIndex = changeBlockGlow(game.fallingTetromino!, nextColorIndex);
             let event = game.onRotateLeft();
             socket?.emit('eventOn', event);
         },
         onRotateRight: function (keypoints: Map<string, KeyPoint>): void {
+            if (game.running === true) {
+                var currentTab = document.activeElement;
+                if (!currentTab) {
+                    return
+                }
+                console.log("우");
+                let tabIndex = parseInt(currentTab.getAttribute('tabIndex')!);
+                let nextTab = document.querySelector('[tabIndex="' + (tabIndex + 1) + '"]');
+
+                if (nextTab) {
+                    nextTab.focus();
+                }
+                return;
+            }
             playBlockRotateSound();
             nextColorIndex = changeBlockGlow(game.fallingTetromino!, nextColorIndex);
             const event = game.onRotateRight();
