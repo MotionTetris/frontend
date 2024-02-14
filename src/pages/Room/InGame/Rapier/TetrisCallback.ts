@@ -132,10 +132,7 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
             });
         }
         let blockToSpawn = game.nextBlock;
-        
-        if (needSpawn) {
-            game.spawnBlock(0xFF0000, blockToSpawn, true);
-            fallingBlockGlow(game.fallingTetromino!);
-        }
+        game.spawnBlock(0xFF0000, "O", true);
+        fallingBlockGlow(game.fallingTetromino!);
     }
 }

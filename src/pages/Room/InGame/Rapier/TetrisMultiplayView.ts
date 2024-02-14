@@ -71,32 +71,28 @@ export class TetrisMultiplayView extends TetrisGame {
                 this.onCollisionDetected(body1, body2);
             });
 
-
             requestAnimationFrame(() => this.stepKeyFrameEvent(event, seq));
             return;
         }
 
         if (event?.keyframe === this.stepId) {
+            let velocity = this.fallingTetromino?.rigidBody.linvel()!;
             switch (event?.event) {
                 case PlayerEventType.MOVE_LEFT:
-                    console.debug(`move_left at ${this.stepId} force: ${-event?.userData * 100000}, desired keyframe: ${event.keyframe}`);
-                    this.onMoveLeft(event.userData);
+                    velocity = this.fallingTetromino?.rigidBody.linvel()!;
+                    this.fallingTetromino?.rigidBody.setLinvel({x: -0.5 * 100, y: velocity.y}, false);                    console.debug(`move_left at ${this.stepId} force: ${-event?.userData * 100000}, desired keyframe: ${event.keyframe} seq=${seq}`);
                     break;
                 case PlayerEventType.MOVE_RIGHT:
-                    console.debug(`move_right at ${this.stepId} force: ${event?.userData * 100000}, desired keyframe: ${event.keyframe}`);
-                    this.onMoveRight(event?.userData);
+                    velocity = this.fallingTetromino?.rigidBody.linvel()!;
+                    this.fallingTetromino?.rigidBody.setLinvel({x: 0.5 * 100, y: velocity.y}, false);                    console.debug(`move_right at ${this.stepId} force: ${event?.userData * 100000}, desired keyframe: ${event.keyframe} seq=${seq}`);
                     break;
                 case PlayerEventType.TURN_LEFT:
-                    console.debug(`turn_left at ${this.stepId}, desired keyframe: ${event.keyframe}`);
-                    this.onRotateLeft();
+                    this.fallingTetromino?.rigidBody.setAngvel(14, false);
+                    console.debug(`turn_left at ${this.stepId}, desired keyframe: ${event.keyframe} seq=${seq}`);
                     break;
                 case PlayerEventType.TURN_RIGHT:
-                    console.debug(`turn_left at ${this.stepId}, desired keyframe: ${event.keyframe}`);
-                    this.onRotateRight();
-                    break;
-                case PlayerEventType.BLOCK_SPAWNED:
-                    console.log("받음", event?.userData);
-                    this.spawnBlock(0xFF0000, event?.userData, true);
+                    console.debug(`turn_left at ${this.stepId}, desired keyframe: ${event.keyframe} seq=${seq}`);
+                    this.fallingTetromino?.rigidBody.setAngvel(-14, false);
                     break;
                 default:
                     console.debug(`undefined evnet at ${this.stepId}, desired keyframe: ${event.keyframe}`);

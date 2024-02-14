@@ -237,9 +237,6 @@ export class TetrisGame {
             type: 'block'
         }
         
-        newBody.rigidBody.setLinearDamping(0.25);
-        newBody.rigidBody.setAngularDamping(10);
-        
         if (!spawnedForFalling) {
             this.tetrominos.set(newBody.rigidBody.handle, newBody);
         } else {
@@ -404,7 +401,7 @@ export class TetrisGame {
 
     public onMoveLeft(weight: number) {
         let velocity = this.fallingTetromino?.rigidBody.linvel()!;
-        this.fallingTetromino?.rigidBody.setLinvel({x: -weight * 100, y: velocity.y}, false);
+        this.fallingTetromino?.rigidBody.setLinvel({x: -0.5 * 100, y: velocity.y}, false);
         const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.MOVE_LEFT);
         event.userData = weight;
         this.updateSequence();
@@ -413,7 +410,7 @@ export class TetrisGame {
 
     public onMoveRight(weight: number) {
         let velocity = this.fallingTetromino?.rigidBody.linvel()!;
-        this.fallingTetromino?.rigidBody.setLinvel({x: weight * 100, y: velocity.y}, false);
+        this.fallingTetromino?.rigidBody.setLinvel({x: 0.5 * 100, y: velocity.y}, false);
         const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.MOVE_RIGHT);
         event.userData = weight;
         this.updateSequence();

@@ -318,6 +318,8 @@ const Tetris: React.FC = () => {
       id = setInterval(poseNetLoop, 250);
       game.spawnBlock(0xFF0000, "T", true);
       fallingBlockGlow(game.fallingTetromino!);
+      otherGame.spawnBlock(0xFF0000, "T", true);
+      fallingBlockGlow(otherGame.fallingTetromino!);
     }
 
     socket.current?.on('go', (data: string) => {

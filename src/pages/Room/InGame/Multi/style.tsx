@@ -116,7 +116,7 @@ export const SceneContainer = styled.div`
   top: 0%;
   left: 0%;
   width: 600px;
-  height: 900px;
+  height: 800px;
   position: absolute;
 `;
 
