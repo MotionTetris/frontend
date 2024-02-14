@@ -72,7 +72,7 @@ export class TetrisMultiplayView extends TetrisGame {
                 this.onCollisionDetected(body1, body2);
             });
 
-
+            this.emptyRemoveQueue();
             requestAnimationFrame(() => this.stepKeyFrameEvent(event, seq));
             return;
         }

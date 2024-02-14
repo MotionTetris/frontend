@@ -89,23 +89,37 @@ export function createBlockSpawnEvent(socket?: Socket, setNextBlock?: any) {
 
 export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsGameOver: (isGameOver: boolean)=>void, setEndedPlayerCount: (endedPlayerCount: (prevCount: number) =>number)=>void, needSpawn: boolean, isMyGame: boolean) {
     return ({ game, bodyA, bodyB }: any) => {
-        
         playLandingSound();
+
         if (isMyGame && bodyA.parent()?.userData.type == 'block' && bodyB.parent()?.userData.type == 'block' && bodyA.translation().y > 0 && bodyB.translation().y > 0) {
             //내 게임 오버
             if (isMyGame) {
                 playDefeatSound();
                 setMessage("나의 게임오버");
+                
                 setEndedPlayerCount((prevCount: number) => {
                     const newCount = prevCount + 1;
                     if (newCount === 2) {
                         stopIngameSound();
                         playgGameEndSound();
+                        console.log("모달 떠ㅑㅇ해")
                         setIsGameOver(true);
                     }
                     return newCount;
                 });
                 //showGameOverModal("당신의 스코어는 ");
+
+                let storedEndedPlayerCount: number;
+
+                // setEndedPlayerCount 함수 호출
+                setEndedPlayerCount((prevCount: number) => {
+                storedEndedPlayerCount = prevCount;
+                 // 저장된 endedPlayerCount 값을 출력
+                console.log("endedPlayerCount:", storedEndedPlayerCount);
+                return storedEndedPlayerCount;
+                });
+
+                
                 game.pause();
                 return;
             }

@@ -166,6 +166,9 @@ export class TetrisGame {
     }
 
     public updateWorld() {
+        if (!this.world) {
+            return;
+        }
         this.world.step(this.events);
         this.stepId += 1;
         this.events.drainCollisionEvents((handle1: number, handle2: number, started: boolean) => {
@@ -183,10 +186,7 @@ export class TetrisGame {
             this.onCollisionDetected(body1, body2);
         });
         
-        for (let body of this.removeBodies) {
-            this.world.removeRigidBody(body);
-        }
-        this.removeBodies = [];
+        this.emptyRemoveQueue();
     }
 
     public pause() {
@@ -203,6 +203,17 @@ export class TetrisGame {
         }
         
         requestAnimationFrame((time) => this.run(time));
+    }
+
+    protected emptyRemoveQueue() {
+        if (!this.world) {
+            return;
+        }
+
+        for (let body of this.removeBodies) {
+            this.world.removeRigidBody(body);
+        }
+        this.removeBodies = [];
     }
 
     public removeBlock(block: Tetromino) {

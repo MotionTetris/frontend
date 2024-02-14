@@ -139,9 +139,9 @@ const Tetris: React.FC = () => {
         //폭탄은 eventOn 으로 주고
         // 그외는 'item'으로 준다. 
         if (selectedItem == "BOMB") {
-          let event = KeyFrameEvent.fromGame(gameRef.current, user, PlayerEventType.ITEM_USED);
+          let event = KeyFrameEvent.fromGame(gameRef.current!, user, PlayerEventType.ITEM_USED);
           socket.current!.emit('eventOn', event);
-          spawnBomb(gameRef.current, 300, 0);
+          spawnBomb(gameRef.current!, 300, 0);
         }
         else {
           let itemIndex : number = 0;
@@ -204,28 +204,30 @@ const Tetris: React.FC = () => {
     otherSceneRef.current.width = 600;
     otherSceneRef.current.height = 800;
     const CollisionEvent = ({ game, bodyA, bodyB }: any) => {
-      let collisionX = game.getTetrominoFromHandle(bodyA.parent().handle).userData.type;
-      let collisionY = game.getTetrominoFromHandle(bodyB.parent().handle).userData.type;
-      console.log("coll", collisionX, collisionY);
+      let collisionX = bodyA.parent()?.userData.type;
+      let collisionY = bodyB.parent()?.userData.type;
+      console.log("coll 내화면", collisionX, collisionY);
       if ((collisionX === 'bomb' || collisionY === 'bomb') &&
         collisionX !== 'ground' && collisionY !== 'ground' &&
         collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
         collisionX !== 'right_wall' && collisionY !== 'right_wall') {
         let ver = (collisionX === 'bomb') ? 0 : 1;
+        console.log("내화면 폭탄이 터져야함!");
         explodeBomb(game, bodyA, bodyB, ver);
       }
     }
 
 
     const CollisionEvent1 = ({ game, bodyA, bodyB }: any) => {
-      let collisionX = game.getTetrominoFromHandle(bodyA.parent().handle).userData.type;
-      let collisionY = game.getTetrominoFromHandle(bodyB.parent().handle).userData.type;
-      console.log("coll", collisionX, collisionY);
+      let collisionX = bodyA.parent()?.userData.type;
+      let collisionY = bodyB.parent()?.userData.type;
+      console.log("coll 상대", collisionX, collisionY);
       if ((collisionX === 'bomb' || collisionY === 'bomb') &&
         collisionX !== 'ground' && collisionY !== 'ground' &&
         collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
         collisionX !== 'right_wall' && collisionY !== 'right_wall') {
         let ver = (collisionX === 'bomb') ? 0 : 1;
+        console.log("상대화면 폭탄이 터져야함!")
         explodeBomb(game, bodyA, bodyB, ver);
       }
     }
