@@ -14,7 +14,7 @@ export function getRandomItem(game: TetrisGame) {
     
     switch(randomIndex) {
         case 0:
-            spawnBomb(game, 300, 0 );
+            spawnBomb(game, 300, -200 );
             break;
         case 1:
             addFog(game);
@@ -56,7 +56,7 @@ export function getItemWithIndex(game: TetrisGame, itemIndex: number) {
 
 export function spawnBomb(game: TetrisGame, x: number, y: number) {
     playBombSpawnSound();
-    let radius = 100;
+    let radius = 75;
     let rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
     let rigidBody = game.world?.createRigidBody(rigidBodyDesc);
     rigidBody!.userData = {type: 'bomb'};
@@ -84,7 +84,7 @@ export function spawnBomb(game: TetrisGame, x: number, y: number) {
     }
 
     return {destroy: () => {
-        rigidBody?.setTranslation({x: -10000, y: 0}, false);
+        rigidBody?.setTranslation({x: -10000, y: -10000}, false);
         game.graphics.viewport.removeChild(bombSprite);
         game.graphics.coll2gfx.delete(collider!.handle);
     }, lifetime: game.stepId + 300};

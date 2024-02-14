@@ -108,7 +108,7 @@ export class TetrisMultiplayView extends TetrisGame {
                     break;
                 case PlayerEventType.ITEM_USED:
                     console.log("폭탄상대화면뿌리기", event?.userData );
-                    this.bomb = spawnBomb(this, 300, 0);
+                    this.bomb = spawnBomb(this, 300, -200);
                     break;
                     //폭탄떨구기.
                 default:
