@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer, TetrisNextBlock, TetrisNextBlockImage, ItemContainer, ItemImage, TetrisNextBlockContainer, TextContainer, NextBlockText, NextBlockImage,  } from "./style.tsx";
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer, TetrisNextBlockContainer, TextContainer, NextBlockText, NextBlockImage,ModalOverlay, StyledTutorial, } from "./style.tsx";
 import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage} from "../Rapier/Effect.ts";
 import { rotateViewport, resetRotateViewport, spawnBomb, flipViewport, resetFlipViewport, addFog, getRandomItem, } from "../Rapier/Item.ts";
 import * as PIXI from "pixi.js";
@@ -14,6 +14,7 @@ import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } fr
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
 import { jwtDecode } from "jwt-decode";
 import { BOMB_URL,FOG_URL,FLIP_URL,ROTATE_LEFT_URL,ROTATE_RIGHT_URL } from "@src/config"
+import Tutorial from "@src/components/Tutorial/tutorial.tsx";
 
 const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
@@ -29,6 +30,8 @@ const TetrisSingle: React.FC = () => {
   const [isGameOver, setIsGameOver] = useState(false);
   const gameRef = useRef<TetrisGame | null>(null);
   const [nickname, setNickname] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(true);
+
   const scoreTexts = useRef(
     Array.from({ length: 21 }, () => new PIXI.Text('0', {fontFamily: 'Arial', fontSize: 24, fill: '#ffffff'}))
   );
@@ -49,7 +52,7 @@ const TetrisSingle: React.FC = () => {
   
 
   useEffect(() => {
-
+    if (!isModalOpen) {
     setShootingStars(Array(20).fill(null).map((_, index) => {
       const style = {
         left: `${Math.random() * 100}%`, 
@@ -174,9 +177,15 @@ const TetrisSingle: React.FC = () => {
   return () => {
     game.dispose();
     clearInterval(id);
-  }}, []);
+  };
+  }}, [isModalOpen]);
 
-  return (<>
+
+ 
+  return (
+  <>
+      <ModalOverlay isOpen={isModalOpen} />
+      <StyledTutorial isOpen={isModalOpen} closeModal={() => setIsModalOpen(false)} />
     <Container>
       <SceneContainer>
         <MessageDiv>  {message} </MessageDiv>

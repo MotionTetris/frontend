@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, ItemImage, OtherScore } from "./style.tsx"
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, StyledImage, OtherScore, ItemImage, DarkBackground, } from "./style.tsx"
 import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage } from "../Rapier/Effect.ts";
 import * as io from 'socket.io-client';
 import * as PIXI from "pixi.js";
@@ -128,6 +128,10 @@ const Tetris: React.FC = () => {
       cards.forEach((elem) => {
         elem.style.opacity = '1';
       });
+      let bg = document.getElementById('card-bg')
+      if (bg) {
+        bg.style.opacity = '0.75';
+      }
       document.getElementById("item2")?.focus();
       setTimeout(() => {
         cards.forEach((elem) => {
@@ -135,8 +139,11 @@ const Tetris: React.FC = () => {
         });
         const selectedItem = itemMap.get(document.activeElement?.id)
         console.log("selectedItem:", selectedItem);
-
-        //폭탄은 eventOn 으로 주고 그외는 'item'으로 준다. 
+        if (bg) {
+          bg.style.opacity = '0';
+        }
+        //폭탄은 eventOn 으로 주고
+        // 그외는 'item'으로 준다. 
         if (selectedItem == "BOMB") {
           let event = KeyFrameEvent.fromGame(gameRef.current!, user, PlayerEventType.ITEM_USED);
           socket.current!.emit('eventOn', event);
@@ -385,6 +392,7 @@ const Tetris: React.FC = () => {
   }, []);
 
   return (<>
+    <DarkBackground id='card-bg'></DarkBackground>
     <Container>
       <SceneContainer>
         <MessageDiv>  {message} </MessageDiv>
@@ -429,6 +437,7 @@ const Tetris: React.FC = () => {
         {shootingStars}
       </Night>
     </BackgroundColor1>
+    
   </>
   );
 };

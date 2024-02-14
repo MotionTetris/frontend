@@ -75,6 +75,16 @@ export const Container = styled.div`
     justify-content: center;
     align-items: center;
 `;
+
+export const DarkBackground = styled.div`
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 1);
+  opacity: 0;
+  z-index: 48
+`
 export const UserNickName = styled.div`
   position: absolute;
   top: -104px;
