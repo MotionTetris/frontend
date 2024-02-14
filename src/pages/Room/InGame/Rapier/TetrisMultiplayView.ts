@@ -57,7 +57,7 @@ export class TetrisMultiplayView extends TetrisGame {
             }
 
             if (this.bomb && this.bomb.lifetime === this.stepId) {
-                this.bomb.destory();
+                this.bomb.destroy();
                 this.bomb = undefined;
             }
 
