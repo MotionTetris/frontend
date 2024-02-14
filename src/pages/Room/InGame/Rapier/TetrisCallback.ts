@@ -2,7 +2,7 @@ import { Socket } from "socket.io-client";
 import { changeBlockGlow, collisionParticleEffect, fallingBlockGlow, handleComboEffect, lightEffectToLine, loadStarImage, performPushEffect, starParticleEffect } from "./Effect";
 import { KeyPointCallback, KeyPoint } from "./PostNet";
 import { TetrisGame } from "./TetrisGame";
-import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playgGameEndSound, stopIngameSound } from "./Sound";
+import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playGameEndSound, stopIngameSound } from "./Sound";
 import * as PIXI from "pixi.js";
 import { BlockType, BlockTypeList } from "./Tetromino";
 import { showGameOverModal } from "./Effect";
@@ -87,57 +87,21 @@ export function createBlockSpawnEvent(socket?: Socket, setNextBlock?: any) {
     }
 }
 
-export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsGameOver: (isGameOver: boolean)=>void, setEndedPlayerCount: (endedPlayerCount: (prevCount: number) =>number)=>void, needSpawn: boolean, isMyGame: boolean) {
+export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, needSpawn: boolean, isMyGame: boolean,socket?: Socket ) {
     return ({ game, bodyA, bodyB }: any) => {
         playLandingSound();
 
-        if (isMyGame && bodyA.parent()?.userData.type == 'block' && bodyB.parent()?.userData.type == 'block' && bodyA.translation().y > 0 && bodyB.translation().y > 0) {
+        if (bodyA.parent()?.userData.type == 'block' && bodyB.parent()?.userData.type == 'block' && bodyA.translation().y > 0 && bodyB.translation().y > 0) {
             //내 게임 오버
             if (isMyGame) {
                 playDefeatSound();
                 setMessage("나의 게임오버");
-                
-                setEndedPlayerCount((prevCount: number) => {
-                    const newCount = prevCount + 1;
-                    if (newCount === 2) {
-                        stopIngameSound();
-                        playgGameEndSound();
-                        console.log("모달 떠ㅑㅇ해")
-                        setIsGameOver(true);
-                    }
-                    return newCount;
-                });
-                //showGameOverModal("당신의 스코어는 ");
-
-                let storedEndedPlayerCount: number;
-
-                // setEndedPlayerCount 함수 호출
-                setEndedPlayerCount((prevCount: number) => {
-                storedEndedPlayerCount = prevCount;
-                 // 저장된 endedPlayerCount 값을 출력
-                console.log("endedPlayerCount:", storedEndedPlayerCount);
-                return storedEndedPlayerCount;
-                });
-
-                
+                socket?.emit('gameOver', true); //게임종료
                 game.pause();
                 return;
-            }
-            //상대 게임 오버
-            else {
-                setEndedPlayerCount((prevCount: number) => {
-                    const newCount = prevCount + 1;
-                    if (newCount === 2) {
-                        stopIngameSound();
-                        playgGameEndSound();
-                        setIsGameOver(true);
-                    }
-                    return newCount;
-                });
-            }
+            }   
         }
         
-
         const checkResult = game.checkLine(eraseThreshold);
         const scoreList = checkResult.scoreList;
 

@@ -1,24 +1,26 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, StyledImage, ItemImage, } from "./style.tsx"
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, ItemImage, OtherScore } from "./style.tsx"
 import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage } from "../Rapier/Effect.ts";
 import * as io from 'socket.io-client';
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "../Rapier/TetrisOption.ts";
 import { TetrisMultiplayView } from "../Rapier/TetrisMultiplayView.ts";
-import { playDefeatSound, playExplodeSound, playIngameSound, playLandingSound } from "../Rapier/Sound.ts";
+import { playGameEndSound, playIngameSound} from "../Rapier/Sound.ts";
 import { PoseNet } from "@tensorflow-models/posenet";
-import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "../Rapier/PostNet.ts";
+import { KeyPointResult, loadPoseNet, processPose } from "../Rapier/PostNet.ts";
 import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "../Rapier/TetrisCallback.ts";
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
 import { jwtDecode } from "jwt-decode";
 import { useSelector } from 'react-redux';
 import { RootState } from "@app/store";
 import { BOMB_URL, FLIP_URL, FOG_URL, GAME_SOCKET_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL } from "@src/config";
-import { addFog, flipViewport, getItemWithIndex, resetFlipViewport, resetRotateViewport, rotateViewport, spawnBomb } from "../Rapier/Item.ts";
+import { getItemWithIndex, spawnBomb } from "../Rapier/Item.ts";
 import { KeyFrameEvent, PlayerEventType } from "../Rapier/Multiplay.ts";
+import { Timer } from "@src/components/Ingame/Timer.tsx";
+
 
 const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
@@ -34,9 +36,10 @@ const Tetris: React.FC = () => {
   const [nextBlock, setNextBlock] = useState("");
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
   const [playerScore, setPlayerScore] = useState(0);
+  const [otherScore, setOtherScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
-  const [endedPlayerCount, setEndedPlayerCount] = useState(0);
   const [nickname, setNickname] = useState("");
+  const [timeLeft, setTimeLeft] = useState("");
   const scoreTexts = useRef(
     Array.from({ length: 21 }, () => new PIXI.Text('0', { fontFamily: 'Arial', fontSize: 24, fill: '#ffffff' }))
   );
@@ -48,11 +51,8 @@ const Tetris: React.FC = () => {
   const myLineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
   const otherLineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
   const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
-  const [otherPlayers, setOtherPlayers] = useState<string[]>([]);
   const [user, setUser] = useState<string>('')
   const [other, setOther] = useState<string>('')
-  const [showCardSelection, setShowCardSelection] = useState(false);
-  const [selectedCardIndex, setSelectedCardIndex] = useState(null);
   const [shuffledCard, setShuffledCard] = useState<JSX.Element[]>([]);
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -136,8 +136,7 @@ const Tetris: React.FC = () => {
         const selectedItem = itemMap.get(document.activeElement?.id)
         console.log("selectedItem:", selectedItem);
 
-        //폭탄은 eventOn 으로 주고
-        // 그외는 'item'으로 준다. 
+        //폭탄은 eventOn 으로 주고 그외는 'item'으로 준다. 
         if (selectedItem == "BOMB") {
           let event = KeyFrameEvent.fromGame(gameRef.current!, user, PlayerEventType.ITEM_USED);
           socket.current!.emit('eventOn', event);
@@ -174,6 +173,17 @@ const Tetris: React.FC = () => {
       getItemWithIndex(gameRef.current!, itemIndex);
     });
 
+    //모달 띄우기
+    socket.current.on('gameEnd', (isEnded: boolean)=> {
+      setIsGameOver(isEnded);
+      playGameEndSound();
+    });
+
+    //남은시간
+    socket.current.on('timer', (timeLeft: string) => {
+      setTimeLeft(timeLeft);
+    })
+
     setShootingStars(Array(10).fill(null).map((_, index) => {
       const style = {
         left: `${Math.random() * 100}%`,
@@ -199,14 +209,13 @@ const Tetris: React.FC = () => {
     const CollisionEvent = ({ game, bodyA, bodyB }: any) => {
       let collisionX = bodyA.parent()?.userData.type;
       let collisionY = bodyB.parent()?.userData.type;
-      console.log("coll 내화면", collisionX, collisionY);
       if ((collisionX === 'bomb' || collisionY === 'bomb') &&
         collisionX !== 'ground' && collisionY !== 'ground' &&
         collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
         collisionX !== 'right_wall' && collisionY !== 'right_wall') {
         let ver = (collisionX === 'bomb') ? 0 : 1;
-        console.log("내화면 폭탄이 터져야함!");
         explodeBomb(game, bodyA, bodyB, ver);
+        setPlayerScore((prevScore: number) => prevScore + 10000);
       }
     }
 
@@ -214,14 +223,13 @@ const Tetris: React.FC = () => {
     const CollisionEvent1 = ({ game, bodyA, bodyB }: any) => {
       let collisionX = bodyA.parent()?.userData.type;
       let collisionY = bodyB.parent()?.userData.type;
-      console.log("coll 상대", collisionX, collisionY);
       if ((collisionX === 'bomb' || collisionY === 'bomb') &&
         collisionX !== 'ground' && collisionY !== 'ground' &&
         collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
         collisionX !== 'right_wall' && collisionY !== 'right_wall') {
         let ver = (collisionX === 'bomb') ? 0 : 1;
-        console.log("상대화면 폭탄이 터져야함!")
         explodeBomb(game, bodyA, bodyB, ver);
+        setOtherScore((prevScore: number) => prevScore + 10000);
       }
     }
 
@@ -239,9 +247,8 @@ const Tetris: React.FC = () => {
       removeGlowWithDelay(game.fallingTetromino);
     }
 
-    const LandingEvent = createLandingEvent(eraseThreshold, myLineGrids, setMessage, setPlayerScore, setIsGameOver, setEndedPlayerCount, true, true);
-
-    const LandingEvent1 = createLandingEvent(eraseThreshold, otherLineGrids, setMessage, setPlayerScore, setIsGameOver, setEndedPlayerCount, false, false);
+    const LandingEvent = createLandingEvent(eraseThreshold, myLineGrids, setMessage, setPlayerScore, true, true, socket.current);
+    const LandingEvent1 = createLandingEvent(eraseThreshold, otherLineGrids, setMessage, setOtherScore, false, false);
 
     const StepCallback = (game: TetrisGame, step: number) => {
       if (step % 15 === 0) {
@@ -279,7 +286,7 @@ const Tetris: React.FC = () => {
       backgroundColor: 0x222929,
       backgroundAlpha: 0
     };
-    //game.pause; game.resume settimeout 30초로 주기적으로 주면서 card 생성
+  
     const game = new TetrisGame(TetrisOption, "user");
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
@@ -403,11 +410,12 @@ const Tetris: React.FC = () => {
       <UserBackGround />
 
       <GameOverModal visible={isGameOver}>
-        <GameResult result="패배" score={playerScore} maxCombo={123} maxScore={456} />
+        <GameResult result="패배" score={playerScore} otherScore={otherScore} />
         <GoLobbyButton id="go-home" onClick={() => window.location.href = '/'}>홈으로 이동하기</GoLobbyButton>
       </GameOverModal> 
-
+      <Timer timeLeft={timeLeft}/>
       <MultiplayContainer>
+        <OtherScore> 남의 스코어: {otherScore} </OtherScore>
         <SceneCanvas id="otherGame" ref={otherSceneRef} />
         {Array.from(otherNicknames).map((nickname, index) => (
           <div key={index}>

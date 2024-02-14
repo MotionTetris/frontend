@@ -223,16 +223,14 @@ export const ModalMessage = styled.p`
 interface GameResultProps {
   result: string;
   score: number;
-  maxCombo: number;
-  maxScore: number;
+  otherScore: number;
 }
 
-export const GameResult: React.FC<GameResultProps> = ({ result, score, maxCombo, maxScore }) => (
+export const GameResult: React.FC<GameResultProps> = ({ result, score, otherScore }) => (
   <ModalMessage id="modal-message">
     게임 결과: {result}<br />
-    점수: {score}<br />
-    최대 콤보 수: {maxCombo}<br />
-    최대 득점량: {maxScore}
+    나의점수: {score}<br />
+    상대점수: {otherScore}<br />
   </ModalMessage>
 );
 
@@ -353,4 +351,23 @@ export const Card = styled.div`
 export const ItemImage = styled.img`
   width: 270px;
   height: 270px;
+`;
+
+export const OtherScore = styled.div`
+  position: absolute;
+  top: 70px;
+  left: 500px;
+  transform: translate(-50%, -50%);
+  width: 259px;
+  height: 59px;
+  color: #FFF;
+  background: #0D7377;
+  padding: 10px 20px;
+  border-right: 2px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  font-weight: bold;
+  z-index: 5;
 `;
