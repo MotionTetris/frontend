@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { BOMB_URL,FOG_URL,FLIP_URL,FLIP_NOT_URL,ROTATE_NOT_URL,ROTATE_LEFT_URL,ROTATE_RIGHT_URL } from "../../../../config"
 
 
@@ -83,7 +83,7 @@ export const DarkBackground = styled.div`
   overflow: hidden;
   background-color: rgba(0, 0, 0, 1);
   opacity: 0;
-  z-index: 48
+  z-index: 48;
 `
 export const UserNickName = styled.div`
   position: absolute;
@@ -214,35 +214,55 @@ export const GameOverModal = styled.div<GameOverModalProps>`
   justify-content: center;
 `;
 
-export const  UserBackGround = styled.div`
-  width: 100%;
-  height: 100%;
+const fadeIn = keyframes`
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 `;
 
 export const ModalMessage = styled.p`
-  background: white;
+  background: linear-gradient(45deg, #000080 30%, #000000 90%); // 남색에서 검정으로 변하는 그라디언트 배경 적용
   padding: 20px;
   border-radius: 10px;
   width: 80%;  
   max-width: 800px; 
   text-align: center;
   font-size: 36px;
+  color: white; // 텍스트 색상은 흰색 유지
+  box-shadow: 0 3px 5px 2px rgba(0, 0, 128, .3); // 그림자 색상을 남색 계열로 변경
+  transition: all 0.3s ease-out;
+  animation: ${fadeIn} 1s ease-in;
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 8px 3px rgba(0, 0, 128, .3);
+  }
 `;
 
 
 interface GameResultProps {
-  result: string;
   score: number;
   otherScore: number;
 }
 
-export const GameResult: React.FC<GameResultProps> = ({ result, score, otherScore }) => (
-  <ModalMessage id="modal-message">
-    게임 결과: {result}<br />
-    나의점수: {score}<br />
-    상대점수: {otherScore}<br />
-  </ModalMessage>
-);
+export const GameResult: React.FC<GameResultProps> = ({ score, otherScore }) => {
+  let result = "";
+  
+  if (score > otherScore) {
+    result = "승리";
+  } else if (score < otherScore) {
+    result = "패배";
+  } else {
+    result = "무승부";
+  }
+  
+  return (
+    <ModalMessage id="modal-message">
+      게임 결과: {result}<br />
+      나의점수: {score}<br />
+      상대점수: {otherScore}<br />
+    </ModalMessage>
+  );
+};
+
 
 
 export const GoLobbyButton = styled.button`

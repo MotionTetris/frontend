@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, OtherScore, ItemImage, DarkBackground, } from "./style.tsx"
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, OtherScore, ItemImage, DarkBackground, } from "./style.tsx"
 import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage } from "../Rapier/Effect.ts";
 import * as io from 'socket.io-client';
 import * as PIXI from "pixi.js";
@@ -184,6 +184,8 @@ const Tetris: React.FC = () => {
     socket.current.on('gameEnd', (isEnded: boolean)=> {
       setIsGameOver(isEnded);
       playGameEndSound();
+      gameRef.current!.pause();
+      otherGameRef.current!.pause();
     });
 
     //남은시간
@@ -415,11 +417,10 @@ const Tetris: React.FC = () => {
         <Video ref={videoRef} autoPlay />
         <VideoCanvas ref={canvasRef} />
       </VideoContainer>
-      <UserBackGround />
 
       <GameOverModal visible={isGameOver}>
-        <GameResult result="패배" score={playerScore} otherScore={otherScore} />
-        <GoLobbyButton id="go-home" onClick={() => window.location.href = '/'}>홈으로 이동하기</GoLobbyButton>
+        <GameResult score={playerScore} otherScore={otherScore} />
+        <GoLobbyButton id="go-home" onClick={() => window.location.href = '/gamemain'}>홈으로 이동하기</GoLobbyButton>
       </GameOverModal> 
       <Timer timeLeft={timeLeft}/>
       <MultiplayContainer>
