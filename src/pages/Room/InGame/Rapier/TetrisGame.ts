@@ -386,33 +386,35 @@ export class TetrisGame {
     }
 
     public onRotateLeft() {
-        this.fallingTetromino?.rigidBody.setAngvel(14, false);
+        this.fallingTetromino?.rigidBody.applyTorqueImpulse(1000000, false);
         const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.TURN_LEFT);
+        console.log(event);
         this.updateSequence();
         return event;
     }
 
     public onRotateRight() {
-        this.fallingTetromino?.rigidBody.setAngvel(-14, false);
+        this.fallingTetromino?.rigidBody.applyTorqueImpulse(-1000000, false);
         const event =  KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.TURN_RIGHT);
+        console.log(event);
         this.updateSequence();
         return event;
     }
 
     public onMoveLeft(weight: number) {
-        let velocity = this.fallingTetromino?.rigidBody.linvel()!;
-        this.fallingTetromino?.rigidBody.setLinvel({x: -0.5 * 100, y: velocity.y}, false);
+        this.fallingTetromino?.rigidBody.applyImpulse({x: -weight * 100000, y: 0}, false);
         const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.MOVE_LEFT);
         event.userData = weight;
+        console.log(event);
         this.updateSequence();
         return event;
     }
 
     public onMoveRight(weight: number) {
-        let velocity = this.fallingTetromino?.rigidBody.linvel()!;
-        this.fallingTetromino?.rigidBody.setLinvel({x: 0.5 * 100, y: velocity.y}, false);
+        this.fallingTetromino?.rigidBody.applyImpulse({x: weight * 100000, y: 0}, false);
         const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.MOVE_RIGHT);
         event.userData = weight;
+        console.log(event);
         this.updateSequence();
         return event;
     }

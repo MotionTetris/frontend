@@ -79,20 +79,20 @@ export class TetrisMultiplayView extends TetrisGame {
             let velocity = this.fallingTetromino?.rigidBody.linvel()!;
             switch (event?.event) {
                 case PlayerEventType.MOVE_LEFT:
-                    velocity = this.fallingTetromino?.rigidBody.linvel()!;
-                    this.fallingTetromino?.rigidBody.setLinvel({x: -0.5 * 100, y: velocity.y}, false);                    console.debug(`move_left at ${this.stepId} force: ${-event?.userData * 100000}, desired keyframe: ${event.keyframe} seq=${seq}`);
+                    this.fallingTetromino?.rigidBody.applyImpulse({x: -event?.userData * 100000, y: 0}, false);
+                    console.debug(`move_left at ${this.stepId} force: ${-event?.userData * 100000}, desired keyframe: ${event.keyframe}`);
                     break;
                 case PlayerEventType.MOVE_RIGHT:
-                    velocity = this.fallingTetromino?.rigidBody.linvel()!;
-                    this.fallingTetromino?.rigidBody.setLinvel({x: 0.5 * 100, y: velocity.y}, false);                    console.debug(`move_right at ${this.stepId} force: ${event?.userData * 100000}, desired keyframe: ${event.keyframe} seq=${seq}`);
+                    this.fallingTetromino?.rigidBody.applyImpulse({x: event?.userData * 100000, y: 0}, false);
+                    console.debug(`move_right at ${this.stepId} force: ${event?.userData * 100000}, desired keyframe: ${event.keyframe}`);
                     break;
                 case PlayerEventType.TURN_LEFT:
-                    this.fallingTetromino?.rigidBody.setAngvel(14, false);
-                    console.debug(`turn_left at ${this.stepId}, desired keyframe: ${event.keyframe} seq=${seq}`);
+                    this.fallingTetromino?.rigidBody.applyTorqueImpulse(1000000, false);
+                    console.debug(`turn_left at ${this.stepId}, desired keyframe: ${event.keyframe}`);
                     break;
                 case PlayerEventType.TURN_RIGHT:
-                    console.debug(`turn_left at ${this.stepId}, desired keyframe: ${event.keyframe} seq=${seq}`);
-                    this.fallingTetromino?.rigidBody.setAngvel(-14, false);
+                    console.debug(`turn_left at ${this.stepId}, desired keyframe: ${event.keyframe}`);
+                    this.fallingTetromino?.rigidBody.applyTorqueImpulse(-1000000, false);
                     break;
                 default:
                     console.debug(`undefined evnet at ${this.stepId}, desired keyframe: ${event.keyframe}`);
