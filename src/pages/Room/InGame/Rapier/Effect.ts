@@ -207,7 +207,7 @@ export function createScoreBasedGrid(lineGrids: PIXI.Graphics[], scoreList: numb
     const alpha = scoreList[i] / threshold; // 점수를 투명도로 변환 (0 ~ 1 사이의 값)
     lineGrids[i].clear();
     lineGrids[i].beginFill(0xff00f0, alpha/4);
-    lineGrids[i].drawRect(100, -i * 32 +588, 420, 32); // 32픽셀 간격으로 높이를 설정
+    lineGrids[i].drawRect(100, -i * 32 +588, 410, 32); // 32픽셀 간격으로 높이를 설정
     lineGrids[i].endFill();
   }  
 }

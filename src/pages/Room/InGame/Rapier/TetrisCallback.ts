@@ -16,7 +16,7 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
                 if (!currentTab) {
                     return
                 }
-                console.log("좌");
+                console.log("아이템 좌측이동");
                 let tabIndex = parseInt(currentTab.getAttribute('tabIndex')!);
                 let nextTab = document.querySelector('[tabIndex="' + (tabIndex + -1) + '"]');
 
@@ -36,7 +36,7 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
                 if (!currentTab) {
                     return
                 }
-                console.log("우");
+                console.log("아이템 우측이동");
                 let tabIndex = parseInt(currentTab.getAttribute('tabIndex')!);
                 let nextTab = document.querySelector('[tabIndex="' + (tabIndex + 1) + '"]');
 
@@ -87,11 +87,11 @@ export function createBlockSpawnEvent(socket?: Socket, setNextBlock?: any) {
     }
 }
 
-export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsGameOver: (isGameOver: boolean)=>void, needSpawn: boolean) {
+export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsGameOver: (isGameOver: boolean)=>void, needSpawn: boolean, isMyGame: boolean) {
     return ({ game, bodyA, bodyB }: any) => {
         
         playLandingSound();
-        if (bodyA.parent()?.userData.type == 'block' && bodyB.parent()?.userData.type == 'block' && bodyA.translation().y > 0 && bodyB.translation().y > 0) {
+        if (isMyGame && bodyA.parent()?.userData.type == 'block' && bodyB.parent()?.userData.type == 'block' && bodyA.translation().y > 0 && bodyB.translation().y > 0) {
             stopIngameSound();
             playDefeatSound();
             setMessage("게임오버");
@@ -117,11 +117,13 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
         if (game.removeLines(checkResult.lines)) {
             playExplodeSound();
             setPlayerScore((prevScore: number) => Math.round(prevScore + scoreIncrement * (1 + 0.1 * combo)));
-            const comboMessage = handleComboEffect(combo, game.graphics);
-            setMessage(comboMessage);
-            setTimeout(() => {
-                setMessage("");
-            }, 1000);
+            if (isMyGame) {
+                const comboMessage = handleComboEffect(combo, game.graphics);
+                setMessage(comboMessage);
+                setTimeout(() => {
+                    setMessage("");
+                }, 1000);
+            }
 
             // @ts-ignore
             loadStarImage().then((starTexture: PIXI.Texture) => {

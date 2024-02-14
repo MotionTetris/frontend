@@ -18,6 +18,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from "@app/store";
 import { BOMB_URL, FLIP_URL, FOG_URL, GAME_SOCKET_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL } from "@src/config";
 import { addFog, flipViewport, resetFlipViewport, resetRotateViewport, rotateViewport, spawnBomb } from "../Rapier/Item.ts";
+import { KeyFrameEvent } from "../Rapier/Multiplay.ts";
 
 const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
@@ -86,6 +87,8 @@ const Tetris: React.FC = () => {
     })
 
     socket.current.on('itemSelect', (nickname: string, items: string[]) => {
+      gameRef.current.pause();
+
       const itemImages = [
         <StyledImage src={ROTATE_RIGHT_URL} />,
         <StyledImage src={ROTATE_LEFT_URL} />,
@@ -98,7 +101,9 @@ const Tetris: React.FC = () => {
       //   "ROTATE_RIGHT", "ROTATE_LEFT", "FLIP", "FOG", "BOMB"
       // ]
       // 버튼들을 랜덤하게 섞는 함수
+
       const shuffleImage = (array: any): [] => {
+        
         let currentIndex = array.length, randomIndex;
 
         // 배열이 남아있는 동안 반복
@@ -118,7 +123,7 @@ const Tetris: React.FC = () => {
       const shuffledImages = shuffleImage([...itemImages]);
       const itemMap = new Map<string, string>();
       itemMap.set("item1", items[0]);
-      itemMap.set("item2", items[1]); 4
+      itemMap.set("item2", items[1]); 
       itemMap.set("item3", items[2]);
       setShuffledCard([...shuffledImages]);
       let cards = document.querySelectorAll('[tabindex]');
@@ -131,6 +136,9 @@ const Tetris: React.FC = () => {
           elem.style.opacity = '0';
         });
         console.log(itemMap.get(document.activeElement?.id));
+        // let event = KeyFrameEvent.fromGame()
+        socket.current.emit('eventOn', event);
+        gameRef.current.resume();
       }, 5000);
     });
     return () => {
@@ -205,17 +213,20 @@ const Tetris: React.FC = () => {
       removeGlowWithDelay(game.fallingTetromino);
     }
 
-    const LandingEvent = createLandingEvent(eraseThreshold, myLineGrids, setMessage, setPlayerScore, setIsGameOver, true);
+    const LandingEvent = createLandingEvent(eraseThreshold, myLineGrids, setMessage, setPlayerScore, setIsGameOver, true, true);
 
-    const LandingEvent1 = createLandingEvent(eraseThreshold, otherLineGrids, setMessage, setPlayerScore, setIsGameOver, false);
+    const LandingEvent1 = createLandingEvent(eraseThreshold, otherLineGrids, setMessage, setPlayerScore, setIsGameOver, false, false);
 
     const StepCallback = (game: TetrisGame, step: number) => {
       if (step % 15 != 0) {
         return;
       }
       const checkResult = game.checkLine(eraseThreshold);
+      const checkOtherResult = otherGame.checkLine(eraseThreshold);
       createScoreBasedGrid(myLineGrids, checkResult.scoreList, eraseThreshold);
+      createScoreBasedGrid(otherLineGrids, checkOtherResult.scoreList, eraseThreshold);
       showScore(checkResult.scoreList, scoreTexts.current, eraseThreshold);
+      showScore(checkOtherResult.scoreList, otherScoreTexts.current, eraseThreshold);
     }
 
     const TetrisOption: TetrisOption = {
