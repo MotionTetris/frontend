@@ -61,7 +61,7 @@ const Tetris: React.FC = () => {
       setNickname(nickname);
     }
   },);
-
+  let bomb: any = undefined;
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const roomId = queryParams.get('roomId')
@@ -113,13 +113,13 @@ const Tetris: React.FC = () => {
             itemUrl = "";
             break;
         }
-    
+
         return <ItemImage src={itemUrl} />;
       });
-      
+
       const itemMap = new Map<string, string>();
       itemMap.set("item1", items[0]);
-      itemMap.set("item2", items[1]); 
+      itemMap.set("item2", items[1]);
       itemMap.set("item3", items[2]);
       setShuffledCard([...itemImages]);
 
@@ -133,18 +133,17 @@ const Tetris: React.FC = () => {
           elem.style.opacity = '0';
         });
         const selectedItem = itemMap.get(document.activeElement?.id)
-        console.log("selectedItem:", selectedItem); 
-        
+        console.log("selectedItem:", selectedItem);
 
         //폭탄은 eventOn 으로 주고
         // 그외는 'item'으로 준다. 
         if (selectedItem == "BOMB") {
           let event = KeyFrameEvent.fromGame(gameRef.current!, user, PlayerEventType.ITEM_USED);
           socket.current!.emit('eventOn', event);
-          spawnBomb(gameRef.current!, 300, 0);
+          bomb = spawnBomb(gameRef.current!, 300, 0);
         }
         else {
-          let itemIndex : number = 0;
+          let itemIndex: number = 0;
           switch (selectedItem) {
             case "FOG":
               itemIndex = 1;
@@ -163,23 +162,15 @@ const Tetris: React.FC = () => {
           }
           socket.current!.emit('item', itemIndex);
         }
-        
+
         gameRef.current!.resume();
       }, 5000);
     });
 
     // 폭탄 이외의 아이템작업.
     socket.current.on('selectedItem', (itemIndex: number) => {
-      getItemWithIndex(gameRef.current!,itemIndex);
-    })
-    return () => {
-      socket.current?.disconnect();
-    }
-  }, [])
-
-
-
-  useEffect(() => {
+      getItemWithIndex(gameRef.current!, itemIndex);
+    });
 
     setShootingStars(Array(10).fill(null).map((_, index) => {
       const style = {
@@ -251,15 +242,19 @@ const Tetris: React.FC = () => {
     const LandingEvent1 = createLandingEvent(eraseThreshold, otherLineGrids, setMessage, setPlayerScore, setIsGameOver, setEndedPlayerCount, false, false);
 
     const StepCallback = (game: TetrisGame, step: number) => {
-      if (step % 15 != 0) {
-        return;
+      if (step % 15 === 0) {
+        const checkResult = game.checkLine(eraseThreshold);
+        const checkOtherResult = otherGame.checkLine(eraseThreshold);
+        createScoreBasedGrid(myLineGrids, checkResult.scoreList, eraseThreshold);
+        createScoreBasedGrid(otherLineGrids, checkOtherResult.scoreList, eraseThreshold);
+        showScore(checkResult.scoreList, scoreTexts.current, eraseThreshold);
+        showScore(checkOtherResult.scoreList, otherScoreTexts.current, eraseThreshold);
       }
-      const checkResult = game.checkLine(eraseThreshold);
-      const checkOtherResult = otherGame.checkLine(eraseThreshold);
-      createScoreBasedGrid(myLineGrids, checkResult.scoreList, eraseThreshold);
-      createScoreBasedGrid(otherLineGrids, checkOtherResult.scoreList, eraseThreshold);
-      showScore(checkResult.scoreList, scoreTexts.current, eraseThreshold);
-      showScore(checkOtherResult.scoreList, otherScoreTexts.current, eraseThreshold);
+      
+      if (bomb && bomb.lifetime === step) {
+        bomb.destroy();
+        bomb = undefined;
+      }
     }
 
     const TetrisOption: TetrisOption = {
@@ -344,7 +339,7 @@ const Tetris: React.FC = () => {
       scoreTexts.current.forEach((text) => {
         game.graphics.viewport.addChild(text);
       });
-      
+
       otherScoreTexts.current.forEach((text) => {
         otherGame.graphics.viewport.addChild(text);
       })
@@ -375,6 +370,7 @@ const Tetris: React.FC = () => {
     return () => {
       game.dispose();
       clearInterval(id);
+      socket.current?.disconnect();
     }
   }, []);
 
