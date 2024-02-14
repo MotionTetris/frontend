@@ -1,6 +1,6 @@
 import styled, { keyframes } from 'styled-components';
 import { BOMB_URL,FOG_URL,FLIP_URL,FLIP_NOT_URL,ROTATE_NOT_URL,ROTATE_LEFT_URL,ROTATE_RIGHT_URL } from "../../../../config"
-
+import Tutorial from "@src/components/Tutorial/tutorial.tsx";
 
 export const ButtonContainer = styled.div`
   position: absolute;
@@ -157,20 +157,20 @@ export const VideoContainer = styled.div`
 
 export const Video = styled.video`
   position: absolute;
-  top: 20%;
+  top: 0%;
   left: 0vw;
   width: 100%;
-  height: 80%;
+  height: 100%;
   transform: scaleX(-1);
   object-fit: cover;
 `;
 
 export const VideoCanvas = styled.canvas`
   position: absolute;
-  top: 20%;
+  top: 0%;
   left: 0vw;
   width: 100%;
-  height: 80%;
+  height: 100%;
   object-fit: cover;
 `;
 
@@ -344,3 +344,21 @@ export const GameResult: React.FC<GameResultProps> = ({ result, score, maxCombo,
   </ModalMessage>
 );
 
+export const ModalOverlay = styled.div<{ isOpen: boolean }>`
+  display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 10;
+`;
+
+export const StyledTutorial = styled(Tutorial)`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+`;

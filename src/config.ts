@@ -12,4 +12,8 @@ export const FLIP_NOT_URL = "https://i.postimg.cc/TP0q5czK/icons8-flip-horizonta
 export const ROTATE_NOT_URL = "https://i.postimg.cc/Rh6c8xNt/icons8-no-rotation-48.png"
 export const ROTATE_LEFT_URL = "https://i.postimg.cc/sfGPFF5h/rotate-left.png"
 export const ROTATE_RIGHT_URL = "https://i.postimg.cc/wMNDDJ9V/rotate-right.png"
-
+export const TUTORIAL_1_PNG = "https://i.postimg.cc/5t24VdzZ/1080-1.png"
+export const TUTORIAL_2_GIF = "https://i.postimg.cc/X7pZ65fV/002.gif"
+export const TUTORIAL_3_GIF = "https://i.postimg.cc/P5NVsSxS/1080-3.gif"
+export const TUTORIAL_4_PNG = "https://i.postimg.cc/N0CgGJ7L/1080-4.png"
+export const TUTORIAL_5_GIF = "https://i.postimg.cc/J4vsrhxj/005.gif"
