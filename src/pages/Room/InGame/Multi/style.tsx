@@ -350,7 +350,7 @@ export const Card = styled.div`
   }
 `;
 
-export const StyledImage = styled.img`
+export const ItemImage = styled.img`
   width: 270px;
   height: 270px;
 `;

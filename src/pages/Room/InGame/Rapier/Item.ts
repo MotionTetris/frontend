@@ -35,6 +35,25 @@ export function getRandomItem(game: TetrisGame) {
     return randomURL;
 }
 
+export function getItemWithIndex(game: TetrisGame, itemIndex: number) {
+    switch(itemIndex) {
+        case 1:
+            addFog(game);
+            break;
+        case 2:
+            flipViewport(game.graphics.viewport);
+            break;
+        case 3:
+            rotateViewport(game.graphics.viewport, 15);
+            break;
+        case 4:
+            rotateViewport(game.graphics.viewport, -15);
+            break;
+        default:
+            console.log('Invalid index');
+    }
+}
+
 export function spawnBomb(game: TetrisGame, x: number, y: number): number {
     playBombSpawnSound();
     let radius = 100;

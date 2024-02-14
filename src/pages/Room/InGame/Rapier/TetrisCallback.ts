@@ -2,7 +2,7 @@ import { Socket } from "socket.io-client";
 import { changeBlockGlow, collisionParticleEffect, fallingBlockGlow, handleComboEffect, lightEffectToLine, loadStarImage, performPushEffect, starParticleEffect } from "./Effect";
 import { KeyPointCallback, KeyPoint } from "./PostNet";
 import { TetrisGame } from "./TetrisGame";
-import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, stopIngameSound } from "./Sound";
+import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playgGameEndSound, stopIngameSound } from "./Sound";
 import * as PIXI from "pixi.js";
 import { BlockType, BlockTypeList } from "./Tetromino";
 import { showGameOverModal } from "./Effect";
@@ -11,7 +11,7 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
     let nextColorIndex = 0;
     let eventCallback: KeyPointCallback = {
         onRotateLeft: function (keypoints: Map<string, KeyPoint>): void {
-            if (game.running === true) {
+            if (game.running === false) {
                 var currentTab = document.activeElement;
                 if (!currentTab) {
                     return
@@ -31,7 +31,7 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
             socket?.emit('eventOn', event);
         },
         onRotateRight: function (keypoints: Map<string, KeyPoint>): void {
-            if (game.running === true) {
+            if (game.running === false) {
                 var currentTab = document.activeElement;
                 if (!currentTab) {
                     return
@@ -87,19 +87,42 @@ export function createBlockSpawnEvent(socket?: Socket, setNextBlock?: any) {
     }
 }
 
-export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsGameOver: (isGameOver: boolean)=>void, needSpawn: boolean, isMyGame: boolean) {
+export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsGameOver: (isGameOver: boolean)=>void, setEndedPlayerCount: (endedPlayerCount: (prevCount: number) =>number)=>void, needSpawn: boolean, isMyGame: boolean) {
     return ({ game, bodyA, bodyB }: any) => {
         
         playLandingSound();
         if (isMyGame && bodyA.parent()?.userData.type == 'block' && bodyB.parent()?.userData.type == 'block' && bodyA.translation().y > 0 && bodyB.translation().y > 0) {
-            stopIngameSound();
-            playDefeatSound();
-            setMessage("게임오버");
-            setIsGameOver(true);
-            //showGameOverModal("당신의 스코어는 ");
-            game.pause();
-            return;
+            //내 게임 오버
+            if (isMyGame) {
+                playDefeatSound();
+                setMessage("나의 게임오버");
+                setEndedPlayerCount((prevCount: number) => {
+                    const newCount = prevCount + 1;
+                    if (newCount === 2) {
+                        stopIngameSound();
+                        playgGameEndSound();
+                        setIsGameOver(true);
+                    }
+                    return newCount;
+                });
+                //showGameOverModal("당신의 스코어는 ");
+                game.pause();
+                return;
+            }
+            //상대 게임 오버
+            else {
+                setEndedPlayerCount((prevCount: number) => {
+                    const newCount = prevCount + 1;
+                    if (newCount === 2) {
+                        stopIngameSound();
+                        playgGameEndSound();
+                        setIsGameOver(true);
+                    }
+                    return newCount;
+                });
+            }
         }
+        
 
         const checkResult = game.checkLine(eraseThreshold);
         const scoreList = checkResult.scoreList;

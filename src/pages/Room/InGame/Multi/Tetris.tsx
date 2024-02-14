@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, StyledImage, } from "./style.tsx"
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, StyledImage, ItemImage, } from "./style.tsx"
 import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage } from "../Rapier/Effect.ts";
 import * as io from 'socket.io-client';
 import * as PIXI from "pixi.js";
@@ -17,7 +17,7 @@ import { jwtDecode } from "jwt-decode";
 import { useSelector } from 'react-redux';
 import { RootState } from "@app/store";
 import { BOMB_URL, FLIP_URL, FOG_URL, GAME_SOCKET_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL } from "@src/config";
-import { addFog, flipViewport, resetFlipViewport, resetRotateViewport, rotateViewport, spawnBomb } from "../Rapier/Item.ts";
+import { addFog, flipViewport, getItemWithIndex, resetFlipViewport, resetRotateViewport, rotateViewport, spawnBomb } from "../Rapier/Item.ts";
 import { KeyFrameEvent } from "../Rapier/Multiplay.ts";
 
 const eraseThreshold = 8000;
@@ -34,6 +34,7 @@ const Tetris: React.FC = () => {
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
   const [playerScore, setPlayerScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [endedPlayerCount, setEndedPlayerCount] = useState(0);
   const [nickname, setNickname] = useState("");
   const scoreTexts = useRef(
     Array.from({ length: 21 }, () => new PIXI.Text('0', { fontFamily: 'Arial', fontSize: 24, fill: '#ffffff' }))
@@ -51,7 +52,7 @@ const Tetris: React.FC = () => {
   const [other, setOther] = useState<string>('')
   const [showCardSelection, setShowCardSelection] = useState(false);
   const [selectedCardIndex, setSelectedCardIndex] = useState(null);
-  const [shuffledCard, setShuffledCard] = useState([]);
+  const [shuffledCard, setShuffledCard] = useState<JSX.Element[]>([]);
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -86,46 +87,18 @@ const Tetris: React.FC = () => {
       setOther(nickname)
     })
 
-    socket.current.on('itemSelect', (nickname: string, items: string[]) => {
-      gameRef.current.pause();
-
-      const itemImages = [
-        <StyledImage src={ROTATE_RIGHT_URL} />,
-        <StyledImage src={ROTATE_LEFT_URL} />,
-        <StyledImage src={FLIP_URL} />,
-        <StyledImage src={FOG_URL} />,
-        <StyledImage src={BOMB_URL} />,
-      ];
-
-      // let items = [
-      //   "ROTATE_RIGHT", "ROTATE_LEFT", "FLIP", "FOG", "BOMB"
-      // ]
-      // 버튼들을 랜덤하게 섞는 함수
-
-      const shuffleImage = (array: any): [] => {
-        
-        let currentIndex = array.length, randomIndex;
-
-        // 배열이 남아있는 동안 반복
-        while (currentIndex !== 0) {
-
-          // 남은 요소 중에서 하나를 랜덤하게 선택
-          randomIndex = Math.floor(Math.random() * currentIndex);
-          currentIndex--;
-
-          // 선택한 요소와 현재 요소를 교환
-          [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-          [items[currentIndex], items[randomIndex]] = [items[randomIndex], items[currentIndex]];
-        }
-        return array;
-      };
-
-      const shuffledImages = shuffleImage([...itemImages]);
+    //30초간격의 아이템고르는 이벤트
+    socket.current.on('itemSelectTime', (nickname: string, items: string[]) => {
+      gameRef.current!.pause();
+      // 형식: "BOMB", "FOG",  "FLIP", "ROTATE_RIGHT", "ROTATE_LEFT",
+      const itemImages = items.map(item => <ItemImage src={`${item}_URL`} />);
+      
       const itemMap = new Map<string, string>();
       itemMap.set("item1", items[0]);
       itemMap.set("item2", items[1]); 
       itemMap.set("item3", items[2]);
-      setShuffledCard([...shuffledImages]);
+      setShuffledCard([...itemImages]);
+
       let cards = document.querySelectorAll('[tabindex]');
       cards.forEach((elem) => {
         elem.style.opacity = '1';
@@ -135,12 +108,45 @@ const Tetris: React.FC = () => {
         cards.forEach((elem) => {
           elem.style.opacity = '0';
         });
-        console.log(itemMap.get(document.activeElement?.id));
-        // let event = KeyFrameEvent.fromGame()
-        socket.current.emit('eventOn', event);
-        gameRef.current.resume();
+        const selectedItem = itemMap.get(document.activeElement?.id)
+        console.log(selectedItem); 
+        
+
+        //폭탄은 eventOn 으로 주고
+        // 그외는 'item'으로 준다. 
+        if (selectedItem == "BOMB") {
+          let event = KeyFrameEvent.fromGame(gameRef.current, user, 7);
+          socket.current!.emit('eventOn', event);
+        }
+        else {
+          let itemIndex : number = 0;
+          switch (selectedItem) {
+            case "FOG":
+              itemIndex = 1;
+              break;
+            case "FLIP":
+              itemIndex = 2;
+              break;
+            case "ROTATE_RIGHT":
+              itemIndex = 3;
+              break;
+            case "ROTATE_LEFT":
+              itemIndex = 4;
+              break;
+            default:
+              console.log('Invalid index');
+          }
+          socket.current!.emit('item', itemIndex);
+        }
+        
+        gameRef.current!.resume();
       }, 5000);
     });
+
+    // 폭탄 이외의 아이템작업.
+    socket.current.on('selectedItem', (itemIndex: number) => {
+      getItemWithIndex(gameRef.current!,itemIndex);
+    })
     return () => {
       socket.current?.disconnect();
     }
