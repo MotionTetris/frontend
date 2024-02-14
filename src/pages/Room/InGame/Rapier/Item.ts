@@ -35,7 +35,26 @@ export function getRandomItem(game: TetrisGame) {
     return randomURL;
 }
 
-export function spawnBomb(game: TetrisGame, x: number, y: number): number {
+export function getItemWithIndex(game: TetrisGame, itemIndex: number) {
+    switch(itemIndex) {
+        case 1:
+            addFog(game);
+            break;
+        case 2:
+            flipViewport(game.graphics.viewport);
+            break;
+        case 3:
+            rotateViewport(game.graphics.viewport, 15);
+            break;
+        case 4:
+            rotateViewport(game.graphics.viewport, -15);
+            break;
+        default:
+            console.log('Invalid index');
+    }
+}
+
+export function spawnBomb(game: TetrisGame, x: number, y: number) {
     playBombSpawnSound();
     let radius = 100;
     let rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
@@ -62,14 +81,13 @@ export function spawnBomb(game: TetrisGame, x: number, y: number): number {
         bombSprite.scale.set(scale, scale);
         game.graphics.viewport.addChild(bombSprite);
         game.graphics.coll2gfx.set(collider!.handle, bombSprite);
-        setTimeout(() => {
-            rigidBody?.setTranslation({x: -10000, y: 0}, false);
-            game.graphics.viewport.removeChild(bombSprite);
-            game.graphics.coll2gfx.delete(collider!.handle);
-        }, 5000);  
     }
 
-    return collider!.handle;
+    return {destroy: () => {
+        rigidBody?.setTranslation({x: -10000, y: 0}, false);
+        game.graphics.viewport.removeChild(bombSprite);
+        game.graphics.coll2gfx.delete(collider!.handle);
+    }, lifetime: game.stepId + 300};
 }
 
 
@@ -80,11 +98,7 @@ export function rotateViewport(viewport: Viewport, degree: number) {
     viewport.rotation = angleInRadians;
     viewport.scale.x *= 0.8;
     viewport.scale.y *= 0.8;
-    if (degree < 0) {
-    ;
-    }
-    else 
-    {
+    if (degree >= 0) {
         viewport.x += 200;
     }
     

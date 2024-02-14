@@ -41,6 +41,12 @@ export function playExplodeSound() {
 }
 
 export function playDefeatSound() {
+    if (defeatSound) {
+        defeatSound.play();
+    }
+}
+
+export function playgGameEndSound() {
     if (gameEndSound) {
         gameEndSound.play();
     }

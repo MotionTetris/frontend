@@ -1,6 +1,8 @@
 import { TetrisOption } from "./TetrisOption";
 import { KeyFrameEvent, MultiPlayerContext, PlayerEventType } from "./Multiplay";
 import { TetrisGame } from "./TetrisGame";
+import { spawnBomb } from "./Item";
+import gameSlice from "@src/redux/game/gameSlice";
 
 export class TetrisMultiplayView extends TetrisGame {
     private multiPlayerContext?: MultiPlayerContext;
@@ -8,6 +10,7 @@ export class TetrisMultiplayView extends TetrisGame {
     private isProcessingEvent: boolean;
     private bufferSizeForRenderStart: number;
 
+    private bomb: any;
     public constructor(option: TetrisOption, userId: string, bufferSizeForRenderStart?: number) {
         super(option, userId);
         this.keyFrameBuffer = [];
@@ -53,6 +56,11 @@ export class TetrisMultiplayView extends TetrisGame {
                 this.option.stepCallback(this, this.stepId);
             }
 
+            if (this.bomb && this.bomb.lifetime === this.stepId) {
+                this.bomb.destory();
+                this.bomb = undefined;
+            }
+
             this.world.step(this.events);
             this.stepId++;
             this.graphics.render(this.world);
@@ -71,7 +79,7 @@ export class TetrisMultiplayView extends TetrisGame {
                 this.onCollisionDetected(body1, body2);
             });
 
-
+            this.emptyRemoveQueue();
             requestAnimationFrame(() => this.stepKeyFrameEvent(event, seq));
             return;
         }
@@ -98,6 +106,11 @@ export class TetrisMultiplayView extends TetrisGame {
                     console.log("받음", event?.userData);
                     this.spawnBlock(0xFF0000, event?.userData, true);
                     break;
+                case PlayerEventType.ITEM_USED:
+                    console.log("폭탄상대화면뿌리기", event?.userData );
+                    this.bomb = spawnBomb(this, 300, 0);
+                    break;
+                    //폭탄떨구기.
                 default:
                     console.debug(`undefined evnet at ${this.stepId}, desired keyframe: ${event.keyframe}`);
             }
