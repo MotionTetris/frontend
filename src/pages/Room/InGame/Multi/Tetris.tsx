@@ -37,6 +37,11 @@ const Tetris: React.FC = () => {
   const scoreTexts = useRef(
     Array.from({ length: 21 }, () => new PIXI.Text('0', { fontFamily: 'Arial', fontSize: 24, fill: '#ffffff' }))
   );
+
+  const otherScoreTexts = useRef(
+    Array.from({ length: 21 }, () => new PIXI.Text('0', { fontFamily: 'Arial', fontSize: 24, fill: '#ffffff' }))
+  );
+
   const myLineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
   const otherLineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
   const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
@@ -295,9 +300,20 @@ const Tetris: React.FC = () => {
       scoreTexts.current.forEach((text) => {
         game.graphics.viewport.addChild(text);
       });
+      
+      otherScoreTexts.current.forEach((text) => {
+        otherGame.graphics.viewport.addChild(text);
+      })
+
       myLineGrids.forEach((line) => {
         game.graphics.viewport.addChild(line);
       });
+
+      otherLineGrids.forEach((line) => {
+        otherGame.graphics.viewport.addChild(line);
+      })
+
+
       setTimeout(() => { setMessage("") }, 3000);
       id = setInterval(poseNetLoop, 250);
       game.spawnBlock(0xFF0000, "T", true);

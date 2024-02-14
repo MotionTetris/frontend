@@ -1,7 +1,7 @@
 /* Calculate intersection and difference between polygon and lines */
 
 /* Create lines. startX must be lower than endY. */
-export function createLines(startY: number, endY: number, thickness: number, x: number = 10000) {
+export function createLines(startY: number, endY: number, thickness: number, x: number = 5000) {
     const lines: number[][][][] = [];
     let first = true;
     if (startY >= endY) {
