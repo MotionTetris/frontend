@@ -28,6 +28,7 @@ const Tetris: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<TetrisGame | null>(null);
+  const otherGameRef = useRef<TetrisGame | null>(null);
   const socket = useRef<io.Socket>()
   const otherNicknames = useSelector((state: RootState) => state.game.playersNickname);
   const [nextBlock, setNextBlock] = useState("");
@@ -161,6 +162,7 @@ const Tetris: React.FC = () => {
               console.log('Invalid index');
           }
           socket.current!.emit('item', itemIndex);
+          getItemWithIndex(otherGameRef.current!, itemIndex);
         }
 
         gameRef.current!.resume();
@@ -306,6 +308,7 @@ const Tetris: React.FC = () => {
     const otherGame = new TetrisMultiplayView(otherGameOption, userId);
     otherGame.running = false;
     otherGame.setWorld(initWorld(RAPIER, otherGameOption));
+    otherGameRef.current = otherGame;
 
     let poseNetResult: { poseNet: PoseNet; renderingContext: CanvasRenderingContext2D; } | undefined = undefined;
     let prevResult: KeyPointResult = {
@@ -399,10 +402,10 @@ const Tetris: React.FC = () => {
       </VideoContainer>
       <UserBackGround />
 
-      {/* <GameOverModal visible={isGameOver}>
+      <GameOverModal visible={isGameOver}>
         <GameResult result="패배" score={playerScore} maxCombo={123} maxScore={456} />
         <GoLobbyButton id="go-home" onClick={() => window.location.href = '/'}>홈으로 이동하기</GoLobbyButton>
-      </GameOverModal> */}
+      </GameOverModal> 
 
       <MultiplayContainer>
         <SceneCanvas id="otherGame" ref={otherSceneRef} />
