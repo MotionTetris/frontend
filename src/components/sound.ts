@@ -1,6 +1,19 @@
 const BGSOUND1 = new Audio('src/assets/Game_Tetris_Loading1.wav');
 const BGSOUND2 = new Audio('src/assets/Game_Tetris_Loading2.wav');
 
+export type PageBGM = "page1" | "page2";
+
+export function playSound(page: PageBGM, volume: number, play = true) {
+  switch (page) {
+    case "page1":
+      playLodingSound1(volume, play);
+      break;
+    case "page2":
+      playLodingSound2(volume, play);
+      break;
+  }
+}
+
 export function stopSound() {
   BGSOUND1.pause();
   BGSOUND1.currentTime = 0;
