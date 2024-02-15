@@ -37,7 +37,7 @@ const Tetris: React.FC = () => {
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
   const [playerScore, setPlayerScore] = useState(0);
   const [otherScore, setOtherScore] = useState(0);
-  const [isGameOver, setIsGameOver] = useState(true);
+  const [isGameOver, setIsGameOver] = useState(false);
   const [nickname, setNickname] = useState("");
   const [timeLeft, setTimeLeft] = useState("");
   const scoreTexts = useRef(

@@ -265,13 +265,13 @@ export const GameResult: React.FC<GameResultProps> = ({ score, otherScore }) => 
 
 
 
-export const GoLobbyButton = styled.button`
+export const GoLobbyButton = styled.button<GameOverModalProps>`
   position: absolute;
   top: 60%;
-  left:45%;
-  background-color: #4CAF50; /* Green */
+  left: 45%;
+  background-color: ${props => props.visible ? '#4CAF50' : 'transparent'};
   border: none;
-  color: white;
+  color: ${props => props.visible ? 'white' : 'transparent'};
   padding: 15px 32px;
   text-align: center;
   text-decoration: none;
@@ -279,8 +279,11 @@ export const GoLobbyButton = styled.button`
   font-size: 16px;
   margin: 4px 2px;
   z-index: 50;
-  cursor: pointer;
+  cursor: ${props => props.visible ? 'pointer' : 'default'};
+  pointer-events: ${props => props.visible ? 'auto' : 'none'};
 `;
+
+
 
 export const TetrisNextBlockContainer = styled.div`
 position: relative;
