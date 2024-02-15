@@ -1,9 +1,10 @@
 import { jwtDecode } from "jwt-decode";
 
 /**
+ * Get the current user's nickname from the token in local storage.
  * @returns empty string when there is no token in localStorage, otherwise returns nickname
  */
-export function getUserNickname() {
+export function getUserNickname(): string {
     const token = localStorage.getItem('token');
     if (!token) {
         return '';
@@ -18,9 +19,10 @@ export function getUserNickname() {
 }
 
 /**
+ * Get the token expiration time from local storage.
  * @returns 0 when there is no token in localStorage, otherwise returns exp 
  */
-export function getExpiresAt() {
+export function getExpiresAt(): number | undefined {
     const token = localStorage.getItem('token');
     if (!token) {
         return 0;
@@ -34,14 +36,25 @@ export function getExpiresAt() {
     return tokenPayload.exp;
 }
 
-export function removeToken() {
+/**
+ * Delete the token from local storage.
+ */
+export function removeToken(): void {
     localStorage.removeItem('token');
 }
 
-export function setToken(token: string) {
+/**
+ * Set the token for local storage.
+ * @param token 
+ */
+export function setToken(token: string): void {
     localStorage.setItem('token', token);
 }
 
-export function getToken() {
+/**
+ * Get a token from local storage.
+ * @returns {string | null} token
+ */
+export function getToken(): string | null {
     return localStorage.getItem('token');
 }
