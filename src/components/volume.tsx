@@ -3,13 +3,15 @@ import { VolumeControl, VolumeButton } from "./styles";
 import { playLodingSound1,playLodingSound2, stopSound  } from "./sound";
 import { IoVolumeMediumSharp } from "react-icons/io5";
 import { IoVolumeMuteOutline } from "react-icons/io5";
+import { isMuted, muteBGM, unmuteBGM } from '@src/data-store/volume';
 
 interface VolumeProps {
     page: string;
 }
 
 const Volume: React.FC<VolumeProps> = ({ page }) => {
-  const [isPlaying, setIsPlaying] = useState(true);
+  const initialVolumeState = !isMuted();
+  const [isPlaying, setIsPlaying] = useState(initialVolumeState);
   const [volume, setVolume] = useState([50]);
 
   useEffect(() => {
@@ -32,6 +34,14 @@ const Volume: React.FC<VolumeProps> = ({ page }) => {
 
 
   const handlePlayClick = () => {
+    if (isPlaying) {
+      muteBGM();
+      setIsPlaying(!isPlaying);
+      console.log("뮤트함");
+      return;
+    }
+
+    unmuteBGM();
     setIsPlaying(!isPlaying);
   };
   return (
