@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js";
+import { Ticker, filters } from 'pixi.js';
 import {Viewport} from "pixi-viewport";
 import {GlowFilter} from '@pixi/filter-glow';
 import { BlockTypeList, Tetromino } from "./Tetromino";
@@ -8,7 +9,7 @@ import { playBombExplodeSound, playBombSpawnSound, playDoubleComboSound, playFli
 import { TetrisGame } from "./TetrisGame";
 import * as particles from '@pixi/particle-emitter'
 import * as RAPIER from "@dimforge/rapier2d";
-
+import { STAR_URL } from "@src/config"
 
 export const explodeParticleEffect = (x: number, y: number, graphics: Graphics ) => {
   const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
@@ -44,50 +45,6 @@ export const explodeParticleEffect = (x: number, y: number, graphics: Graphics )
       };
 
       particles.push(updateParticle); // 추가
-  }
-
-  particles.forEach((particle) => ticker.add(particle)); // 수정
-
-  if (!ticker.started) {
-    ticker.start();
-  }
-};
-
-
-export const starParticleEffect = (x: number, y: number, graphics: Graphics,  starTexture: PIXI.Texture) => {
-  const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
-  const viewport = graphics.viewport;
-  const ticker = graphics.ticker;
-  const particles: Array<() => void> = []; // 추가
-
-  for (let i = 0; i < 10; i++) {
-    const effectParticle = new PIXI.Sprite(starTexture);
-    effectParticle.tint = colors[Math.floor(Math.random() * colors.length)];
-    const scale = Math.random() * 0.5 + 0.01;
-    effectParticle.scale.set(scale);
-    effectParticle.x = x;
-    effectParticle.y = y;
-    effectParticle.vx = Math.random() * 1 - 0.1;
-    effectParticle.vy = -(Math.random() * 5 + 0.5);
-    viewport.addChild(effectParticle);
-
-    const updateParticle = () => {
-      effectParticle.x += effectParticle.vx;
-      effectParticle.y += effectParticle.vy;
-      effectParticle.alpha -= 0.01;
-      effectParticle.scale.x = effectParticle.scale.y += 0.0001;
-
-      if (effectParticle.alpha <= 0) {
-        viewport.removeChild(effectParticle);
-        ticker.remove(updateParticle);
-        const index = particles.indexOf(updateParticle); // 추가
-        if (index !== -1) {
-          particles.splice(index, 1); // 추가
-        }
-      }
-    };
-
-    particles.push(updateParticle); // 추가
   }
 
   particles.forEach((particle) => ticker.add(particle)); // 수정
@@ -204,15 +161,13 @@ export function performPushEffect(firstRectangle: PIXI.Sprite, secondRectangle: 
 
 export function createScoreBasedGrid(lineGrids: PIXI.Graphics[], scoreList: number [], threshold: number) {
   for (let i = 0; i < lineGrids.length; i++) {
-    const alpha = scoreList[i] / threshold; // 점수를 투명도로 변환 (0 ~ 1 사이의 값)
+    const alpha = scoreList[i] / threshold;
     lineGrids[i].clear();
     lineGrids[i].beginFill(0xff00f0, alpha/4);
-    lineGrids[i].drawRect(100, -i * 32 +588, 410, 32); // 32픽셀 간격으로 높이를 설정
+    lineGrids[i].drawRect(100, -i * 32 +588, 410, 32);
     lineGrids[i].endFill();
   }  
 }
-
-
 
 export function lightEffectToLine(lineGrids: PIXI.Graphics[], index: number) {
   // Glow 효과를 위한 필터를 생성합니다.
@@ -238,10 +193,8 @@ export function lightEffectToLine(lineGrids: PIXI.Graphics[], index: number) {
     lineGrids[index].beginFill(0xff00f0, 0.25);
     lineGrids[index].drawRect(100, -index * 32 +588, 420, 32);
     lineGrids[index].endFill();
-  }, 400);
+  }, 100);
 }
-
-
 
 
 export function showScore(scoreList: number [], scoreTexts : PIXI.Text[], threshold: number) { 
@@ -389,11 +342,11 @@ export function handleComboEffect(combo: number, graphics: Graphics): string {
   startShake({ viewport: graphics.viewport, strength: 5 + 10 * combo, duration: 400 + 50 * combo})
   if (combo === 1) {
     playSingleComboSound();
-    explodeParticleEffect(300, 700, graphics);
     return "Single Combo!";
   }
   else if (combo === 2) {
     playDoubleComboSound();
+    explodeParticleEffect(300, 700, graphics);
     return "Double Combo!";
   }
   else {

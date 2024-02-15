@@ -1,5 +1,5 @@
 import { Socket } from "socket.io-client";
-import { changeBlockGlow, collisionParticleEffect, fallingBlockGlow, handleComboEffect, lightEffectToLine, loadStarImage, performPushEffect, starParticleEffect } from "./Effect";
+import { changeBlockGlow, collisionParticleEffect, fallingBlockGlow, handleComboEffect, lightEffectToLine, loadStarImage, performPushEffect } from "./Effect";
 import { KeyPointCallback, KeyPoint } from "./PostNet";
 import { TetrisGame } from "./TetrisGame";
 import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playGameEndSound, stopIngameSound } from "./Sound";
@@ -126,13 +126,7 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
                 }, 1000);
             }
 
-            // @ts-ignore
-            loadStarImage().then((starTexture: PIXI.Texture) => {
-                starParticleEffect(0, 600, game.graphics, starTexture);
-                starParticleEffect(450, 600, game.graphics, starTexture);
-            }).catch((error: any) => {
-                console.error(error);
-            });
+
         }
         let blockToSpawn = game.nextBlock;
         

@@ -424,7 +424,8 @@ const Tetris: React.FC = () => {
       <GoLobbyButton visible={isGameOver} id="go-home" onClick={() => { window.location.href = '/gamemain'; }}>
         로비로 이동하기
       </GoLobbyButton>
-      <Timer timeLeft={timeLeft} />
+      <Timer timeLeft={timeLeft}/>
+
       <MultiplayContainer>
         <OtherScore> 남의 스코어: {otherScore} </OtherScore>
         <SceneCanvas id="otherGame" ref={otherSceneRef} />

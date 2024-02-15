@@ -19,3 +19,7 @@ export const LeftTime = styled.div`
   font-weight: bold;
   z-index: 5;
 `;
+
+
+
+
