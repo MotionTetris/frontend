@@ -8,7 +8,7 @@ import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "../Rapier/TetrisOption.ts";
 import { TetrisMultiplayView } from "../Rapier/TetrisMultiplayView.ts";
-import { playGameEndSound, playIngameSound} from "../Rapier/Sound.ts";
+import { playGameEndSound, playIngameSound } from "../Rapier/Sound.ts";
 import { PoseNet } from "@tensorflow-models/posenet";
 import { KeyPointResult, loadPoseNet, processPose } from "../Rapier/PostNet.ts";
 import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "../Rapier/TetrisCallback.ts";
@@ -37,7 +37,7 @@ const Tetris: React.FC = () => {
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
   const [playerScore, setPlayerScore] = useState(0);
   const [otherScore, setOtherScore] = useState(0);
-  const [isGameOver, setIsGameOver] = useState(false);
+  const [isGameOver, setIsGameOver] = useState(true);
   const [nickname, setNickname] = useState("");
   const [timeLeft, setTimeLeft] = useState("");
   const scoreTexts = useRef(
@@ -181,7 +181,7 @@ const Tetris: React.FC = () => {
     });
 
     //모달 띄우기
-    socket.current.on('gameEnd', (isEnded: boolean)=> {
+    socket.current.on('gameEnd', (isEnded: boolean) => {
       setIsGameOver(isEnded);
       playGameEndSound();
       gameRef.current!.pause();
@@ -268,7 +268,7 @@ const Tetris: React.FC = () => {
         showScore(checkResult.scoreList, scoreTexts.current, eraseThreshold);
         showScore(checkOtherResult.scoreList, otherScoreTexts.current, eraseThreshold);
       }
-      
+
       if (bomb && bomb.lifetime === step) {
         bomb.destroy();
         bomb = undefined;
@@ -295,7 +295,7 @@ const Tetris: React.FC = () => {
       backgroundColor: 0x222929,
       backgroundAlpha: 0
     };
-  
+
     const game = new TetrisGame(TetrisOption, "user");
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
@@ -420,9 +420,11 @@ const Tetris: React.FC = () => {
 
       <GameOverModal visible={isGameOver}>
         <GameResult score={playerScore} otherScore={otherScore} />
-        <GoLobbyButton id="go-home" onClick={() => window.location.href = '/gamemain'}>홈으로 이동하기</GoLobbyButton>
-      </GameOverModal> 
-      <Timer timeLeft={timeLeft}/>
+      </GameOverModal>
+      <GoLobbyButton id="go-home" onClick={() => { window.location.href = '/gamemain'; }}>
+        로비로 이동하기
+      </GoLobbyButton>
+      <Timer timeLeft={timeLeft} />
       <MultiplayContainer>
         <OtherScore> 남의 스코어: {otherScore} </OtherScore>
         <SceneCanvas id="otherGame" ref={otherSceneRef} />
@@ -438,7 +440,7 @@ const Tetris: React.FC = () => {
         {shootingStars}
       </Night>
     </BackgroundColor1>
-    
+
   </>
   );
 };
