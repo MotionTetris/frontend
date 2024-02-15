@@ -10,7 +10,7 @@ import { TetrisOption } from "../Rapier/TetrisOption.ts";
 import { TetrisMultiplayView } from "../Rapier/TetrisMultiplayView.ts";
 import { playGameEndSound } from "../Rapier/Sound.ts";
 import { PoseNet } from "@tensorflow-models/posenet";
-import { KeyPointResult, loadPoseNet, processPose } from "../Rapier/PostNet.ts";
+import { KeyPointResult, loadPoseNet, processPose } from "../Rapier/PoseNet.ts";
 import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "../Rapier/TetrisCallback.ts";
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
 import { jwtDecode } from "jwt-decode";

@@ -9,7 +9,7 @@ import "@tensorflow/tfjs";
 import { TetrisOption } from "../Rapier/TetrisOption";
 import { playDefeatSound, playExplodeSound, playLandingSound } from "../Rapier/Sound";
 import { PoseNet } from "@tensorflow-models/posenet";
-import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "../Rapier/PostNet";
+import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "../Rapier/PoseNet.ts";
 import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "../Rapier/TetrisCallback";
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
 import { jwtDecode } from "jwt-decode";

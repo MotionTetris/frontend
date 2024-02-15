@@ -201,7 +201,7 @@ function calculateAngle(pointA: KeyPoint, pointB: KeyPoint, pointC: KeyPoint): n
 
 export async function setupWebcam(videoRef: RefObject<HTMLVideoElement>) {
     console.log("웹캠 설정을 시작합니다...");
-    const video = document.createElement("video");
+    
     if (videoRef.current) {
         const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
@@ -214,5 +214,6 @@ export async function setupWebcam(videoRef: RefObject<HTMLVideoElement>) {
             };
         });
     }
+    const video = document.createElement("video");
     return video;
 }

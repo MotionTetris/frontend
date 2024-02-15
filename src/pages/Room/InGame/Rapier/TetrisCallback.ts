@@ -1,6 +1,6 @@
 import { Socket } from "socket.io-client";
 import { changeBlockGlow, collisionParticleEffect, fallingBlockGlow, handleComboEffect, lightEffectToLine, loadStarImage, performPushEffect, starParticleEffect } from "./Effect";
-import { KeyPointCallback, KeyPoint } from "./PostNet";
+import { KeyPointCallback, KeyPoint } from "./PoseNet";
 import { TetrisGame } from "./TetrisGame";
 import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playGameEndSound, stopIngameSound } from "./Sound";
 import * as PIXI from "pixi.js";
