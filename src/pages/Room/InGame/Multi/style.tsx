@@ -278,6 +278,7 @@ export const GoLobbyButton = styled.button`
   display: inline-block;
   font-size: 16px;
   margin: 4px 2px;
+  z-index: 50;
   cursor: pointer;
 `;
 
