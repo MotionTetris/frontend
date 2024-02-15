@@ -8,9 +8,9 @@ import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "../Rapier/TetrisOption.ts";
 import { TetrisMultiplayView } from "../Rapier/TetrisMultiplayView.ts";
-import { playGameEndSound, playIngameSound } from "../Rapier/Sound.ts";
+import { playGameEndSound } from "../Rapier/Sound.ts";
 import { PoseNet } from "@tensorflow-models/posenet";
-import { KeyPointResult, loadPoseNet, processPose } from "../Rapier/PostNet.ts";
+import { KeyPointResult, loadPoseNet, processPose } from "../Rapier/PoseNet.ts";
 import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "../Rapier/TetrisCallback.ts";
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
 import { jwtDecode } from "jwt-decode";
@@ -20,6 +20,7 @@ import { BOMB_URL, FLIP_URL, FOG_URL, GAME_SOCKET_URL, ROTATE_LEFT_URL, ROTATE_R
 import { getItemWithIndex, spawnBomb } from "../Rapier/Item.ts";
 import { KeyFrameEvent, PlayerEventType } from "../Rapier/Multiplay.ts";
 import { Timer } from "@src/components/Ingame/Timer.tsx";
+import Volume from "@src/components/volume.tsx";
 
 
 const eraseThreshold = 8000;
@@ -351,7 +352,6 @@ const Tetris: React.FC = () => {
       if (!poseNetResult) {
         poseNetResult = await loadPoseNet(videoRef, canvasRef);
       }
-      playIngameSound();
       game.run();
       otherGame.run();
       setMessage("게임 시작!");
@@ -395,6 +395,7 @@ const Tetris: React.FC = () => {
 
   return (<>
     <DarkBackground id='card-bg'></DarkBackground>
+    <Volume page="ingame"></Volume>
     <Container>
       <SceneContainer>
         <MessageDiv>  {message} </MessageDiv>
