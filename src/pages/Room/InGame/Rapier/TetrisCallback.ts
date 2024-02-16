@@ -80,7 +80,6 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
 export function createBlockSpawnEvent(socket?: Socket, setNextBlock?: any) {
     return ({game, blockType, blockColor, nextBlockType, nextBlockColor}: BlockSpawnEvent) => {
         let event = game.onBlockSpawned(blockType, blockColor, nextBlockType, nextBlockColor);
-        event.userData = blockType;
         setNextBlock(nextBlockType);
         socket?.emit('eventOn', event);   
     }

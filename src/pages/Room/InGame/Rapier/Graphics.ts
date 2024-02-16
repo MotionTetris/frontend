@@ -57,30 +57,6 @@ export class Graphics {
         document.oncontextmenu = onContextMenu;
         document.body.oncontextmenu = onContextMenu;
         this.viewport.setTransform(0, 280);
-        this.instanceGroups = [];
-        this.initInstances();   
-    }
-
-    initInstances() {
-        this.instanceGroups.push(
-            this.colorPalette.map((color) => {
-                const graphics = new PIXI.Graphics();
-                graphics.beginFill(color);
-                graphics.drawRect(-1.0, 1.0, 2.0, -2.0);
-                graphics.endFill();
-                return graphics;
-            }),
-        );
-
-        this.instanceGroups.push(
-            this.colorPalette.map((color) => {
-                const graphics = new PIXI.Graphics();
-                graphics.beginFill(color);
-                graphics.drawCircle(0.0, 0.0, 1.0);
-                graphics.endFill();
-                return graphics;
-            }),
-        );
     }
 
     render(world: RAPIER.World) {
