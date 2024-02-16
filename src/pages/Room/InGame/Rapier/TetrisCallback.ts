@@ -2,16 +2,15 @@ import { Socket } from "socket.io-client";
 import { changeBlockGlow, collisionParticleEffect, fallingBlockGlow, handleComboEffect, lightEffectToLine, loadStarImage, performPushEffect } from "./Effect";
 import { KeyPointCallback, KeyPoint } from "./PostNet";
 import { TetrisGame } from "./TetrisGame";
-import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playGameEndSound, stopIngameSound } from "./Sound";
+import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playGameEndSound } from "./Sound";
 import * as PIXI from "pixi.js";
-import { BlockType, BlockTypeList } from "./Tetromino";
-import { showGameOverModal } from "./Effect";
+import { BlockSpawnEvent } from "./TetrisEvent";
 
 export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
     let nextColorIndex = 0;
     let eventCallback: KeyPointCallback = {
-        onRotateLeft: function (keypoints: Map<string, KeyPoint>): void {
-            if (game.running === false) {
+        onRotateLeft: function (_keypoints: Map<string, KeyPoint>): void {
+            if (!game.isRunning) {
                 var currentTab = document.activeElement;
                 if (!currentTab) {
                     return
@@ -21,7 +20,7 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
                 let nextTab = document.querySelector('[tabIndex="' + (tabIndex + -1) + '"]');
 
                 if (nextTab) {
-                    nextTab.focus();
+                    (nextTab as HTMLElement).focus();
                 }
                 return;
             }
@@ -30,8 +29,8 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
             let event = game.onRotateLeft();
             socket?.emit('eventOn', event);
         },
-        onRotateRight: function (keypoints: Map<string, KeyPoint>): void {
-            if (game.running === false) {
+        onRotateRight: function (_keypoints: Map<string, KeyPoint>): void {
+            if (!game.isRunning) {
                 var currentTab = document.activeElement;
                 if (!currentTab) {
                     return
@@ -41,7 +40,7 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
                 let nextTab = document.querySelector('[tabIndex="' + (tabIndex + 1) + '"]');
 
                 if (nextTab) {
-                    nextTab.focus();
+                    (nextTab as HTMLElement).focus();
                 }
                 return;
             }
@@ -79,7 +78,7 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
 }
 
 export function createBlockSpawnEvent(socket?: Socket, setNextBlock?: any) {
-    return (game: TetrisGame, blockType: BlockType, blockColor: number, nextBlockType: BlockType, nextBlockColor: number) => {
+    return ({game, blockType, blockColor, nextBlockType, nextBlockColor}: BlockSpawnEvent) => {
         let event = game.onBlockSpawned(blockType, blockColor, nextBlockType, nextBlockColor);
         event.userData = blockType;
         setNextBlock(nextBlockType);

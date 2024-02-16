@@ -7,17 +7,15 @@ import { rotateViewport, resetRotateViewport, spawnBomb, flipViewport, resetFlip
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "../Rapier/TetrisOption";
-import { playDefeatSound, playExplodeSound, playLandingSound } from "../Rapier/Sound";
 import { PoseNet } from "@tensorflow-models/posenet";
-import { KeyPointResult, KeyPointCallback, KeyPoint, loadPoseNet, processPose } from "../Rapier/PoseNet.ts";
+import { KeyPointResult, loadPoseNet, processPose } from "../Rapier/PoseNet.ts";
 import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "../Rapier/TetrisCallback";
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
-import { jwtDecode } from "jwt-decode";
-import { BOMB_URL, FOG_URL, FLIP_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL } from "@src/config"
-import Tutorial from "@src/components/Tutorial/tutorial.tsx";
 import Volume from "@src/components/volume.tsx";
+import { getUserNickname } from "@src/data-store/token.ts";
+import { eraseThreshold } from "../Rapier/TetrisContants.ts";
+import { StepEvent } from "../Rapier/TetrisEvent.ts";
 
-const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
 const TetrisSingle: React.FC = () => {
   const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
@@ -38,19 +36,9 @@ const TetrisSingle: React.FC = () => {
   );
   const lineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
 
-
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const decoded = jwtDecode(token);
-      const nickname = decoded.sub || "";
-      setNickname(nickname);
-    }
-  },);
-
-
-
-
+    setNickname(getUserNickname());
+  });
 
   useEffect(() => {
     if (!isModalOpen) {
@@ -94,13 +82,13 @@ const TetrisSingle: React.FC = () => {
 
       const LandingEvent = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore, setIsGameOver, true, true);
 
-      const StepCallback = (game: TetrisGame, step: number) => {
+      const StepCallback = ({game, currentStep}: StepEvent) => {
 
-        if (step % 15 != 0) {
+        if (currentStep % 15 != 0) {
           return;
         }
-        if (step != 0 && step % 600 == 0) {
-          console.log("아이템", step);
+        if (currentStep != 0 && currentStep % 600 == 0) {
+          console.log("아이템", currentStep);
           setItem(getRandomItem(gameRef.current!));
         }
         const checkResult = game.checkLine(eraseThreshold);
@@ -116,11 +104,6 @@ const TetrisSingle: React.FC = () => {
         view: sceneRef.current,
         spawnX: sceneRef.current.width / 2,
         spawnY: 200,
-        blockCollisionCallback: CollisionEvent,
-        blockLandingCallback: LandingEvent,
-        preBlockLandingCallback: preLandingEvent,
-        stepCallback: StepCallback,
-        blockSpawnCallback: createBlockSpawnEvent(undefined, setNextBlock),
         worldHeight: 800,
         worldWidth: 600,
         wallColor: 0xFF0000,
@@ -130,9 +113,13 @@ const TetrisSingle: React.FC = () => {
       };
 
       const game = new TetrisGame(TetrisOption, "user");
+      game.on("collision", CollisionEvent);
+      game.on("landing", LandingEvent);
+      game.on("prelanding", preLandingEvent);
+      game.on("step", StepCallback);
+      game.on("blockSpawn", createBlockSpawnEvent(undefined, setNextBlock));
       gameRef.current = game;
       game.setWorld(initWorld(RAPIER, TetrisOption));
-      game.running = true;
       game.spawnBlock(0xFF0000, "T", true);
       fallingBlockGlow(game.fallingTetromino!);
 
@@ -161,7 +148,7 @@ const TetrisSingle: React.FC = () => {
         if (!poseNetResult) {
           poseNetResult = await loadPoseNet(videoRef, canvasRef);
         }
-        game.run();
+        game.resume();
         setMessage("게임 시작!");
         scoreTexts.current.forEach((text) => {
           game.graphics.viewport.addChild(text);
@@ -180,8 +167,6 @@ const TetrisSingle: React.FC = () => {
       };
     }
   }, [isModalOpen]);
-
-
 
   return (
     <>
@@ -222,12 +207,10 @@ const TetrisSingle: React.FC = () => {
           <VideoCanvas ref={canvasRef} />
         </VideoContainer>
         <UserBackGround />
-
         <GameOverModal visible={isGameOver}>
           <GameResult result="패배" score={playerScore} maxCombo={123} maxScore={456} />
           <GoLobbyButton id="go-home" onClick={() => window.location.href = '/gameLobby'}>홈으로 이동하기</GoLobbyButton>
         </GameOverModal>
-
       </Container>
       <BackgroundColor1>
         <Night>

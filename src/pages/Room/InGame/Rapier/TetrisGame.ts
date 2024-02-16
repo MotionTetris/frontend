@@ -1,14 +1,17 @@
-import {Graphics} from "./Graphics";
+import { Graphics } from "./Graphics";
 import * as RAPIER from "@dimforge/rapier2d";
-import { BlockCollisionCallbackParam, TetrisOption } from "./TetrisOption";
+import { TetrisOption } from "./TetrisOption";
 import { BlockType, BlockTypeList, Tetromino } from "./Tetromino";
-import { createLines } from "./Line";
+import { Line, createLines } from "./Line";
 import { calculateLineIntersectionArea } from "./BlockScore";
 import { removeLines as removeShapeWithLine } from "./BlockRemove";
-import { KeyFrameEvent, PlayerEventType } from "./Multiplay";
+import { MultiplayEvent, PlayerEventType } from "./Multiplay";
 import { Wall } from "./Wall";
+import { EventEmitter } from 'events'
+import { getRandomInt } from "@src/util/random";
+import { MAX_FRAMERATE, MAX_HEIGHT, WallType } from "./TetrisContants";
+import { TetrisEventMap } from "./TetrisEvent";
 
-type Line = number[][][]
 export class TetrisGame {
     graphics: Graphics;
     inhibitLookAt: boolean;
@@ -16,7 +19,6 @@ export class TetrisGame {
     world?: RAPIER.World;
     preTimestepAction?: (gfx: Graphics) => void;
     stepId: number;
-    lastMessageTime?: number;
     snap?: Uint8Array;
     snapStepId?: number;
     option: TetrisOption;
@@ -24,14 +26,16 @@ export class TetrisGame {
     snapTetrominos?: Map<number, Tetromino>;
     fallingTetromino?: Tetromino;
     lines: Line[];
-    sequence: number;
-    protected userId: string;
-    running: boolean;
-    private removeBodies: Array<RAPIER.RigidBody>;
-    private walls: Map<number, Wall>
-    private readonly defaultWallColor = 0x222929;
-    protected lastRenderingTime: number;
-    protected _nextBlock?: BlockType; 
+    userId: string;
+    protected _sequence: number;
+    protected _isRunning: boolean;
+    protected _lastRenderingTime: number;
+    protected _nextBlock?: BlockType;
+    private _removeBodies: Array<RAPIER.RigidBody>;
+    private _walls: Map<number, Wall>
+    private _event: EventEmitter;
+    private _latestRequestFrameId?: number;
+
     public constructor(option: TetrisOption, userId: string) {
         if (!option.view) {
             throw new Error("Canvas is null");
@@ -42,19 +46,16 @@ export class TetrisGame {
         this.events = new RAPIER.EventQueue(true);
         this.option = option;
         this.tetrominos = new Map();
-        this.lines = createLines(-20 * option.blockSize + 20, 0, option.blockSize);
-        this.sequence = 0;
-        this.running = false;
+        this.lines = createLines(-MAX_HEIGHT * option.blockSize + 20, 0, option.blockSize);
+        this._sequence = 0;
+        this._isRunning = false;
         this.userId = userId;
         this.stepId = 0;
-        this.removeBodies = [];
-        this.walls = new Map();
-        this.lastRenderingTime = 0;
-        this._nextBlock = BlockTypeList.at(this.getRandomInt(0, BlockTypeList.length - 1));
-    }
-
-    public set landingCallback(callback: ((result: BlockCollisionCallbackParam) => void)) {
-        this.option.blockLandingCallback = callback;
+        this._removeBodies = [];
+        this._walls = new Map();
+        this._lastRenderingTime = 0;
+        this._nextBlock = BlockTypeList.at(getRandomInt(0, BlockTypeList.length - 1));
+        this._event = new EventEmitter();
     }
 
     public setpreTimestepAction(action: (gfx: Graphics) => void) {
@@ -66,7 +67,7 @@ export class TetrisGame {
     }
 
     public addRigidBodyToRemoveQueue(body: RAPIER.RigidBody) {
-        this.removeBodies.push(body);
+        this._removeBodies.push(body);
     }
 
     public getTetrominoFromHandle(handle: number) {
@@ -80,7 +81,7 @@ export class TetrisGame {
         this.world = world;
         this.world.numSolverIterations = 4;
         this.stepId = 0;
-        this.walls = new Map();
+        this._walls = new Map();
 
         world.forEachCollider((coll) => {
             // @ts-ignore
@@ -95,11 +96,10 @@ export class TetrisGame {
         world.forEachRigidBody((body) => {
             let wall = new Wall(body);
             wall.userData = body.userData;
-            this.walls.set(wall.rigidBody.handle, wall);
+            this._walls.set(wall.rigidBody.handle, wall);
         });
 
         this.graphics.render(this.world);
-        this.lastMessageTime = new Date().getTime();
     }
 
     public lookAt(pos: Parameters<Graphics["lookAt"]>[0]) {
@@ -131,78 +131,84 @@ export class TetrisGame {
     }
 
     protected updateSequence() {
-        this.sequence += 1;
+        this._sequence += 1;
+    }
+
+    public get sequence() {
+        return this._sequence;
     }
 
     public run(time?: number) {
         time ??= 0;
-        let dt = time - this.lastRenderingTime;
-        
+        let dt = time - this._lastRenderingTime;
+
         if (!this.world) {
             console.error("Failed to run. world is not set");
             return;
         }
 
-        if (!this.running) {
+        if (!this._isRunning) {
             return;
         }
 
-        if (dt < 1000 / 63) {
-            requestAnimationFrame((time) => this.run(time));
+        if (dt < 1000 / MAX_FRAMERATE) {
+            this._latestRequestFrameId = requestAnimationFrame((time) => this.run(time));
             return;
         }
 
-        this.lastRenderingTime = time;
+        this._lastRenderingTime = time;
         if (this.preTimestepAction) {
             this.preTimestepAction(this.graphics);
         }
 
-        if (this.option.stepCallback) {
-            this.option.stepCallback(this, this.stepId);
-        }
-        this.updateWorld();
+        this.emit("step", { game: this, currentStep: this.stepId });
+
+        this.updateWorld(this.world);
         this.graphics.render(this.world);
-        requestAnimationFrame((time) => this.run(time));
+        this._latestRequestFrameId = requestAnimationFrame((time) => this.run(time));
     }
 
-    public updateWorld() {
-        if (!this.world) {
-            return;
-        }
-        this.world.step(this.events);
+    public updateWorld(world: RAPIER.World) {
+        world.step(this.events);
         this.stepId += 1;
         this.events.drainCollisionEvents((handle1: number, handle2: number, started: boolean) => {
             if (!started) {
                 return;
             }
 
-            if (!this.world) {
-                console.error("Failed to run. world is not set");
-                return;
-            }
-
-            const body1 = this.world.getCollider(handle1);
-            const body2 = this.world.getCollider(handle2);
+            const body1 = world.getCollider(handle1);
+            const body2 = world.getCollider(handle2);
             this.onCollisionDetected(body1, body2);
         });
-        
+
         this.emptyRemoveQueue();
     }
 
     public pause() {
-        this.running = false;
-        if (this.option.enginePauseCallback) {
-            this.option.enginePauseCallback(this);
+        this._isRunning = false;
+        if (this._latestRequestFrameId) {
+            cancelAnimationFrame(this._latestRequestFrameId);
+            this._latestRequestFrameId = undefined;
         }
+        this.emit("pause", { game: this });
     }
 
     public resume() {
-        this.running = true;
-        if (this.option.engineResumeCallback) {
-            this.option.engineResumeCallback(this);
-        }
-        
-        requestAnimationFrame((time) => this.run(time));
+        this._isRunning = true;
+        this.emit("resume", { game: this });
+        this._latestRequestFrameId = requestAnimationFrame((time) => this.run(time));
+    }
+
+    public get isRunning() {
+        return this._isRunning;
+    }
+
+    public get nextBlock() {
+        return this._nextBlock;
+    }
+
+    public get nextBlockColor() {
+        return 0;
     }
 
     protected emptyRemoveQueue() {
@@ -210,10 +216,10 @@ export class TetrisGame {
             return;
         }
 
-        for (let body of this.removeBodies) {
+        for (let body of this._removeBodies) {
             this.world.removeRigidBody(body);
         }
-        this.removeBodies = [];
+        this._removeBodies = [];
     }
 
     public removeBlock(block: Tetromino) {
@@ -247,31 +253,19 @@ export class TetrisGame {
             color: color,
             type: 'block'
         }
-        
+
         newBody.rigidBody.setLinearDamping(0.25);
         newBody.rigidBody.setAngularDamping(10);
-        
+
         if (!spawnedForFalling) {
             this.tetrominos.set(newBody.rigidBody.handle, newBody);
         } else {
             this.fallingTetromino = newBody;
-            this._nextBlock = BlockTypeList.at(this.getRandomInt(0, BlockTypeList.length - 1)); 
-        }   
-
-        if (this.option.blockSpawnCallback) {
-            this.option.blockSpawnCallback(this, blockType, 0, this._nextBlock!, this.nextBlockColor);
-            console.log("blockType", blockType);
+            this._nextBlock = BlockTypeList.at(getRandomInt(0, BlockTypeList.length - 1));
         }
 
+        this.emit("blockSpawn", { game: this, blockType: blockType, blockColor: 0, nextBlockType: this._nextBlock!, nextBlockColor: this.nextBlockColor });
         return newBody;
-    }
-
-    public get nextBlock() {
-        return this._nextBlock;
-    }
-
-    public get nextBlockColor() {
-        return 0;
     }
 
     public spawnFromRigidBody(color: number, rigidBody: RAPIER.RigidBody) {
@@ -285,7 +279,7 @@ export class TetrisGame {
             rigidBody.collider(i).setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
         }
         this.tetrominos.set(tetromino.rigidBody.handle, tetromino);
-        return tetromino; 
+        return tetromino;
     }
 
     /* Spawn rigid body */
@@ -344,7 +338,7 @@ export class TetrisGame {
             }
             this.tetrominos.set(shape.rigidBody.handle, shape);
         }
-        
+
         return shapes;
     }
 
@@ -367,7 +361,7 @@ export class TetrisGame {
 
             scoreList.push(score);
         }
-        
+
         return {
             lines: lineToRemove,
             area: scoreSum,
@@ -401,22 +395,22 @@ export class TetrisGame {
 
     public onRotateLeft() {
         this.fallingTetromino?.rigidBody.setAngvel(14, false);
-        const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.TURN_LEFT);
+        const event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.TURN_LEFT);
         this.updateSequence();
         return event;
     }
 
     public onRotateRight() {
         this.fallingTetromino?.rigidBody.setAngvel(-14, false);
-        const event =  KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.TURN_RIGHT);
+        const event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.TURN_RIGHT);
         this.updateSequence();
         return event;
     }
 
     public onMoveLeft(weight: number) {
         let velocity = this.fallingTetromino?.rigidBody.linvel()!;
-        this.fallingTetromino?.rigidBody.setLinvel({x: -weight * 100, y: velocity.y}, false);
-        const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.MOVE_LEFT);
+        this.fallingTetromino?.rigidBody.setLinvel({ x: -weight * 100, y: velocity.y }, false);
+        const event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.MOVE_LEFT);
         event.userData = weight;
         this.updateSequence();
         return event;
@@ -424,17 +418,17 @@ export class TetrisGame {
 
     public onMoveRight(weight: number) {
         let velocity = this.fallingTetromino?.rigidBody.linvel()!;
-        this.fallingTetromino?.rigidBody.setLinvel({x: weight * 100, y: velocity.y}, false);
-        const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.MOVE_RIGHT);
+        this.fallingTetromino?.rigidBody.setLinvel({ x: weight * 100, y: velocity.y }, false);
+        const event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.MOVE_RIGHT);
         event.userData = weight;
         this.updateSequence();
         return event;
     }
 
     public onBlockSpawned(type: BlockType, blockColor: number, nextBlockType: BlockType, nextBlockColor: number) {
-        const event = KeyFrameEvent.fromGame(this, this.userId, PlayerEventType.BLOCK_SPAWNED);
-        event.userData = {type, blockColor, nextBlockType, nextBlockColor};
-        this.sequence += 1;
+        const event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.BLOCK_SPAWNED);
+        event.userData = { type, blockColor, nextBlockType, nextBlockColor };
+        this._sequence += 1;
         return event;
     }
 
@@ -444,49 +438,43 @@ export class TetrisGame {
         if (!body1 || !body2) {
             return;
         }
-        
+
         if (this.isFalling(body1, body2) && !this.collideWithWall(body1, body2)) {
             this.tetrominos.set(this.fallingTetromino!.rigidBody.handle, this.fallingTetromino!);
-            if (this.option.preBlockLandingCallback) {
-                try {
-                    this.option.preBlockLandingCallback({game: this, bodyA: collider1, bodyB: collider2});
-                } catch (error) {
-                    console.log(error);
-                }
-            }
-            
+            this.emit("prelanding", { game: this, bodyA: collider1, bodyB: collider2 });
             this.fallingTetromino = undefined;
-            if (this.option.blockLandingCallback) {
-                this.option.blockLandingCallback({game: this, bodyA: collider1, bodyB: collider2});
-            }
-            
+            this.emit("landing", { game: this, bodyA: collider1, bodyB: collider2 });
             return;
         }
 
-        if (this.option.blockCollisionCallback) {
-            this.option.blockCollisionCallback({game: this, bodyA: collider1, bodyB: collider2});
-        }
+        this.emit("collision", { game: this, bodyA: collider1, bodyB: collider2 });
     }
 
-    protected isFalling(body1: RAPIER.RigidBody, body2: RAPIER.RigidBody) {
+    private isFalling(body1: RAPIER.RigidBody, body2: RAPIER.RigidBody) {
         const fallingBody = this.fallingTetromino?.rigidBody?.handle;
         return this.fallingTetromino && (fallingBody === body1.handle || fallingBody === body2.handle)
     }
 
-    protected collideWithWall(body1: RAPIER.RigidBody, body2: RAPIER.RigidBody) {
-        let userData1 = this.walls.get(body1.handle)?.userData;
-        let userData2 = this.walls.get(body2.handle)?.userData;
-        return (userData1?.type === "left_wall" || userData1?.type === "right_wall") || (userData2?.type === "left_wall" || userData2?.type === "right_wall")
+    private collideWithWall(body1: RAPIER.RigidBody, body2: RAPIER.RigidBody) {
+        let userData1 = this._walls.get(body1.handle)?.userData;
+        let userData2 = this._walls.get(body2.handle)?.userData;
+        return (userData1?.type === WallType.LEFT_WALL || userData1?.type === WallType.RIGHT_WALL) ||
+            (userData2?.type === WallType.LEFT_WALL || userData2?.type === WallType.RIGHT_WALL);
     }
 
-    private getRandomInt(min: number, max: number) {
-        const randomBuffer = new Uint32Array(1);
+    public on<K extends keyof TetrisEventMap>(eventName: K, listener: (event: TetrisEventMap[K]) => any) {
+        return this._event.on(eventName, listener);
+    }
 
-        window.crypto.getRandomValues(randomBuffer);
-        let randomNumber = randomBuffer[0] / (0xffffffff + 1);
-    
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(randomNumber * (max - min + 1)) + min;
+    public off<K extends keyof TetrisEventMap>(eventName: K, listener: (event: TetrisEventMap[K]) => any) {
+        return this._event.off(eventName, listener);
+    }
+
+    public once<K extends keyof TetrisEventMap>(eventName: K, listener: (event: TetrisEventMap[K]) => any) {
+        return this._event.once(eventName, listener);
+    }
+
+    protected emit<K extends keyof TetrisEventMap>(eventName: K, arg: TetrisEventMap[K]) {
+        return this._event.emit(eventName, arg);
     }
 }
