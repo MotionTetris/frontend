@@ -208,15 +208,11 @@ const Tetris: React.FC = () => {
     const preLandingEvent = ({ game, bodyA, bodyB }: any) => {
       game.fallingTetromino?.rigidBody.resetForces(true);
       removeGlow(game.fallingTetromino);
-      fallingBlockGlowWithDelay(game.fallingTetromino);
-      removeGlowWithDelay(game.fallingTetromino);
     }
 
     const preLandingEvent1 = ({ game, bodyA, bodyB }: any) => {
       game.fallingTetromino?.rigidBody.resetForces(true);
       removeGlow(game.fallingTetromino);
-      fallingBlockGlowWithDelay(game.fallingTetromino);
-      removeGlowWithDelay(game.fallingTetromino);
     }
 
     const LandingEvent = createLandingEvent(eraseThreshold, myLineGrids, setMessage, setPlayerScore, true, true, socket.current);
@@ -324,7 +320,7 @@ const Tetris: React.FC = () => {
       setTimeout(() => { setMessage("") }, 3000);
       id = setInterval(poseNetLoop, 250);
       game.spawnBlock("T", "red");
-      fallingBlockGlow(game.fallingTetromino!);
+      fallingBlockGlow(game.fallingTetromino!, 0xFF0000);
     }
 
     socket.current?.on('go', (data: string) => {

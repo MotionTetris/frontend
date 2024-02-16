@@ -5,6 +5,7 @@ import { TetrisGame } from "./TetrisGame";
 import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playGameEndSound } from "./Sound";
 import * as PIXI from "pixi.js";
 import { BlockSpawnEvent } from "./TetrisEvent";
+import { BlockColor, BlockType, Palette } from "./Tetromino";
 
 export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
     let nextColorIndex = 0;
@@ -126,11 +127,11 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
 
 
         }
-        let blockToSpawn = game.nextBlock;
-        let blockColor = game.nextBlockColor;
+        let blockToSpawn: BlockType = game.nextBlock;
+        let blockColor: BlockColor = game.nextBlockColor;
         if (needSpawn) {
             game.spawnBlock(blockToSpawn, blockColor);
-            fallingBlockGlow(game.fallingTetromino!);
+            fallingBlockGlow(game.fallingTetromino!, Palette[blockColor][2]);
         }
     }
 }

@@ -250,12 +250,11 @@ export function startShake(options: ShakeOptions) {
   return ticker; // 추후에 ticker를 멈추기 위해 반환합니다.
 }
 
-
-export function fallingBlockGlow(fallingBlock: Tetromino) {
+export function fallingBlockGlow(fallingBlock: Tetromino, rgb: number) {
   const glowFilter = new GlowFilter({ 
     distance: 45, 
     outerStrength: 2,
-    color: 0xffff 
+    color: rgb
   });
   
   fallingBlock.graphics.forEach(graphic => {
