@@ -76,8 +76,6 @@ const TetrisSingle: React.FC = () => {
       const preLandingEvent = ({ game, bodyA, bodyB }: any) => {
         game.fallingTetromino?.rigidBody.resetForces(true);
         removeGlow(game.fallingTetromino);
-        fallingBlockGlowWithDelay(game.fallingTetromino);
-        removeGlowWithDelay(game.fallingTetromino);
       }
 
       const LandingEvent = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore, setIsGameOver, true, true);
@@ -121,7 +119,7 @@ const TetrisSingle: React.FC = () => {
       gameRef.current = game;
       game.setWorld(initWorld(RAPIER, TetrisOption));
       game.spawnBlock("T", "red");
-      fallingBlockGlow(game.fallingTetromino!);
+      fallingBlockGlow(game.fallingTetromino!, 0xFF0000);
 
       let poseNetResult: { poseNet: PoseNet; renderingContext: CanvasRenderingContext2D; } | undefined = undefined;
       let prevResult: KeyPointResult = {
