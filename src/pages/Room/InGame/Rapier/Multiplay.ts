@@ -1,21 +1,21 @@
 import { TetrisGame } from "./TetrisGame";
 
-export class KeyFrameEvent { 
+export class MultiplayEvent { 
     userId: string;
     event: PlayerEventType;
-    keyframe: number;
+    stepId: number;
     sequence: number;
     userData: any;
     
     public constructor(userId: string, event: PlayerEventType, keyframe: number, sequence: number) {
         this.userId = userId;
         this.event = event;
-        this.keyframe = keyframe;
+        this.stepId = keyframe;
         this.sequence = sequence;
     }
 
     public static fromGame(game: TetrisGame, userId: string, event: PlayerEventType) {
-        return new KeyFrameEvent(userId, event, game.stepId, game.sequence);
+        return new MultiplayEvent(userId, event, game.stepId, game.sequence);
     }
 }
 
@@ -41,20 +41,20 @@ export class MultiPlayerContext {
         this.lastKeyframe = 0;
     }
 
-    public isEventValid(event: KeyFrameEvent) {
+    public isEventValid(event: MultiplayEvent) {
         if (this.lastSequence !== event.sequence - 1) {
             return false; 
         }
 
-        if (this.lastKeyframe > event.keyframe) {
+        if (this.lastKeyframe > event.stepId) {
             return false;
         }
 
         return true;
     }
 
-    public updateNewEvent(event: KeyFrameEvent) {
+    public updateNewEvent(event: MultiplayEvent) {
         this.lastSequence = event.sequence;
-        this.lastKeyframe = event.keyframe;
+        this.lastKeyframe = event.stepId;
     }
 }

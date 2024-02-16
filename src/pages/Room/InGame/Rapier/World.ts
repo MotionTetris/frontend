@@ -1,3 +1,4 @@
+import { WallType } from "./TetrisContants";
 import { TetrisOption } from "./TetrisOption";
 
 type RAPIER_API = typeof import("@dimforge/rapier2d");
@@ -19,7 +20,7 @@ export function initWorld(RAPIER: RAPIER_API, option: TetrisOption) {
                                  .cuboid(ground.hx, ground.hy)
                                  .setRestitution(option.blockRestitution)
                                  .setFriction(option.blockFriction);
-        if (ground.label === "ground") {
+        if (ground.label === WallType.GROUND) {
             colliderDesc.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
         }
 
@@ -37,7 +38,7 @@ function createWall(viewportWidth: number, viewportHeight: number, width: number
         y: -height * blockSize,
         hx: viewportWidth,
         hy: wall_thick,
-        label: "ground"
+        label: WallType.GROUND
     }   
 
     const left_wall = {
@@ -45,7 +46,7 @@ function createWall(viewportWidth: number, viewportHeight: number, width: number
         y: 0,
         hx: wall_thick, 
         hy: viewportHeight,
-        label: "left_wall"
+        label: WallType.LEFT_WALL
     }
 
     const right_wall = {
@@ -53,7 +54,7 @@ function createWall(viewportWidth: number, viewportHeight: number, width: number
         y: 0,
         hx: wall_thick,
         hy: viewportHeight,
-        label: "right_wall"
+        label: WallType.RIGHT_WALL
     }
 
     return [ground, left_wall, right_wall];
