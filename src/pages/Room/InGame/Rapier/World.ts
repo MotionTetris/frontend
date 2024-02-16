@@ -42,7 +42,7 @@ function createWall(viewportWidth: number, viewportHeight: number, width: number
     }   
 
     const left_wall = {
-        x: viewportWidth / 2 - width / 2 * blockSize - wall_thick / 2 - 50,
+        x: viewportWidth / 2 - width / 2 * blockSize - wall_thick / 2 - 150,
         y: 0,
         hx: wall_thick, 
         hy: viewportHeight,

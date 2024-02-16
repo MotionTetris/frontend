@@ -1,5 +1,5 @@
 import styled, { keyframes } from 'styled-components';
-import { BOMB_URL,FOG_URL,FLIP_URL,FLIP_NOT_URL,ROTATE_NOT_URL,ROTATE_LEFT_URL,ROTATE_RIGHT_URL } from "../../../../config"
+import { BOMB_URL, FOG_URL, FLIP_URL, FLIP_NOT_URL, ROTATE_NOT_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL } from "../../../../config"
 
 
 export const ButtonContainer = styled.div`
@@ -123,7 +123,7 @@ export const Score = styled.div`
 `;
 
 export const SceneContainer = styled.div`
-  top: 0%;
+  top: -50px;
   left: 0%;
   width: 600px;
   height: 900px;
@@ -140,7 +140,7 @@ export const PlayerContainer = styled.div`
 `;
 
 export const MultiplayContainer = styled.div`
-  top: 0%;
+  top: -50px;
   left: 65%;
   width: 600px;
   height: 800px;
@@ -148,8 +148,6 @@ export const MultiplayContainer = styled.div`
 `
 
 export const SceneCanvas = styled.canvas`
-  width: 600px;
-  height: 800px;
   position: absolute;
   top: ${({ id }) => (id === 'otherGame' ? '100px' : '100px')};
   left: ${({ id }) => (id === 'otherGame' ? '-30px' : '110px')};
@@ -265,7 +263,7 @@ interface GameResultProps {
 
 export const GameResult: React.FC<GameResultProps> = ({ score, otherScore }) => {
   let result = "";
-  
+
   if (score > otherScore) {
     result = "승리";
   } else if (score < otherScore) {
@@ -273,7 +271,7 @@ export const GameResult: React.FC<GameResultProps> = ({ score, otherScore }) => 
   } else {
     result = "무승부";
   }
-  
+
   return (
     <ModalMessage id="modal-message">
       게임 결과: {result}<br />

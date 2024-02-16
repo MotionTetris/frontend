@@ -16,11 +16,12 @@ import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
 import { jwtDecode } from "jwt-decode";
 import { useSelector } from 'react-redux';
 import { RootState } from "@app/store";
-import { applyItem, getItemUrl, getItemWithIndex, spawnBomb } from "../Rapier/Item.ts";
+import { applyItem, getItemUrl, spawnBomb } from "../Rapier/Item.ts";
 import { MultiplayEvent, PlayerEventType } from "../Rapier/Multiplay.ts";
 import { Timer } from "@src/components/Ingame/Timer.tsx";
 import Volume from "@src/components/volume.tsx";
 import { StepEvent } from "../Rapier/TetrisEvent.ts";
+import { GAME_SOCKET_URL } from "@src/config.ts";
 
 
 const eraseThreshold = 8000;
@@ -139,7 +140,7 @@ const Tetris: React.FC = () => {
 
     // 폭탄 이외의 아이템작업.
     socket.current.on('selectedItem', (selectedItem: string) => {
-      getItemWithIndex(gameRef.current!, selectedItem);
+      applyItem(gameRef.current!, selectedItem);
     });
 
     //모달 띄우기
@@ -173,10 +174,10 @@ const Tetris: React.FC = () => {
       return;
     }
 
-    sceneRef.current.width = 600;
-    sceneRef.current.height = 800;
-    otherSceneRef.current.width = 600;
-    otherSceneRef.current.height = 800;
+    sceneRef.current.width = 500;
+    sceneRef.current.height = 900;
+    otherSceneRef.current.width = 500;
+    otherSceneRef.current.height = 900;
     const CollisionEvent = ({ game, bodyA, bodyB }: any) => {
       let collisionX = bodyA.parent()?.userData.type;
       let collisionY = bodyB.parent()?.userData.type;
@@ -221,7 +222,7 @@ const Tetris: React.FC = () => {
     const LandingEvent = createLandingEvent(eraseThreshold, myLineGrids, setMessage, setPlayerScore, true, true, socket.current);
     const LandingEvent1 = createLandingEvent(eraseThreshold, otherLineGrids, setMessage, setOtherScore, false, false);
 
-    const StepCallback = ({game, currentStep}: StepEvent) => {
+    const StepCallback = ({ game, currentStep }: StepEvent) => {
       if (currentStep % 15 === 0) {
         const checkResult = game.checkLine(eraseThreshold);
         const checkOtherResult = otherGame.checkLine(eraseThreshold);
@@ -243,7 +244,7 @@ const Tetris: React.FC = () => {
       blockRestitution: 0.0,
       combineDistance: 1,
       view: sceneRef.current,
-      spawnX: 400,
+      spawnX: sceneRef.current.width / 2,
       spawnY: 200,
       worldHeight: 800,
       worldWidth: 600,
@@ -254,7 +255,7 @@ const Tetris: React.FC = () => {
     };
 
     const OtherTetrisOption: TetrisOption = {
-      ...TetrisOption, 
+      ...TetrisOption,
       view: otherSceneRef.current,
     };
     const game = new TetrisGame(TetrisOption, "user");
@@ -372,7 +373,7 @@ const Tetris: React.FC = () => {
       <GoLobbyButton visible={isGameOver} id="go-home" onClick={() => { window.location.href = '/gamemain'; }}>
         로비로 이동하기
       </GoLobbyButton>
-      <Timer timeLeft={timeLeft}/>
+      <Timer timeLeft={timeLeft} />
 
       <MultiplayContainer>
         <OtherScore> 남의 스코어: {otherScore} </OtherScore>

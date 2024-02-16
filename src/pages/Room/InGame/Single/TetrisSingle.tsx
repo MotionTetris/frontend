@@ -56,8 +56,8 @@ const TetrisSingle: React.FC = () => {
         return;
       }
 
-      sceneRef.current.width = 600;
-      sceneRef.current.height = 800;
+      sceneRef.current.width = 500;
+      sceneRef.current.height = 900;
       const CollisionEvent = ({ game, bodyA, bodyB }: any) => {
 
         let collisionX = bodyA.parent()?.userData.type;
@@ -89,7 +89,7 @@ const TetrisSingle: React.FC = () => {
         }
         if (currentStep != 0 && currentStep % 600 == 0) {
           console.log("아이템", currentStep);
-          setItem(getRandomItem(gameRef.current!));
+          //setItem(getRandomItem(gameRef.current!));
         }
         const checkResult = game.checkLine(eraseThreshold);
         createScoreBasedGrid(lineGrids, checkResult.scoreList, eraseThreshold);
