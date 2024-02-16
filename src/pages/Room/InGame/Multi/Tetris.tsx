@@ -16,12 +16,12 @@ import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
 import { jwtDecode } from "jwt-decode";
 import { useSelector } from 'react-redux';
 import { RootState } from "@app/store";
-import { BOMB_URL, FLIP_URL, FOG_URL, GAME_SOCKET_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL } from "@src/config";
-import { getItemWithIndex, spawnBomb } from "../Rapier/Item.ts";
+import { applyItem, getItemUrl, spawnBomb } from "../Rapier/Item.ts";
 import { MultiplayEvent, PlayerEventType } from "../Rapier/Multiplay.ts";
 import { Timer } from "@src/components/Ingame/Timer.tsx";
 import Volume from "@src/components/volume.tsx";
 import { StepEvent } from "../Rapier/TetrisEvent.ts";
+import { GAME_SOCKET_URL } from "@src/config.ts";
 
 
 const eraseThreshold = 8000;
@@ -95,28 +95,7 @@ const Tetris: React.FC = () => {
       gameRef.current!.pause();
       // 형식: "BOMB", "FOG",  "FLIP", "ROTATE_RIGHT", "ROTATE_LEFT",
       const itemImages = items.map(item => {
-        let itemUrl;
-        switch (item) {
-          case "BOMB":
-            itemUrl = BOMB_URL;
-            break;
-          case "FOG":
-            itemUrl = FOG_URL;
-            break;
-          case "FLIP":
-            itemUrl = FLIP_URL;
-            break;
-          case "ROTATE_RIGHT":
-            itemUrl = ROTATE_RIGHT_URL;
-            break;
-          case "ROTATE_LEFT":
-            itemUrl = ROTATE_LEFT_URL;
-            break;
-          default:
-            itemUrl = "";
-            break;
-        }
-
+        let itemUrl = getItemUrl(item);
         return <ItemImage src={itemUrl} />;
       });
 
@@ -152,34 +131,16 @@ const Tetris: React.FC = () => {
           bomb = spawnBomb(gameRef.current!, 300, -200);
         }
         else {
-          let itemIndex: number = 0;
-          switch (selectedItem) {
-            case "FOG":
-              itemIndex = 1;
-              break;
-            case "FLIP":
-              itemIndex = 2;
-              break;
-            case "ROTATE_RIGHT":
-              itemIndex = 3;
-              break;
-            case "ROTATE_LEFT":
-              itemIndex = 4;
-              break;
-            default:
-              console.log('Invalid index');
-          }
-          socket.current!.emit('item', itemIndex);
-          getItemWithIndex(otherGameRef.current!, itemIndex);
+          socket.current!.emit('item', selectedItem);
+          applyItem(otherGameRef.current!, selectedItem!);
         }
-
         gameRef.current!.resume();
       }, 5000);
     });
 
     // 폭탄 이외의 아이템작업.
-    socket.current.on('selectedItem', (itemIndex: number) => {
-      getItemWithIndex(gameRef.current!, itemIndex);
+    socket.current.on('selectedItem', (selectedItem: string) => {
+      applyItem(gameRef.current!, selectedItem);
     });
 
     //모달 띄우기
@@ -213,10 +174,10 @@ const Tetris: React.FC = () => {
       return;
     }
 
-    sceneRef.current.width = 600;
-    sceneRef.current.height = 800;
-    otherSceneRef.current.width = 600;
-    otherSceneRef.current.height = 800;
+    sceneRef.current.width = 500;
+    sceneRef.current.height = 900;
+    otherSceneRef.current.width = 500;
+    otherSceneRef.current.height = 900;
     const CollisionEvent = ({ game, bodyA, bodyB }: any) => {
       let collisionX = bodyA.parent()?.userData.type;
       let collisionY = bodyB.parent()?.userData.type;
@@ -261,7 +222,7 @@ const Tetris: React.FC = () => {
     const LandingEvent = createLandingEvent(eraseThreshold, myLineGrids, setMessage, setPlayerScore, true, true, socket.current);
     const LandingEvent1 = createLandingEvent(eraseThreshold, otherLineGrids, setMessage, setOtherScore, false, false);
 
-    const StepCallback = ({game, currentStep}: StepEvent) => {
+    const StepCallback = ({ game, currentStep }: StepEvent) => {
       if (currentStep % 15 === 0) {
         const checkResult = game.checkLine(eraseThreshold);
         const checkOtherResult = otherGame.checkLine(eraseThreshold);
@@ -283,7 +244,7 @@ const Tetris: React.FC = () => {
       blockRestitution: 0.0,
       combineDistance: 1,
       view: sceneRef.current,
-      spawnX: 400,
+      spawnX: sceneRef.current.width / 2,
       spawnY: 200,
       worldHeight: 800,
       worldWidth: 600,
@@ -294,7 +255,7 @@ const Tetris: React.FC = () => {
     };
 
     const OtherTetrisOption: TetrisOption = {
-      ...TetrisOption, 
+      ...TetrisOption,
       view: otherSceneRef.current,
     };
     const game = new TetrisGame(TetrisOption, "user");
@@ -412,7 +373,7 @@ const Tetris: React.FC = () => {
       <GoLobbyButton visible={isGameOver} id="go-home" onClick={() => { window.location.href = '/gamemain'; }}>
         로비로 이동하기
       </GoLobbyButton>
-      <Timer timeLeft={timeLeft}/>
+      <Timer timeLeft={timeLeft} />
 
       <MultiplayContainer>
         <OtherScore> 남의 스코어: {otherScore} </OtherScore>

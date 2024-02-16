@@ -164,7 +164,7 @@ export function createScoreBasedGrid(lineGrids: PIXI.Graphics[], scoreList: numb
     const alpha = scoreList[i] / threshold;
     lineGrids[i].clear();
     lineGrids[i].beginFill(0xff00f0, alpha/4);
-    lineGrids[i].drawRect(100, -i * 32 +588, 410, 32);
+    lineGrids[i].drawRect(0, -i * 32 +588, 520, 32);
     lineGrids[i].endFill();
   }  
 }
@@ -212,7 +212,7 @@ export function showScore(scoreList: number [], scoreTexts : PIXI.Text[], thresh
       scoreTexts[i].style.fill = '#ffff00';
     }
     else {
-      scoreTexts[i].x = 70;
+      scoreTexts[i].x = 0;
       scoreTexts[i].text = (alpha * 100).toFixed(0);
       scoreTexts[i].style.fill = '#fff';
     }

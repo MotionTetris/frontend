@@ -1,5 +1,5 @@
 import styled, { keyframes } from 'styled-components';
-import { BOMB_URL,FOG_URL,FLIP_URL,FLIP_NOT_URL,ROTATE_NOT_URL,ROTATE_LEFT_URL,ROTATE_RIGHT_URL } from "../../../../config"
+import { BOMB_URL, FOG_URL, FLIP_URL, FLIP_NOT_URL, ROTATE_NOT_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL } from "../../../../config"
 import Tutorial from "@src/components/Tutorial/tutorial.tsx";
 
 export const ButtonContainer = styled.div`
@@ -113,7 +113,7 @@ export const Score = styled.div`
 `;
 
 export const SceneContainer = styled.div`
-  top: 0%;
+  top: -50px;
   left: 0%;
   width: 600px;
   height: 900px;
@@ -138,8 +138,6 @@ export const MultiplayContainer = styled.div`
 `
 
 export const SceneCanvas = styled.canvas`
-  width: 600px;
-  height: 800px;
   position: absolute;
   top: ${({ id }) => (id === 'otherGame' ? '100px' : '100px')};
   left: ${({ id }) => (id === 'otherGame' ? '-10px' : '70px')};
@@ -204,7 +202,7 @@ export const GameOverModal = styled.div<GameOverModalProps>`
   justify-content: center;
 `;
 
-export const  UserBackGround = styled.div`
+export const UserBackGround = styled.div`
   width: 100%;
   height: 100%;
 `;

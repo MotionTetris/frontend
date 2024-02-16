@@ -57,9 +57,9 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
             }
             let alpha = (nose.x - centerX) / 300;
             let forceMagnitude = Math.abs(nose.x - centerX) / (centerX);
-            performPushEffect(game.graphics.rectangles[0], game.graphics.rectangles[1], alpha, 80, 470);
-            const event = game.onMoveLeft(forceMagnitude);
-            socket?.emit('eventOn', event);
+            performPushEffect(game.graphics.rectangles[0], game.graphics.rectangles[1], alpha, 60, 390);
+            //const event = game.onMoveLeft(forceMagnitude);
+            //socket?.emit('eventOn', event);
         },
         onMoveRight: function (keypoints: Map<string, KeyPoint>): void {
             let centerX = keypoints.get("center")?.x;
@@ -69,9 +69,9 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
             }
             let alpha = (nose.x - centerX) / 300;
             let forceMagnitude = Math.abs(nose.x - centerX) / (centerX);
-            performPushEffect(game.graphics.rectangles[1], game.graphics.rectangles[0], alpha, 470, 80);
-            const event = game.onMoveRight(forceMagnitude);
-            socket?.emit('eventOn', event);
+            performPushEffect(game.graphics.rectangles[1], game.graphics.rectangles[0], alpha, 390, 60);
+            //const event = game.onMoveRight(forceMagnitude);
+            //socket?.emit('eventOn', event);
         }
     }
     return eventCallback;

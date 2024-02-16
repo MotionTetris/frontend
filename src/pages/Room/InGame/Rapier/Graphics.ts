@@ -25,6 +25,7 @@ export class Graphics {
         this.colorIndex = 0;
         this.renderer = new PIXI.Renderer({
             backgroundColor: 0x222929,
+            backgroundAlpha: 0.1,
             antialias: true,
             resolution: pixelRatio,
             width: option.view.width,
@@ -45,8 +46,8 @@ export class Graphics {
     
         this.viewport.drag().pinch().wheel().decelerate();
         this.rectangles = [];
-        this.rectangles.push(createRectangle(this.scene, "src/assets/arrowLeft.png",  50, 150, 80, 0));
-        this.rectangles.push(createRectangle(this.scene, "src/assets/arrowRight.png" , 50, 150, 470, 0));
+        this.rectangles.push(createRectangle(this.scene, "src/assets/arrowLeft.png",  50, 150, 60, 0));
+        this.rectangles.push(createRectangle(this.scene, "src/assets/arrowRight.png" , 50, 150, 390, 0));
         this.ticker = new PIXI.Ticker();
         
         function onContextMenu(event: UIEvent) {
@@ -55,7 +56,31 @@ export class Graphics {
 
         document.oncontextmenu = onContextMenu;
         document.body.oncontextmenu = onContextMenu;
-        this.viewport.setTransform(0, 100); 
+        this.viewport.setTransform(0, 280);
+        this.instanceGroups = [];
+        this.initInstances();   
+    }
+
+    initInstances() {
+        this.instanceGroups.push(
+            this.colorPalette.map((color) => {
+                const graphics = new PIXI.Graphics();
+                graphics.beginFill(color);
+                graphics.drawRect(-1.0, 1.0, 2.0, -2.0);
+                graphics.endFill();
+                return graphics;
+            }),
+        );
+
+        this.instanceGroups.push(
+            this.colorPalette.map((color) => {
+                const graphics = new PIXI.Graphics();
+                graphics.beginFill(color);
+                graphics.drawCircle(0.0, 0.0, 1.0);
+                graphics.endFill();
+                return graphics;
+            }),
+        );
     }
 
     render(world: RAPIER.World) {

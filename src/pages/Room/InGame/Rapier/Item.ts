@@ -4,8 +4,7 @@ import { playBombSpawnSound, playFlipSound, playFogSound, playRotateSound } from
 import { TetrisGame } from "./TetrisGame";
 import { Viewport } from "pixi-viewport";
 import * as particles from '@pixi/particle-emitter'
-import { BOMB_URL,FOG_URL,FLIP_URL,ROTATE_LEFT_URL,ROTATE_RIGHT_URL } from "../../../../config"
-
+import { BOMB_URL, FOG_URL, FLIP_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL } from "../../../../config"
 //item-region
 export function getRandomItem(game: TetrisGame) {
     const itemImage = [BOMB_URL,FOG_URL,FLIP_URL,ROTATE_LEFT_URL,ROTATE_RIGHT_URL];
@@ -35,24 +34,52 @@ export function getRandomItem(game: TetrisGame) {
     return randomURL;
 }
 
-export function getItemWithIndex(game: TetrisGame, itemIndex: number) {
-    switch(itemIndex) {
-        case 1:
+export function applyItem(game: TetrisGame, item: string) {
+    switch(item) {
+        case "FOG":
             addFog(game);
             break;
-        case 2:
+        case "FLIP":
             flipViewport(game.graphics.viewport);
             break;
-        case 3:
+        case "ROTATE_RIGHT":
             rotateViewport(game.graphics.viewport, 15);
             break;
-        case 4:
+        case "ROTATE_LEFT":
             rotateViewport(game.graphics.viewport, -15);
             break;
         default:
             console.log('Invalid index');
     }
 }
+
+
+export function getItemUrl(item: string): string {
+    let itemUrl: string;
+    switch (item) {
+        case "BOMB":
+            itemUrl = BOMB_URL;
+            break;
+        case "FOG":
+            itemUrl = FOG_URL;
+            break;
+        case "FLIP":
+            itemUrl = FLIP_URL;
+            break;
+        case "ROTATE_RIGHT":
+            itemUrl = ROTATE_RIGHT_URL;
+            break;
+        case "ROTATE_LEFT":
+            itemUrl = ROTATE_LEFT_URL;
+            break;
+        default:
+            itemUrl = "";
+            break;
+    }
+    return itemUrl;
+}
+
+
 
 export function spawnBomb(game: TetrisGame, x: number, y: number) {
     playBombSpawnSound();
@@ -109,31 +136,31 @@ export function rotateViewport(viewport: Viewport, degree: number) {
 
 
 export function resetRotateViewport(viewport: Viewport) {
-  viewport.rotation = 0;
-  viewport.scale.x = 1;
-  viewport.scale.y = 1;
-  viewport.x = 0;;
+    viewport.rotation = 0;
+    viewport.scale.x = 1;
+    viewport.scale.y = 1;
+    viewport.x = 0;;
 }
 
 
 export function flipViewport(viewport: Viewport) {
-  playFlipSound();
-  viewport.scale.x = -1;
-  viewport.x += 600;
-  setTimeout(() => {
-    resetFlipViewport(viewport);
-  }, 5000);
+    playFlipSound();
+    viewport.scale.x = -1;
+    viewport.x += 600;
+    setTimeout(() => {
+        resetFlipViewport(viewport);
+    }, 5000);
 }
 
 export function resetFlipViewport(viewport: Viewport) {
-  viewport.scale.x = 1;
-  viewport.x -= 600;
+    viewport.scale.x = 1;
+    viewport.x -= 600;
 }
 
 
 export function addFog(game: TetrisGame) {
-  playFogSound();
-  var emitter = new particles.Emitter(
+    playFogSound();
+    var emitter = new particles.Emitter(
     game.graphics.viewport,
 
     {
@@ -231,10 +258,10 @@ export function addFog(game: TetrisGame) {
         ],
     }
 );
-  game.graphics.ticker.add((delta) => {
-    emitter.update(delta * 0.01);
-  });
+    game.graphics.ticker.add((delta) => {
+        emitter.update(delta * 0.01);
+    });
 
-  emitter.emit = true;
-  game.graphics.ticker.start();
+    emitter.emit = true;
+    game.graphics.ticker.start();
 };
