@@ -146,7 +146,7 @@ export function resetRotateViewport(viewport: Viewport) {
 export function flipViewport(viewport: Viewport) {
     playFlipSound();
     viewport.scale.x = -1;
-    viewport.x += 600;
+    viewport.x += 500;
     setTimeout(() => {
         resetFlipViewport(viewport);
     }, 5000);
@@ -154,7 +154,7 @@ export function flipViewport(viewport: Viewport) {
 
 export function resetFlipViewport(viewport: Viewport) {
     viewport.scale.x = 1;
-    viewport.x -= 600;
+    viewport.x -= 500;
 }
 
 
@@ -243,7 +243,7 @@ export function addFog(game: TetrisGame) {
                 config: {
                     type: 'torus',
                     data: {
-                        x: 300,
+                        x: 250,
                         y: 500,
                         radius: 10
                     }

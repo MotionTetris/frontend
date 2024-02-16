@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ResetFlipButton, ResetRotationButton, ButtonContainer, TetrisNextBlockContainer, TextContainer, NextBlockText, NextBlockImage, ModalOverlay, StyledTutorial, } from "./style.tsx";
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ButtonContainer, TetrisNextBlockContainer, TextContainer, NextBlockText, NextBlockImage, ModalOverlay, StyledTutorial, } from "./style.tsx";
 import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage } from "../Rapier/Effect.ts";
-import { rotateViewport, resetRotateViewport, spawnBomb, flipViewport, resetFlipViewport, addFog, getRandomItem, } from "../Rapier/Item.ts";
+import { rotateViewport, spawnBomb, flipViewport, addFog, getRandomItem, } from "../Rapier/Item.ts";
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "../Rapier/TetrisOption";
@@ -57,7 +57,7 @@ const TetrisSingle: React.FC = () => {
       }
 
       sceneRef.current.width = 500;
-      sceneRef.current.height = 900;
+      sceneRef.current.height = 800;
       const CollisionEvent = ({ game, bodyA, bodyB }: any) => {
 
         let collisionX = bodyA.parent()?.userData.type;
@@ -80,16 +80,16 @@ const TetrisSingle: React.FC = () => {
         removeGlowWithDelay(game.fallingTetromino);
       }
 
-      const LandingEvent = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore, setIsGameOver, true, true);
+      const LandingEvent = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore, true, true);
 
-      const StepCallback = ({game, currentStep}: StepEvent) => {
+      const StepCallback = ({ game, currentStep }: StepEvent) => {
 
         if (currentStep % 15 != 0) {
           return;
         }
         if (currentStep != 0 && currentStep % 600 == 0) {
           console.log("아이템", currentStep);
-          //setItem(getRandomItem(gameRef.current!));
+          setItem(getRandomItem(gameRef.current!));
         }
         const checkResult = game.checkLine(eraseThreshold);
         createScoreBasedGrid(lineGrids, checkResult.scoreList, eraseThreshold);
@@ -136,9 +136,9 @@ const TetrisSingle: React.FC = () => {
         if (!videoRef.current) {
           return;
         }
-
+    
         if (!poseNetResult) {
-          poseNetResult = await loadPoseNet(videoRef, canvasRef);
+          poseNetResult = await loadPoseNet(videoRef, canvasRef, 500, 618);
         }
         prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback);
       }
@@ -146,7 +146,7 @@ const TetrisSingle: React.FC = () => {
       let id: any;
       const run = async () => {
         if (!poseNetResult) {
-          poseNetResult = await loadPoseNet(videoRef, canvasRef);
+          poseNetResult = await loadPoseNet(videoRef, canvasRef, 500, 618);
         }
         game.resume();
         setMessage("게임 시작!");
@@ -190,12 +190,8 @@ const TetrisSingle: React.FC = () => {
             </RotateRightButton>
             <RotateLeftButton onClick={() => gameRef.current && rotateViewport(gameRef.current.graphics.viewport, -15)}>
             </RotateLeftButton>
-            <ResetRotationButton onClick={() => gameRef.current && resetRotateViewport(gameRef.current.graphics.viewport)}>
-            </ResetRotationButton>
             <FlipButton onClick={() => gameRef.current && flipViewport(gameRef.current.graphics.viewport)}>
             </FlipButton>
-            <ResetFlipButton onClick={() => gameRef.current && resetFlipViewport(gameRef.current.graphics.viewport)}>
-            </ResetFlipButton>
             <FogButton onClick={() => gameRef.current && addFog(gameRef.current)}>
             </FogButton>
             <BombButton onClick={() => gameRef.current && spawnBomb(gameRef.current, 150, 100)}>
