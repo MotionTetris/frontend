@@ -123,7 +123,7 @@ export const Score = styled.div`
 `;
 
 export const SceneContainer = styled.div`
-  top: -50px;
+  top: 0px;
   left: 0%;
   width: 600px;
   height: 900px;
@@ -140,7 +140,7 @@ export const PlayerContainer = styled.div`
 `;
 
 export const MultiplayContainer = styled.div`
-  top: -50px;
+  top: 0px;
   left: 65%;
   width: 600px;
   height: 800px;

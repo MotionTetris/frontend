@@ -49,7 +49,7 @@ function drawKeypoint(keypoint?: PoseNet.Keypoint, renderingContext?: CanvasRend
     }
 }
 
-export async function loadPoseNet(video: RefObject<HTMLVideoElement>, canvas: RefObject<HTMLCanvasElement>) {
+export async function loadPoseNet(video: RefObject<HTMLVideoElement>, canvas: RefObject<HTMLCanvasElement>, videoWidth: number, videoHeight: number) {
     const poseNet = await PoseNet.load();
     const webcam = await setupWebcam(video);
 
@@ -62,10 +62,10 @@ export async function loadPoseNet(video: RefObject<HTMLVideoElement>, canvas: Re
         throw new Error("Failed to get rendering context");
     }
 
-    video.current.width = 480;
-    video.current.height = 320;
-    canvas.current.width = 480;
-    canvas.current.height = 320;
+    video.current.width = videoWidth;
+    video.current.height = videoHeight;
+    canvas.current.width = videoWidth;
+    canvas.current.height = videoHeight;
 
     return {
         poseNet: poseNet,
@@ -158,6 +158,7 @@ export async function processPose(poseNet: PoseNet.PoseNet, video: HTMLVideoElem
     }
 
     if (nose && centerX) {
+        console.log("center", centerX);
         const eventDataMap = new Map([
             ["nose", { name: "nose", x: nose.x, y: nose.y }],
             ["center", { name: "center", x: centerX, y: 0 }]

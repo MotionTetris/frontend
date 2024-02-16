@@ -56,7 +56,7 @@ export class Graphics {
 
         document.oncontextmenu = onContextMenu;
         document.body.oncontextmenu = onContextMenu;
-        this.viewport.setTransform(0, 280);
+        this.viewport.setTransform(0, 180);
     }
 
     render(world: RAPIER.World) {

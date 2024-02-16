@@ -175,9 +175,9 @@ const Tetris: React.FC = () => {
     }
 
     sceneRef.current.width = 500;
-    sceneRef.current.height = 900;
+    sceneRef.current.height = 800;
     otherSceneRef.current.width = 500;
-    otherSceneRef.current.height = 900;
+    otherSceneRef.current.height = 800;
     const CollisionEvent = ({ game, bodyA, bodyB }: any) => {
       let collisionX = bodyA.parent()?.userData.type;
       let collisionY = bodyB.parent()?.userData.type;
@@ -290,7 +290,8 @@ const Tetris: React.FC = () => {
       }
 
       if (!poseNetResult) {
-        poseNetResult = await loadPoseNet(videoRef, canvasRef);
+        
+        poseNetResult = await loadPoseNet(videoRef, canvasRef, 503, 668);
       }
       prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback);
     }
@@ -298,7 +299,7 @@ const Tetris: React.FC = () => {
     let id: any;
     const run = async () => {
       if (!poseNetResult) {
-        poseNetResult = await loadPoseNet(videoRef, canvasRef);
+        poseNetResult = await loadPoseNet(videoRef, canvasRef, 503, 668);
       }
       game.resume();
       otherGame.run();
