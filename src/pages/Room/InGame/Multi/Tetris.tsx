@@ -283,7 +283,7 @@ const Tetris: React.FC = () => {
       blockRestitution: 0.0,
       combineDistance: 1,
       view: sceneRef.current,
-      spawnX: sceneRef.current.width / 2,
+      spawnX: 400,
       spawnY: 200,
       worldHeight: 800,
       worldWidth: 600,
@@ -293,6 +293,10 @@ const Tetris: React.FC = () => {
       backgroundAlpha: 0
     };
 
+    const OtherTetrisOption: TetrisOption = {
+      ...TetrisOption, 
+      view: otherSceneRef.current,
+    };
     const game = new TetrisGame(TetrisOption, "user");
     game.on("collision", CollisionEvent);
     game.on("landing", LandingEvent);
@@ -302,13 +306,12 @@ const Tetris: React.FC = () => {
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
 
-
     const userId = other;
-    const otherGame = new TetrisMultiplayView(TetrisOption, userId);
+    const otherGame = new TetrisMultiplayView(OtherTetrisOption, userId);
     otherGame.on("collision", CollisionEvent1);
     otherGame.on("landing", LandingEvent1);
     otherGame.on("prelanding", preLandingEvent1);
-    otherGame.setWorld(initWorld(RAPIER, TetrisOption));
+    otherGame.setWorld(initWorld(RAPIER, OtherTetrisOption));
     otherGameRef.current = otherGame;
 
     let poseNetResult: { poseNet: PoseNet; renderingContext: CanvasRenderingContext2D; } | undefined = undefined;
