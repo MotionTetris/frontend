@@ -106,7 +106,7 @@ const TetrisSingle: React.FC = () => {
         spawnY: 200,
         worldHeight: 800,
         worldWidth: 600,
-        wallColor: 0xFF0000,
+        wallColor: "red",
         wallAlpha: 0.1,
         backgroundColor: 0x222929,
         backgroundAlpha: 0
@@ -120,7 +120,7 @@ const TetrisSingle: React.FC = () => {
       game.on("blockSpawn", createBlockSpawnEvent(undefined, setNextBlock));
       gameRef.current = game;
       game.setWorld(initWorld(RAPIER, TetrisOption));
-      game.spawnBlock(0xFF0000, "T", true);
+      game.spawnBlock("T", "red");
       fallingBlockGlow(game.fallingTetromino!);
 
       let poseNetResult: { poseNet: PoseNet; renderingContext: CanvasRenderingContext2D; } | undefined = undefined;

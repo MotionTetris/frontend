@@ -248,7 +248,7 @@ const Tetris: React.FC = () => {
       spawnY: 200,
       worldHeight: 800,
       worldWidth: 600,
-      wallColor: 0xFF0000,
+      wallColor: "red",
       wallAlpha: 0.1,
       backgroundColor: 0x222929,
       backgroundAlpha: 0
@@ -322,7 +322,7 @@ const Tetris: React.FC = () => {
 
       setTimeout(() => { setMessage("") }, 3000);
       id = setInterval(poseNetLoop, 250);
-      game.spawnBlock(0xFF0000, "T", true);
+      game.spawnBlock("T", "red");
       fallingBlockGlow(game.fallingTetromino!);
     }
 

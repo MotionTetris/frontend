@@ -123,7 +123,7 @@ export class TetrisMultiplayView extends TetrisGame {
                 this.onRotateRight();
                 break;
             case PlayerEventType.BLOCK_SPAWNED:
-                this.spawnBlock(0xFF0000, event?.userData, true);
+                this.spawnBlock(event.userData.type, event.userData.blockColor);
                 break;
             case PlayerEventType.ITEM_USED:
                 this.bomb = spawnBomb(this, 300, -200);

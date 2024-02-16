@@ -1,5 +1,5 @@
 import { TetrisGame } from "./TetrisGame";
-import { BlockType } from "./Tetromino";
+import { BlockColor, BlockType } from "./Tetromino";
 
 export interface BlockCollisionEvent extends GameEvent {
     bodyA: any;
@@ -12,9 +12,9 @@ export interface StepEvent extends GameEvent {
 
 export interface BlockSpawnEvent extends GameEvent {
     blockType: BlockType;
-    blockColor: number;
+    blockColor: BlockColor;
     nextBlockType: BlockType;
-    nextBlockColor: number;
+    nextBlockColor: BlockColor;
 }
 
 export interface GameEvent {
