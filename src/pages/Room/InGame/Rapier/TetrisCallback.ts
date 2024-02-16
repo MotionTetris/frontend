@@ -1,6 +1,6 @@
 import { Socket } from "socket.io-client";
 import { changeBlockGlow, collisionParticleEffect, fallingBlockGlow, handleComboEffect, lightEffectToLine, loadStarImage, performPushEffect } from "./Effect";
-import { KeyPointCallback, KeyPoint } from "./PostNet";
+import { KeyPointCallback, KeyPoint } from "./PoseNet";
 import { TetrisGame } from "./TetrisGame";
 import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playGameEndSound } from "./Sound";
 import * as PIXI from "pixi.js";
@@ -128,9 +128,9 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
 
         }
         let blockToSpawn = game.nextBlock;
-        
+        let blockColor = game.nextBlockColor;
         if (needSpawn) {
-            game.spawnBlock(0xFF0000, blockToSpawn, true);
+            game.spawnBlock(blockToSpawn, blockColor);
             fallingBlockGlow(game.fallingTetromino!);
         }
     }

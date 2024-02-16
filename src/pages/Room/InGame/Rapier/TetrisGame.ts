@@ -1,7 +1,7 @@
 import { Graphics } from "./Graphics";
 import * as RAPIER from "@dimforge/rapier2d";
 import { TetrisOption } from "./TetrisOption";
-import { BlockType, BlockTypeList, Tetromino } from "./Tetromino";
+import { BlockColor, BlockColorList, BlockType, BlockTypeList, Tetromino } from "./Tetromino";
 import { Line, createLines } from "./Line";
 import { calculateLineIntersectionArea } from "./BlockScore";
 import { removeLines as removeShapeWithLine } from "./BlockRemove";
@@ -31,6 +31,7 @@ export class TetrisGame {
     protected _isRunning: boolean;
     protected _lastRenderingTime: number;
     protected _nextBlock?: BlockType;
+    protected _nextBlockColor?: BlockColor;
     private _removeBodies: Array<RAPIER.RigidBody>;
     private _walls: Map<number, Wall>
     private _event: EventEmitter;
@@ -55,6 +56,10 @@ export class TetrisGame {
         this._walls = new Map();
         this._lastRenderingTime = 0;
         this._nextBlock = BlockTypeList.at(getRandomInt(0, BlockTypeList.length - 1));
+
+        // @ts-ignore
+        // TODO: Find a more elegant way to do this.
+        this._nextBlockColor = BlockColorList.at(getRandomInt(0, BlockColorList.length - 1));
         this._event = new EventEmitter();
     }
 
@@ -64,6 +69,7 @@ export class TetrisGame {
 
     public dispose() {
         this.world?.free();
+        this._event.removeAllListeners();
     }
 
     public addRigidBodyToRemoveQueue(body: RAPIER.RigidBody) {
@@ -90,7 +96,7 @@ export class TetrisGame {
                 this.graphics.addCollider(coll, coll.parent()?.userData.color, coll.parent()?.userData.alpha);
                 return;
             }
-            this.graphics.addCollider(coll);
+            this.graphics.addCollider(coll, "blue");
         });
 
         world.forEachRigidBody((body) => {
@@ -194,9 +200,11 @@ export class TetrisGame {
     }
 
     public resume() {
-        this._isRunning = true;
-        this.emit("resume", { game: this });
-        this._latestRequestFrameId = requestAnimationFrame((time) => this.run(time));
+        if (!this.isRunning) {
+            this._isRunning = true;
+            this.emit("resume", { game: this });
+            this._latestRequestFrameId = requestAnimationFrame((time) => this.run(time));
+        }
     }
 
     public get isRunning() {
@@ -208,7 +216,7 @@ export class TetrisGame {
     }
 
     public get nextBlockColor() {
-        return 0;
+        return this._nextBlockColor;
     }
 
     protected emptyRemoveQueue() {
@@ -228,14 +236,14 @@ export class TetrisGame {
     }
 
     /* Spawn new block */
-    public spawnBlock(color: number, blockType: BlockType, spawnedForFalling?: boolean) {
+    public spawnBlock(blockType: BlockType, color: BlockColor, alpha: number = 1, spawnedForFalling: boolean = true) {
         if (!this.world) {
             throw new Error("Failed to spawn block. world is not set");
         }
 
-        const newBody = new Tetromino(this, this.option, this.world, this.graphics.viewport, undefined, color, blockType);
+        const newBody = new Tetromino(this, this.option, this.world, this.graphics.viewport, undefined, color, alpha, blockType);
         for (let i = 0; i < newBody.rigidBody.numColliders(); i++) {
-            const graphics = this.graphics.addCollider(newBody.rigidBody.collider(i));
+            const graphics = this.graphics.addCollider(newBody.rigidBody.collider(i), color, 1);
             if (graphics) {
                 newBody.addGraphics(graphics);
             }
@@ -262,13 +270,16 @@ export class TetrisGame {
         } else {
             this.fallingTetromino = newBody;
             this._nextBlock = BlockTypeList.at(getRandomInt(0, BlockTypeList.length - 1));
+            // @ts-ignore
+            // TODO: Find a more elegant way to do this.
+            this._nextBlockColor = BlockColorList.at(getRandomInt(0, BlockColorList.length - 1));
         }
 
-        this.emit("blockSpawn", { game: this, blockType: blockType, blockColor: 0, nextBlockType: this._nextBlock!, nextBlockColor: this.nextBlockColor });
+        this.emit("blockSpawn", { game: this, blockType: blockType, blockColor: color, nextBlockType: this._nextBlock!, nextBlockColor: this.nextBlockColor! });
         return newBody;
     }
 
-    public spawnFromRigidBody(color: number, rigidBody: RAPIER.RigidBody) {
+    public spawnFromRigidBody(color: BlockColor, rigidBody: RAPIER.RigidBody) {
         if (!this.world) {
             throw new Error("Failed to spawn block. world is not set");
         }
@@ -283,7 +294,7 @@ export class TetrisGame {
     }
 
     /* Spawn rigid body */
-    public spawnFromRigidBodyDesc(color: number, rigidBodyDesc: RAPIER.RigidBodyDesc) {
+    public spawnFromRigidBodyDesc(color: BlockColor, rigidBodyDesc: RAPIER.RigidBodyDesc) {
         if (!this.world) {
             throw new Error("Failed to spawn block. world is not set");
         }
@@ -291,7 +302,7 @@ export class TetrisGame {
         const newBody = this.world.createRigidBody(rigidBodyDesc);
         const tetromino = new Tetromino(this, this.option, this.world, this.graphics.viewport, newBody, color);
         for (let i = 0; i < tetromino.rigidBody.numColliders(); i++) {
-            this.graphics.addCollider(tetromino.rigidBody.collider(i));
+            this.graphics.addCollider(tetromino.rigidBody.collider(i), "brown");
             tetromino.rigidBody.collider(i).setRestitution(0);
             tetromino.rigidBody.collider(i).setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
         }
@@ -305,7 +316,7 @@ export class TetrisGame {
         return tetromino;
     }
 
-    public spawnFromColliderDescs(color: number, coliderDescs: RAPIER.ColliderDesc[][]) {
+    public spawnFromColliderDescs(color: BlockColor, coliderDescs: RAPIER.ColliderDesc[][]) {
         if (!this.world) {
             throw new Error("Failed to spawn block. world is not set");
         }
@@ -331,7 +342,7 @@ export class TetrisGame {
 
         for (const shape of shapes) {
             for (let i = 0; i < shape.rigidBody.numColliders(); i++) {
-                const graphics = this.graphics.addCollider(shape.rigidBody.collider(i));
+                const graphics = this.graphics.addCollider(shape.rigidBody.collider(i), shape.fillStyle);
                 if (graphics) {
                     shape.addGraphics(graphics);
                 }
@@ -425,7 +436,7 @@ export class TetrisGame {
         return event;
     }
 
-    public onBlockSpawned(type: BlockType, blockColor: number, nextBlockType: BlockType, nextBlockColor: number) {
+    public onBlockSpawned(type: BlockType, blockColor: BlockColor, nextBlockType: BlockType, nextBlockColor: BlockColor) {
         const event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.BLOCK_SPAWNED);
         event.userData = { type, blockColor, nextBlockType, nextBlockColor };
         this._sequence += 1;
