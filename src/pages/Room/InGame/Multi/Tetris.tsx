@@ -16,8 +16,7 @@ import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
 import { jwtDecode } from "jwt-decode";
 import { useSelector } from 'react-redux';
 import { RootState } from "@app/store";
-import { BOMB_URL, FLIP_URL, FOG_URL, GAME_SOCKET_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL } from "@src/config";
-import { getItemWithIndex, spawnBomb } from "../Rapier/Item.ts";
+import { applyItem, getItemUrl, getItemWithIndex, spawnBomb } from "../Rapier/Item.ts";
 import { MultiplayEvent, PlayerEventType } from "../Rapier/Multiplay.ts";
 import { Timer } from "@src/components/Ingame/Timer.tsx";
 import Volume from "@src/components/volume.tsx";
@@ -95,28 +94,7 @@ const Tetris: React.FC = () => {
       gameRef.current!.pause();
       // 형식: "BOMB", "FOG",  "FLIP", "ROTATE_RIGHT", "ROTATE_LEFT",
       const itemImages = items.map(item => {
-        let itemUrl;
-        switch (item) {
-          case "BOMB":
-            itemUrl = BOMB_URL;
-            break;
-          case "FOG":
-            itemUrl = FOG_URL;
-            break;
-          case "FLIP":
-            itemUrl = FLIP_URL;
-            break;
-          case "ROTATE_RIGHT":
-            itemUrl = ROTATE_RIGHT_URL;
-            break;
-          case "ROTATE_LEFT":
-            itemUrl = ROTATE_LEFT_URL;
-            break;
-          default:
-            itemUrl = "";
-            break;
-        }
-
+        let itemUrl = getItemUrl(item);
         return <ItemImage src={itemUrl} />;
       });
 
@@ -152,34 +130,16 @@ const Tetris: React.FC = () => {
           bomb = spawnBomb(gameRef.current!, 300, -200);
         }
         else {
-          let itemIndex: number = 0;
-          switch (selectedItem) {
-            case "FOG":
-              itemIndex = 1;
-              break;
-            case "FLIP":
-              itemIndex = 2;
-              break;
-            case "ROTATE_RIGHT":
-              itemIndex = 3;
-              break;
-            case "ROTATE_LEFT":
-              itemIndex = 4;
-              break;
-            default:
-              console.log('Invalid index');
-          }
-          socket.current!.emit('item', itemIndex);
-          getItemWithIndex(otherGameRef.current!, itemIndex);
+          socket.current!.emit('item', selectedItem);
+          applyItem(otherGameRef.current!, selectedItem!);
         }
-
         gameRef.current!.resume();
       }, 5000);
     });
 
     // 폭탄 이외의 아이템작업.
-    socket.current.on('selectedItem', (itemIndex: number) => {
-      getItemWithIndex(gameRef.current!, itemIndex);
+    socket.current.on('selectedItem', (selectedItem: string) => {
+      getItemWithIndex(gameRef.current!, selectedItem);
     });
 
     //모달 띄우기
