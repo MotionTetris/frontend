@@ -1,5 +1,7 @@
+import { BlockColor } from "./Tetromino";
+
 export interface TetrisOption {
-    wallColor?: number;
+    wallColor?: BlockColor;
     wallAlpha?: number;
     backgroundColor?: number;
     backgroundAlpha?: number;
