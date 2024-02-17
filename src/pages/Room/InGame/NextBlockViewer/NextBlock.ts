@@ -6,10 +6,10 @@ import * as PIXI from 'pixi.js';
 const getBlockInfo = (rad: number) => (blockType: BlockType) => {
     switch (blockType) {
         case "I":
-            return [0, 0,
-                    0, 2 * rad,
-                    0, 4 * rad, 
-                    0, 6 * rad];
+            return [-2 * rad, rad,
+                    0, rad,
+                    2 * rad, rad, 
+                    4 * rad, rad];
         case "O":
             return [2 * rad, 0,
                     0, 2 * rad,
@@ -31,15 +31,15 @@ const getBlockInfo = (rad: number) => (blockType: BlockType) => {
                     -2 * rad, 2 * rad,
                     0, 2 * rad];
         case "J":
-            return [-2 * rad, 2 * rad,
+            return [-2 * rad, 0,
+                    0, 0,
                     0, 2 * rad,
-                    0, 4 * rad,
-                    0, 6 * rad];
+                    0, 4 * rad];
         case "L":
-            return [2 * rad, 2 * rad,
+            return [2 * rad, 0,
+                    0, 0,
                     0, 2 * rad,
-                    0, 4 * rad,
-                    0, 6 * rad];
+                    0, 4 * rad];
         default:
             throw new Error("Unkown BlockInfo");
     }

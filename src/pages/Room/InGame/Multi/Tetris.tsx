@@ -36,8 +36,7 @@ const Tetris: React.FC = () => {
   const otherGameRef = useRef<TetrisGame | null>(null);
   const socket = useRef<io.Socket>()
   const otherNicknames = useSelector((state: RootState) => state.game.playersNickname);
-  const [nextBlock, setNextBlock] = useState("T");
-  const [nextBlockColor, setNextBlockColor] = useState("red");
+
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
   const [playerScore, setPlayerScore] = useState(0);
   const [otherScore, setOtherScore] = useState(0);
@@ -273,7 +272,7 @@ const Tetris: React.FC = () => {
     game.on("landing", LandingEvent);
     game.on("prelanding", preLandingEvent);
     game.on("step", StepCallback);
-    game.on("blockSpawn", createBlockSpawnEvent(socket.current, setNextBlock, setNextBlockColor, app, 32));
+    game.on("blockSpawn", createBlockSpawnEvent(socket.current, app, 48, 160, 40));
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
 
@@ -364,7 +363,7 @@ const Tetris: React.FC = () => {
         <TextContainer>
           <NextBlockText>NEXT BLOCK</NextBlockText>
         </TextContainer>
-        <NextBlockImage><canvas ref={nextBlockRef} style={{zIndex: 500}}/></NextBlockImage>
+        <NextBlockImage><canvas ref={nextBlockRef}/></NextBlockImage>
       </TetrisNextBlockContainer>
       <CardContainer>
         <Card tabIndex={1} id="item1">{shuffledCard[0]}</Card>

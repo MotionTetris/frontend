@@ -87,11 +87,11 @@ export const DarkBackground = styled.div`
 `
 export const UserNickName = styled.div`
   position: absolute;
-  top: -104px;
-  left: 355px;
+  top: -107px;
+  left: 489px;
   transform: translate(-50%, -50%);
-  width: 260px;
-  height: 20px;
+  width: 536px;
+  height: 28px;
   color: #FFF;
   background: #323232;
   border-top: 2px solid black;
@@ -106,10 +106,10 @@ export const UserNickName = styled.div`
 
 export const Score = styled.div`
   position: absolute;
-  top: -42px;
-  left: 355px;
+  top: -40px;
+  left: 491px;
   transform: translate(-50%, -50%);
-  width: 259px;
+  width: 532px;
   height: 59px;
   color: #FFF;
   background: #0D7377;
@@ -124,7 +124,7 @@ export const Score = styled.div`
 
 export const SceneContainer = styled.div`
   top: 0px;
-  left: 0%;
+  left: -2%;
   width: 600px;
   height: 900px;
   position: absolute;
@@ -141,7 +141,7 @@ export const PlayerContainer = styled.div`
 
 export const MultiplayContainer = styled.div`
   top: 0px;
-  left: 65%;
+  left: 72%;
   width: 600px;
   height: 800px;
   position: absolute;
@@ -156,8 +156,8 @@ export const SceneCanvas = styled.canvas`
 export const VideoContainer = styled.div`
   position: absolute;
   top: 228px;
-  left: 710px;
-  width: 503px;
+  left: 572px;
+  width: 776px;
   height: 668px;
   border: 2px solid black;
   background-color: white;
@@ -185,7 +185,7 @@ export const VideoCanvas = styled.canvas`
 export const MessageDiv = styled.div`
   position: absolute;
   top: 30%;
-  left: 65%;
+  left: 60%;
   color: #3A4CA8;
   padding: 0px;
   font-family: "DNFBitBitv2", sans-serif;
@@ -305,8 +305,8 @@ export const GoLobbyButton = styled.button<GameOverModalProps>`
 
 export const TetrisNextBlockContainer = styled.div`
 position: relative;
-top: 97px;
-left:200px;
+top: 90px;
+left:62px;
 display: flex;
 flex-direction: column;
 align-items: center;
@@ -324,7 +324,7 @@ export const TextContainer = styled.div`
   justify-content: center;
   align-items: center;
   border: 2px solid black;
-  height: 40px;
+  height: 47px;
   z-index: 1;
 `;
 
@@ -339,8 +339,8 @@ export const NextBlockText = styled.div`
 
 export const NextBlockImage = styled.div`
   position: absolute;
-  top: 0px; // 상단 정렬
-  left: 100px; // 좌측 정렬
+  top: 10px; // 상단 정렬
+  left: 100px;
   display: flex;
   justify-content: center;
   margin-top: 40px;
@@ -357,9 +357,9 @@ export const NextBlockImage = styled.div`
 
 export const OtherNickName = styled.div`
   position: absolute;
-  top:55px;
-  left:-10px;
-  width: 260px;
+  top:56px;
+  right:370px;
+  width: 220px;
   height: 20px;
   color: #FFF;
   background: #323232;
@@ -407,19 +407,19 @@ export const ItemImage = styled.img`
 
 export const OtherScore = styled.div`
   position: absolute;
-  top: 70px;
-  left: 500px;
+  top: 78px;
+  left: 350px;
   transform: translate(-50%, -50%);
-  width: 259px;
-  height: 59px;
+  width: 200px;
+  height: 20px;
   color: #FFF;
   background: #0D7377;
   padding: 10px 20px;
-  border-right: 2px solid black;
+  border: 2px solid black;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
   z-index: 5;
 `;
