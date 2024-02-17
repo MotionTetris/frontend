@@ -21,9 +21,10 @@ const Player: React.FC<PlayerProps> = ({ nickname, isCreator, isReady, scale, po
     <PlayerContainer style={{ transform: `scale(${scale})`, position, top, left }}>
       <PlayerBackground/>
       <PlayerNickName>{nickname}</PlayerNickName>
-      {isCreator ? <Badge>방장</Badge> : isReady && <Badge>Ready</Badge>}
+      {isCreator ? <Badge>방장</Badge> : isReady ? <Badge>Ready</Badge> : null}
     </PlayerContainer>
   );
 };
+
 
 export default Player;

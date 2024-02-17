@@ -72,7 +72,6 @@ const GameRoom: React.FC = () => {
         const otherPlayers = playersNickname.filter(nickname => nickname !== creatorNickname && nickname !== currentPlayerNickname);
         setPlayers([currentPlayerNickname, ...randomizePlayers(otherPlayers)]);
       }
-      roomSocket.emit(RoomSocketEvent.EMIT_JOIN, roomId);
     }
 
     roomSocket?.on(RoomSocketEvent.ON_JOIN_ROOM, (users) => {
@@ -93,9 +92,10 @@ const GameRoom: React.FC = () => {
       clearTimeout(timeoutId);
     });
 
-    roomSocket?.on(RoomSocketEvent.ON_GAME_ALLREADY, () => {
-      setIsGameALLReady(true);
+    roomSocket?.on(RoomSocketEvent.ON_GAME_ALLREADY, (isAllReady: boolean) => {
+      setIsGameALLReady(isAllReady);
     });
+    
 
     roomSocket?.on(RoomSocketEvent.ON_GAME_START, () => {
       navigate(`/gameplay?roomId=${roomInfo?.roomInfo.roomId}&max=${roomInfo?.roomInfo.maxCount}`);
