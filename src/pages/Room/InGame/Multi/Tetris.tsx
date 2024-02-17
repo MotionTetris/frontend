@@ -30,12 +30,13 @@ const Tetris: React.FC = () => {
   const sceneRef = useRef<HTMLCanvasElement>(null);
   const otherSceneRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const nextBlockRef = useRef<HTMLCanvasElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<TetrisGame | null>(null);
   const otherGameRef = useRef<TetrisGame | null>(null);
   const socket = useRef<io.Socket>()
   const otherNicknames = useSelector((state: RootState) => state.game.playersNickname);
-  const [nextBlock, setNextBlock] = useState("");
+
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
   const [playerScore, setPlayerScore] = useState(0);
   const [otherScore, setOtherScore] = useState(0);
@@ -174,6 +175,10 @@ const Tetris: React.FC = () => {
       return;
     }
 
+    if (!nextBlockRef.current) {
+      return;
+    }
+
     sceneRef.current.width = 500;
     sceneRef.current.height = 800;
     otherSceneRef.current.width = 500;
@@ -254,12 +259,20 @@ const Tetris: React.FC = () => {
       ...TetrisOption,
       view: otherSceneRef.current,
     };
+
+    const app = new PIXI.Application({
+      view: nextBlockRef.current,
+      backgroundColor: 0xFFFFFF,
+      width: nextBlockRef.current.width,
+      height: nextBlockRef.current.height
+    });
+    app.start();
     const game = new TetrisGame(TetrisOption, "user");
     game.on("collision", CollisionEvent);
     game.on("landing", LandingEvent);
     game.on("prelanding", preLandingEvent);
     game.on("step", StepCallback);
-    game.on("blockSpawn", createBlockSpawnEvent(socket.current, setNextBlock));
+    game.on("blockSpawn", createBlockSpawnEvent(socket.current, app, 48, 160, 40));
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
 
@@ -350,7 +363,7 @@ const Tetris: React.FC = () => {
         <TextContainer>
           <NextBlockText>NEXT BLOCK</NextBlockText>
         </TextContainer>
-        <NextBlockImage><img src={getNextBlockImage(nextBlock)} /></NextBlockImage>
+        <NextBlockImage><canvas ref={nextBlockRef}/></NextBlockImage>
       </TetrisNextBlockContainer>
       <CardContainer>
         <Card tabIndex={1} id="item1">{shuffledCard[0]}</Card>
