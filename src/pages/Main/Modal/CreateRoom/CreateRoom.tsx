@@ -65,7 +65,6 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
     const roomInfo = await createRoomAPI(rodomData)
     setCreateRooms([...(createRooms || []), roomInfo]);
     const {message:{roomId}} = roomInfo;
-    console.debug("방생성했따ㅏ아아: ", roomInfo);
     roomSocket?.emit(RoomSocketEvent.EMIT_CREATE_ROOM,{roomId});
     onClose();
     navigate(`/rooms/${roomId}`, { state: { roomInfo: roomInfo.message, isCreator: true } });  
@@ -85,8 +84,6 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
         <RoomSelect id="roomSelect" value={selectedOption} onChange={handleSelectChange}>
           <option value="1">1</option>
           <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
         </RoomSelect>
       </OutlinedSelectWrapper>
 

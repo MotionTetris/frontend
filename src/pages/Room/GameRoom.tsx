@@ -9,18 +9,19 @@ import {
   GameRoomTitle,
   FaBackspaced,
   PlayerContainer,
-  playerStyles
+  playerStyles,
+  RoomInfoContainer
 } from "./styles";
 import Player from "@components/Player/Player";
 import { useRoomSocket, RoomSocketEvent } from "@context/roomSocket";
 import { InGamePlayerCard } from "@type/Refactoring";
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles";
 import { useParams } from 'react-router-dom';
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from '@app/store';
+import { useDispatch } from "react-redux";
 import { setOtherNickname, setCreatorNickname } from "@redux/game/gameSlice";
 import { getUserNickname } from "@src/data-store/token";
 import { ModalOverlay, StyledTutorial } from "./InGame/Single/style";
+import Chat from "@src/components/Ingame/Chat";
 
 
 const GameRoom: React.FC = () => {
@@ -36,6 +37,7 @@ const GameRoom: React.FC = () => {
   const [players, setPlayers] = useState<string[]>([]);
   const [isGameALLReady, setIsGameALLReady] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(true);
+  
   const dispatch = useDispatch();
   const shootingStars = Array(20).fill(null).map((_, index) =>
     <ShootingStar
@@ -108,8 +110,6 @@ const GameRoom: React.FC = () => {
     };
   }, [roomInfo, currentPlayerNickname, roomSocket]);
 
-
-
   function randomizePlayers(players: string[]) {
     return players.sort(() => Math.random() - 0.5);
   }
@@ -122,10 +122,8 @@ const GameRoom: React.FC = () => {
 
   const isCreator = inGameCard?.creatorNickname === currentPlayerNickname;
   const handleReadyClick = () => {
-    if (!isReady) {
-      setIsReady(true);
-      roomSocket?.emit(RoomSocketEvent.EMIT_GAME_READY, { roomId });
-    }
+    setIsReady(!isReady);
+    roomSocket?.emit(RoomSocketEvent.EMIT_GAME_READY, { roomId });
   };
 
   const handleBackButtonClick = () => {
@@ -153,15 +151,16 @@ const GameRoom: React.FC = () => {
     };
   }, []);
 
-
-
   return (
     <RoomContainer>
             <ModalOverlay isOpen={isModalOpen} />
       <StyledTutorial isOpen={isModalOpen} closeModal={() => setIsModalOpen(false)} />
+      <RoomInfoContainer>
       <GameRoomId>{inGameCard?.roomId}</GameRoomId>
       <GameRoomTitle>{inGameCard?.roomTitle}</GameRoomTitle>
+      </RoomInfoContainer>
       <FaBackspaced onClick={handleBackButtonClick} />
+      
       {isCreator ? (
         <StartButton
           disabled={players.length !== 1 && !isGameALLReady}
@@ -178,26 +177,29 @@ const GameRoom: React.FC = () => {
           Start Game
         </StartButton>
       ) : (
-        <ReadyButton onClick={handleReadyClick}>{isReady ? '대기 중' : '준비 중'}</ReadyButton>
+        <ReadyButton onClick={handleReadyClick} isReady={isReady}>{isReady ? '준비 취소' : '준비 중'}</ReadyButton>
       )}
-      <PlayerContainer>
-        {players.map((player, index) => {
-          const isCreator = player === inGameCard?.creatorNickname;
-
-          return (
-            <Player
-              key={index}
-              nickname={player}
-              isCreator={isCreator}
-              scale={playerStyles[index].scale}
-              position={playerStyles[index].position}
-              top={playerStyles[index].top}
-              left={playerStyles[index].left}
-            />
-          );
-        })}
-      </PlayerContainer>
-
+    <PlayerContainer>
+  {players.map((player, index) => {
+    const isCreator = player === inGameCard?.creatorNickname;
+    return (
+      <Player
+        key={index}
+        nickname={player}
+        isCreator={isCreator}
+        isReady={isGameALLReady}
+        scale={playerStyles[index].scale}
+        position={playerStyles[index].position}
+        top={playerStyles[index].top}
+        left={playerStyles[index].left}
+      />
+    );
+  })}
+</PlayerContainer>
+<Chat 
+  isCreator={isCreator}
+  players={players.filter(player => player !== currentPlayerNickname)}
+/>
       <BackgroundColor1>
         <Night>
           {shootingStars}

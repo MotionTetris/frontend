@@ -1,8 +1,7 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import {
   PlayerContainer,
   PlayerBackground,
-  VideoContainer,
   PlayerNickName,
   Badge,
 } from "./styles";
@@ -10,37 +9,19 @@ import {
 interface PlayerProps {
   nickname: string;
   isCreator: boolean;
+  isReady: boolean;
   scale: number;
   position: string;
   top: string;
   left: string;
 }
 
-const Player: React.FC<PlayerProps> = ({ nickname, isCreator, scale, position, top, left }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  
-  useEffect(() => {
-    const connectWebcam = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-        });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (error) {
-        console.error("웹캠 연결에 실패했습니다.", error);
-      }
-    };
-    connectWebcam();
-  }, []);
-
+const Player: React.FC<PlayerProps> = ({ nickname, isCreator, isReady, scale, position, top, left }) => {
   return (
     <PlayerContainer style={{ transform: `scale(${scale})`, position, top, left }}>
       <PlayerBackground/>
       <PlayerNickName>{nickname}</PlayerNickName>
-      {isCreator && <Badge>방장</Badge>}
-      <VideoContainer ref={videoRef} autoPlay playsInline />
+      {isCreator ? <Badge>방장</Badge> : isReady && <Badge>Ready</Badge>}
     </PlayerContainer>
   );
 };
