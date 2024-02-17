@@ -33,24 +33,59 @@ export const FaBackspaced = styled(IoPlayBackSharp)`
 `;
 
 
+export const RoomInfoContainer = styled.div`
+  position: absolute;
+  top: 14%;
+  right: 0%;
+  width: 100%;
+  height: 100%;
+  scale: 1.4;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`
 
 export const GameRoomId = styled.span`
   position: absolute;
-  top: 2%;
-  right: 2%;
-  width: 10%;
+  top: 12%;
+   right: 60%;
+  width: 5%;
   height: 5%;
   background: lightblue;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #ddd;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  color: #333;
+  font-weight: bold;
+  z-index: 1;
+  &:before {
+    content: "방 번호 : ";
+  }
 `;
 
 export const GameRoomTitle = styled.span`
   position: absolute;
-  top: 5%;
-  right: 2%;
-  width: 10%;
+  top: 12%;
+  right: 35%;
+  width: 30%;
   height: 5%;
   background: lightblue;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #ddd;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5px; // 둥근 모서리 효과
+  color: #333;
+  font-weight: bold;
+  &:before {
+    content: "방 제목 : ";
+  }
 `;
+
 
 export const TetrisSingle = styled.div`
   position: absolute;
@@ -213,28 +248,28 @@ export const StartButton = styled.button`
   }
 `;
 
-export const ReadyButton = styled.span`
+export const ReadyButton = styled.span<{ isReady: boolean }>`
   position: absolute;
   bottom: 20vh;
   right: 6vw;
   width: 8%;
   height: 5%;
-  background-color: #ff4d4d; // 찐한 빨간색 대신 조금 더 부드러운 색상 사용
+  background-color: ${props => props.isReady ? '#4d4dff' : '#ff4d4d'};
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white; // 텍스트 색상 설정
-  font-size: 1em; // 텍스트 크기 설정
-  cursor: pointer; // 마우스 오버시 커서 변경
-  border: none; // 테두리 제거
-  border-radius: 5px; // 버튼 모서리 둥글게
+  color: white;
+  font-size: 1em;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
   transition:
     background-color 0.3s,
-    box-shadow 0.3s; // 배경색 및 그림자 변화에 애니메이션 효과
+    box-shadow 0.3s;
 
   &:hover {
-    background-color: #ff6666; // 호버 시 색상을 더 부드럽게 변경
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.1); // 호버 시 빨간색 glow 효과
+    background-color: ${props => props.isReady ? '#6666ff' : '#ff6666'};
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.1);
   }
 `;
 
@@ -253,8 +288,8 @@ export const StyledPlayer = styled(Player)<{ scale: number, position: string, to
 `;
 
 export const playerStyles = [
-  { scale: 0.8, position: 'absolute', top: '10%', left: '10%' },
-  { scale: 0.4, position: 'absolute', top: '10%', left: '55%' },
+  { scale: 0.8, position: 'absolute', top: '30%', left: '17%' },
+  { scale: 0.8, position: 'absolute', top: '50%', left: '17%' },
   { scale: 0.4, position: 'absolute', top: '10%', left: '40%' },
   { scale: 0.5, position: 'absolute', top: '40%', left: '40%' },
 ];
