@@ -6,6 +6,7 @@ import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSou
 import * as PIXI from "pixi.js";
 import { BlockSpawnEvent } from "./TetrisEvent";
 import { BlockColor, BlockType, Palette } from "./Tetromino";
+import { clearBlock, drawBlock } from "../NextBlockViewer/NextBlock";
 
 export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
     let nextColorIndex = 0;
@@ -78,10 +79,16 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
     return eventCallback;
 }
 
-export function createBlockSpawnEvent(socket?: Socket, setNextBlock?: any) {
+export function createBlockSpawnEvent(socket?: Socket, setNextBlock?: any, setNextBlockColor?: any, app?: PIXI.Application, blockSize: number) {
+    let blocks = drawBlock(blockSize);
     return ({game, blockType, blockColor, nextBlockType, nextBlockColor}: BlockSpawnEvent) => {
         let event = game.onBlockSpawned(blockType, blockColor, nextBlockType, nextBlockColor);
         setNextBlock(nextBlockType);
+        setNextBlockColor(nextBlockColor);
+        if (app) {
+            clearBlock(app);
+            blocks(app, 2*30, 30, nextBlockType, nextBlockColor);
+        }
         socket?.emit('eventOn', event);   
     }
 }
