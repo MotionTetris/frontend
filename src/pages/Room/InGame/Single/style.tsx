@@ -167,8 +167,8 @@ export const VideoCanvas = styled.canvas`
   position: absolute;
   top: 0%;
   left: 0vw;
-  width: 100%;
-  height: 100%;
+  //width: 100%;
+  //height: 100%;
   object-fit: cover;
 `;
 
@@ -274,7 +274,7 @@ export const NextBlockImage = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 40px;
-  width: 200px;
+  width: 203px;
   height: 20%;
   border: 2px solid black;
   background: white;

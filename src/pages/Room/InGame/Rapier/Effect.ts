@@ -262,19 +262,6 @@ export function fallingBlockGlow(fallingBlock: Tetromino, rgb: number) {
   });
 }
 
-export function fallingBlockGlowWithDelay(fallingBlock: Tetromino) {
-  setTimeout(function() {
-    const glowFilter = new GlowFilter({ 
-      distance: 45, 
-      outerStrength: 2,
-      color: 0xffff 
-    });
-    
-    fallingBlock.graphics.forEach(graphic => {
-      graphic.filters = [...(graphic.filters || []), glowFilter];
-    });
-  }, 50); // 100 밀리세컨드 후에 함수를 실행합니다.
-}
 
 
 export function changeBlockGlow(fallingBlock: Tetromino, colorIndex: number) {
@@ -306,15 +293,7 @@ export function removeGlow(fallingBlock: Tetromino) {
   });
 }
 
-export function removeGlowWithDelay(fallingBlock: Tetromino) {
-  setTimeout(function() {
-    fallingBlock.graphics.forEach(graphic => {
-      if (graphic.filters) {
-        graphic.filters = graphic.filters.filter(filter => !(filter instanceof GlowFilter));
-      }
-    });
-  }, 200); // 500 밀리세컨드 후에 함수를 실행합니다.
-}
+
 
 
 

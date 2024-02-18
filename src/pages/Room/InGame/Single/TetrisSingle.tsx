@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ButtonContainer, TetrisNextBlockContainer, TextContainer, NextBlockText, NextBlockImage, ModalOverlay, StyledTutorial, } from "./style.tsx";
-import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage } from "../Rapier/Effect.ts";
+import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, explodeBomb, getNextBlockImage } from "../Rapier/Effect.ts";
 import { rotateViewport, spawnBomb, flipViewport, addFog, getRandomItem, } from "../Rapier/Item.ts";
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
@@ -21,6 +21,7 @@ const TetrisSingle: React.FC = () => {
   const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
   const sceneRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const nextBlockRef = useRef<HTMLCanvasElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [nextBlock, setNextBlock] = useState("");
   const [item, setItem] = useState("");
@@ -53,6 +54,10 @@ const TetrisSingle: React.FC = () => {
 
       if (!!!sceneRef.current) {
         console.log("sceneRef is null");
+        return;
+      }
+
+      if (!nextBlockRef.current) {
         return;
       }
 
@@ -109,13 +114,20 @@ const TetrisSingle: React.FC = () => {
         backgroundColor: 0x222929,
         backgroundAlpha: 0
       };
+      const app = new PIXI.Application({
+        view: nextBlockRef.current,
+        backgroundColor: 0xFFFFFF,
+        width: nextBlockRef.current.width,
+        height: nextBlockRef.current.height
+      });
+      app.start();
 
       const game = new TetrisGame(TetrisOption, "user");
       game.on("collision", CollisionEvent);
       game.on("landing", LandingEvent);
       game.on("prelanding", preLandingEvent);
       game.on("step", StepCallback);
-      game.on("blockSpawn", createBlockSpawnEvent(undefined, setNextBlock));
+      game.on("blockSpawn", createBlockSpawnEvent(null, app, 48, 160, 40));
       gameRef.current = game;
       game.setWorld(initWorld(RAPIER, TetrisOption));
       game.spawnBlock("T", "red");
@@ -180,7 +192,7 @@ const TetrisSingle: React.FC = () => {
           <TextContainer>
             <NextBlockText>NEXT BLOCK</NextBlockText>
           </TextContainer>
-          <NextBlockImage><img src={getNextBlockImage(nextBlock)} /></NextBlockImage>
+          <NextBlockImage><canvas ref={nextBlockRef} /></NextBlockImage>
         </TetrisNextBlockContainer>
         <VideoContainer>
           <ButtonContainer>
