@@ -13,7 +13,8 @@ export class Graphics {
     coll2gfx: Map<number, PIXI.Graphics>;
     colorIndex: number;
     renderer: PIXI.Renderer;
-    scene: PIXI.Container; 
+    scene: PIXI.Container;
+    effectScene: PIXI.Container;
     viewport: Viewport;
     rectangles: Array<PIXI.Sprite>;
     ticker: PIXI.Ticker;
@@ -34,6 +35,7 @@ export class Graphics {
         });
 
         this.scene = new PIXI.Container();
+        this.effectScene = new PIXI.Container();
         this.viewport = new Viewport({
             screenWidth: window.innerWidth,
             screenHeight: window.innerHeight,
@@ -41,9 +43,14 @@ export class Graphics {
             worldHeight: option.worldHeight,
             events: this.renderer.events
         });
+        this.viewport.zIndex = 1;
+        this.viewport.sortableChildren = true;
+        this.effectScene.zIndex = 2;
+        this.effectScene.sortableChildren = true;
 
         this.scene.addChild(this.viewport);
-    
+        this.viewport.addChild(this.effectScene);
+        
         this.viewport.drag().pinch().wheel().decelerate();
         this.rectangles = [];
         this.rectangles.push(createRectangle(this.scene, "src/assets/arrowLeft.png",  50, 150, 60, 0));
