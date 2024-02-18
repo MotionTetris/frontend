@@ -6,6 +6,7 @@ import { Viewport } from "pixi-viewport";
 import * as particles from '@pixi/particle-emitter'
 import BOMB_IMG from '@assets/items/Bomb.png';
 import { BOMB_URL, FOG_URL, FLIP_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL } from "../../../../config"
+import { EffectLoader } from "./Effect/EffectLoader";
 //item-region
 export function getRandomItem(game: TetrisGame) {
     const itemImage = [BOMB_URL,FOG_URL,FLIP_URL,ROTATE_LEFT_URL,ROTATE_RIGHT_URL];
@@ -90,7 +91,7 @@ export async function spawnBomb(game: TetrisGame, x: number, y: number) {
     rigidBody!.userData = {type: 'bomb'};
     let colliderDesc = RAPIER.ColliderDesc.ball(radius).setMass(10000);
     let collider = game.world?.createCollider(colliderDesc, rigidBody);
-    let texture = await PIXI.Assets.load(BOMB_IMG);
+    let texture = EffectLoader.getTexture(BOMB_IMG);
     let sprite = createSprite(texture);
     function createSprite(texture: PIXI.Texture) {
         console.log(texture);

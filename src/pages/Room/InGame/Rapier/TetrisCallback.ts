@@ -1,5 +1,5 @@
 import { Socket } from "socket.io-client";
-import { changeBlockGlow, collisionParticleEffect, fallingBlockGlow, handleComboEffect, lightEffectToLine, loadStarImage, performPushEffect } from "./Effect";
+import { changeBlockGlow, collisionParticleEffect, fallingBlockGlow, handleComboEffect, lightEffectToLine, performPushEffect } from "./Effect";
 import { KeyPointCallback, KeyPoint } from "./PoseNet";
 import { TetrisGame } from "./TetrisGame";
 import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playGameEndSound } from "./Sound";

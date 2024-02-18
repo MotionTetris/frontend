@@ -316,16 +316,6 @@ export function removeGlowWithDelay(fallingBlock: Tetromino) {
   }, 200); // 500 밀리세컨드 후에 함수를 실행합니다.
 }
 
-
-
-export function loadStarImage() {
-  return new Promise(async (resolve, reject) => {
-    const textrue = await PIXI.Assets.load('src/assets/whitestar.png');
-    return textrue;
-  });
-}
-
-
 export function handleComboEffect(combo: number, graphics: Graphics): string {
   startShake({ viewport: graphics.viewport, strength: 5 + 10 * combo, duration: 400 + 50 * combo})
   if (combo === 1) {
