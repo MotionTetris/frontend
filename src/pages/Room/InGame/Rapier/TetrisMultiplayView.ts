@@ -126,7 +126,9 @@ export class TetrisMultiplayView extends TetrisGame {
                 this.spawnBlock(event.userData.type, event.userData.blockColor);
                 break;
             case PlayerEventType.ITEM_USED:
-                this.bomb = spawnBomb(this, 300, -200);
+                spawnBomb(this, 300, -200).then((value) => {
+                    this.bomb = value;
+                });
                 break;
                 //폭탄떨구기.
             default:

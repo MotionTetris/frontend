@@ -4,6 +4,7 @@ import { playBombSpawnSound, playFlipSound, playFogSound, playRotateSound } from
 import { TetrisGame } from "./TetrisGame";
 import { Viewport } from "pixi-viewport";
 import * as particles from '@pixi/particle-emitter'
+import BOMB_IMG from '@assets/items/Bomb.png';
 import { BOMB_URL, FOG_URL, FLIP_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL } from "../../../../config"
 //item-region
 export function getRandomItem(game: TetrisGame) {
@@ -81,7 +82,7 @@ export function getItemUrl(item: string): string {
 
 
 
-export function spawnBomb(game: TetrisGame, x: number, y: number) {
+export async function spawnBomb(game: TetrisGame, x: number, y: number) {
     playBombSpawnSound();
     let radius = 75;
     let rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
@@ -89,30 +90,22 @@ export function spawnBomb(game: TetrisGame, x: number, y: number) {
     rigidBody!.userData = {type: 'bomb'};
     let colliderDesc = RAPIER.ColliderDesc.ball(radius).setMass(10000);
     let collider = game.world?.createCollider(colliderDesc, rigidBody);
-    
-    let bombSprite : PIXI.Sprite;
-    let bombTexture = PIXI.Loader.shared.resources['src/assets/items/Bomb.png']?.texture;
-    if (!bombTexture) {
-        PIXI.Loader.shared.add('src/assets/items/Bomb.png').load((loader, resources) => {
-            bombTexture = resources['src/assets/items/Bomb.png'].texture;
-            createSprite(bombTexture!);
-        });
-    } else {
-        createSprite(bombTexture);
-    }
-
+    let texture = await PIXI.Assets.load(BOMB_IMG);
+    let sprite = createSprite(texture);
     function createSprite(texture: PIXI.Texture) {
-        bombSprite = new PIXI.Sprite(texture);
+        console.log(texture);
+        let bombSprite = new PIXI.Sprite(texture);
         bombSprite.anchor.set(0.5, 0.5);
         const scale = radius * 2 / Math.max(texture.width, texture.height);
         bombSprite.scale.set(scale, scale);
         game.graphics.viewport.addChild(bombSprite);
         game.graphics.coll2gfx.set(collider!.handle, bombSprite);
+        return bombSprite;
     }
 
     return {destroy: () => {
         rigidBody?.setTranslation({x: -10000, y: -10000}, false);
-        game.graphics.viewport.removeChild(bombSprite);
+        game.graphics.viewport.removeChild(sprite);
         game.graphics.coll2gfx.delete(collider!.handle);
     }, lifetime: game.stepId + 300};
 }

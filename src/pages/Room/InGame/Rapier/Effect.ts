@@ -10,7 +10,7 @@ import { TetrisGame } from "./TetrisGame";
 import * as particles from '@pixi/particle-emitter'
 import * as RAPIER from "@dimforge/rapier2d";
 import { STAR_URL } from "@src/config"
-
+import EXPLOSION_IMAGE from '@assets/explosion.png';
 export const explodeParticleEffect = (x: number, y: number, graphics: Graphics ) => {
   const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
   const viewport = graphics.viewport;
@@ -319,20 +319,9 @@ export function removeGlowWithDelay(fallingBlock: Tetromino) {
 
 
 export function loadStarImage() {
-  return new Promise((resolve, reject) => {
-    if (PIXI.Loader.shared.resources['src/assets/whitestar.png']) {
-      // 이미 로드된 이미지라면 즉시 resolve를 호출.
-      resolve(PIXI.Loader.shared.resources['src/assets/whitestar.png'].texture);
-    } else {
-      PIXI.Loader.shared.add('src/assets/whitestar.png').load((loader, resources) => {
-        if (resources['src/assets/whitestar.png']) {
-          console.log("스타 이미지 로드 성공");
-          resolve(resources['src/assets/whitestar.png'].texture);
-        } else {
-          reject("스타 이미지 로드 실패");
-        }
-      });
-    }
+  return new Promise(async (resolve, reject) => {
+    const textrue = await PIXI.Assets.load('src/assets/whitestar.png');
+    return textrue;
   });
 }
 
@@ -396,22 +385,8 @@ export function explodeBomb(game: TetrisGame, bodyA: RAPIER.Collider, bodyB: RAP
 }
 
 
-export function loadExplosionImage(): Promise<PIXI.Texture> {
-  return new Promise((resolve, reject) => {
-    const imagePath = 'src/assets/explosion.png';
-    if (PIXI.Loader.shared.resources[imagePath]?.texture) {
-      resolve(PIXI.Loader.shared.resources[imagePath].texture);
-    } else {
-      PIXI.Loader.shared.add(imagePath).load((loader, resources) => {
-        if (resources[imagePath]?.texture) {
-          console.log("폭발 이미지 로드 성공");
-          resolve(resources[imagePath].texture);
-        } else {
-          reject("폭발 이미지 로드 실패");
-        }
-      });
-    }
-  });
+export async function loadExplosionImage(): Promise<PIXI.Texture> {
+  return await PIXI.Assets.load(EXPLOSION_IMAGE);
 }
 
 

@@ -115,7 +115,7 @@ const Tetris: React.FC = () => {
         bg.style.opacity = '0.75';
       }
       document.getElementById("item2")?.focus();
-      setTimeout(() => {
+      setTimeout(async () => {
         cards.forEach((elem) => {
           (elem as HTMLElement).style.opacity = '0';
         });
@@ -129,7 +129,7 @@ const Tetris: React.FC = () => {
         if (selectedItem == "BOMB") {
           let event = MultiplayEvent.fromGame(gameRef.current!, user, PlayerEventType.ITEM_USED);
           socket.current!.emit('eventOn', event);
-          bomb = spawnBomb(gameRef.current!, 300, -200);
+          bomb = await spawnBomb(gameRef.current!, 300, -200);
         }
         else {
           socket.current!.emit('item', selectedItem);

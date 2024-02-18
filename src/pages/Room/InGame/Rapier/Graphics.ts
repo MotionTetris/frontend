@@ -39,7 +39,7 @@ export class Graphics {
             screenHeight: window.innerHeight,
             worldWidth: option.worldWidth,
             worldHeight: option.worldHeight,
-            interaction: this.renderer.plugins.interaction,
+            events: this.renderer.events
         });
 
         this.scene.addChild(this.viewport);
