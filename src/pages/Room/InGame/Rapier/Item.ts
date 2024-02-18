@@ -83,7 +83,7 @@ export function getItemUrl(item: string): string {
 
 
 
-export async function spawnBomb(game: TetrisGame, x: number, y: number) {
+export function spawnBomb(game: TetrisGame, x: number, y: number) {
     playBombSpawnSound();
     let radius = 75;
     let rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);

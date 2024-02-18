@@ -272,7 +272,7 @@ const Tetris: React.FC = () => {
     game.on("landing", LandingEvent);
     game.on("prelanding", preLandingEvent);
     game.on("step", StepCallback);
-    game.on("blockSpawn", createBlockSpawnEvent(socket.current, app, 48, 160, 40));
+    game.on("blockSpawn", createBlockSpawnEvent(socket.current, app, 48, 150, 40));
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
 
