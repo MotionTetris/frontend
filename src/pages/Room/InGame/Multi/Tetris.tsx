@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, OtherScore, ItemImage, DarkBackground, } from "./style.tsx"
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas,CountDown, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, OtherScore, ItemImage, DarkBackground, } from "./style.tsx"
 import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage } from "../Rapier/Effect.ts";
 import * as io from 'socket.io-client';
 import * as PIXI from "pixi.js";
@@ -44,13 +44,13 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
   const location = useLocation();
   const isSinglePlay = location.state?.isSinglePlay;
   const [message, setMessage] = useState("");
-
-  const [message, setMessage] = useState("게임이 곧 시작됩니다");
+  const [count, setCount] = useState("곧 게임이 시작합니다.");
   const [playerScore, setPlayerScore] = useState(0);
   const [otherScore, setOtherScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const [nickname, setNickname] = useState("");
   const [timeLeft, setTimeLeft] = useState("");
+  const [isCountingDown, setIsCountingDown] = useState(false);
 
 
   const scoreTexts = useRef(
@@ -317,12 +317,27 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
 
     let id: any;
     const run = async () => {
+      const countDown = [5, 4, 3, 2, 1];
+     setIsCountingDown(true);
+    
       if (!poseNetResult) {
         poseNetResult = await loadPoseNet(videoRef, canvasRef, 503, 668);
       }
       game.resume();
-      otherGame.run();
-      setMessage("게임 시작!");
+      for (let i = 0; i < countDown.length; i++) {
+        setCount(String(countDown[i]));
+        await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
+      }
+      setCount("게임 시작!");
+      await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
+      setCount("");
+      
+      socket.current?.emit(RoomSocketEvent.EMIT_PLAY_ON,{});
+
+      setIsCountingDown(false);
+      if (!isSinglePlay) {
+        otherGame.run();
+      }
       scoreTexts.current.forEach((text) => {
         game.graphics.viewport.addChild(text);
       });
@@ -340,7 +355,8 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       });
 
 
-      setTimeout(() => { setMessage("") }, 3000);
+      await new Promise(resolve => setTimeout(resolve, 3000)); // 3초 대기
+
       id = setInterval(poseNetLoop, 250);
       game.spawnBlock("T", "red");
       fallingBlockGlow(game.fallingTetromino!, 0xFF0000);

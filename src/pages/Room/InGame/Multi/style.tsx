@@ -260,14 +260,15 @@ export const CountDown = styled.div<{ message: string, isCountingDown: boolean }
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 200px;
   color: ${({ message }) => message === '게임 시작!' ? 'red' : 'white'};
   animation: ${popin} 1s ease-in;
   z-index: 600;
   font-family: "DNFBitBitv2", sans-serif;
   font-style: light;
   font-weight: 600;
-  font-size: 40px;
+  font-size: 80px;
+  justify-content: center;
+  align-items: center;
   background: transparent;
   text-shadow: 
     2px 2px 0px #FFF,
@@ -279,7 +280,7 @@ export const CountDown = styled.div<{ message: string, isCountingDown: boolean }
   text-align: center;
   white-space: nowrap;
   display: ${({ isCountingDown }) => isCountingDown ? 'flex' : 'none'};
-  
+
   @keyframes light {
     0% { color: #3A4CA8; }
     50% { color: #657ED4; }
