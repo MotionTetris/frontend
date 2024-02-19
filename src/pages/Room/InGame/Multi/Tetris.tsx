@@ -22,11 +22,16 @@ import { Timer } from "@src/components/Ingame/Timer.tsx";
 import Volume from "@src/components/volume.tsx";
 import { StepEvent } from "../Rapier/TetrisEvent.ts";
 import { GAME_SOCKET_URL } from "@src/config.ts";
+import { useLocation } from "react-router-dom";
+import { RoomSocketEvent, roomSocket } from "@src/context/roomSocket.ts";
 
+interface TetrisProps {
+  isSinglePlay?: boolean;
+}
 
 const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
-const Tetris: React.FC = () => {
+const Tetris: React.FC<TetrisProps> = ({ }) => {
   const sceneRef = useRef<HTMLCanvasElement>(null);
   const otherSceneRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -36,6 +41,9 @@ const Tetris: React.FC = () => {
   const otherGameRef = useRef<TetrisGame | null>(null);
   const socket = useRef<io.Socket>()
   const otherNicknames = useSelector((state: RootState) => state.game.playersNickname);
+  const location = useLocation();
+  const isSinglePlay = location.state?.isSinglePlay;
+  const [message, setMessage] = useState("");
 
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
   const [playerScore, setPlayerScore] = useState(0);
@@ -43,6 +51,8 @@ const Tetris: React.FC = () => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [nickname, setNickname] = useState("");
   const [timeLeft, setTimeLeft] = useState("");
+
+
   const scoreTexts = useRef(
     Array.from({ length: 21 }, () => new PIXI.Text('0', { fontFamily: 'Arial', fontSize: 24, fill: '#ffffff' }))
   );
@@ -338,7 +348,6 @@ const Tetris: React.FC = () => {
 
     socket.current?.on('go', (data: string) => {
       run();
-      console.log("Go!");
       socket.current?.on('eventOn', (event: any) => {
         otherGame.receiveMultiplayEvent(event);
       });
@@ -355,10 +364,11 @@ const Tetris: React.FC = () => {
     <DarkBackground id='card-bg'></DarkBackground>
     <Volume page="ingame"></Volume>
     <Container>
-      <SceneContainer>
-        <MessageDiv>  {message} </MessageDiv>
-        <SceneCanvas id="game" ref={sceneRef}></SceneCanvas>
-      </SceneContainer>
+    <CountDown message={count} isCountingDown={isCountingDown}> {count} </CountDown>
+   <SceneContainer>
+  <SceneCanvas id="game" ref={sceneRef}></SceneCanvas>
+  <MessageDiv>  {message} </MessageDiv>
+</SceneContainer>
       <TetrisNextBlockContainer>
         <TextContainer>
           <NextBlockText>NEXT BLOCK</NextBlockText>
@@ -385,15 +395,17 @@ const Tetris: React.FC = () => {
       </GoLobbyButton>
       <Timer timeLeft={timeLeft} />
 
-      <MultiplayContainer>
-        <OtherScore> 남의 스코어: {otherScore} </OtherScore>
-        <SceneCanvas id="otherGame" ref={otherSceneRef} />
-        {Array.from(otherNicknames).map((nickname, index) => (
-          <div key={index}>
-            <OtherNickName>상대방: {nickname}</OtherNickName>
-          </div>
-        ))}
-      </MultiplayContainer>
+      {!isSinglePlay && (
+  <MultiplayContainer>
+    <OtherScore> 남의 스코어: {otherScore} </OtherScore>
+    <SceneCanvas id="otherGame" ref={otherSceneRef} />
+    {Array.from(otherNicknames).map((nickname, index) => (
+      <div key={index}>
+        <OtherNickName>상대방: {nickname}</OtherNickName>
+      </div>
+    ))}
+  </MultiplayContainer>
+)}
     </Container>
     <BackgroundColor1>
       <Night>
