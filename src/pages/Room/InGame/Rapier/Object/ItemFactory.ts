@@ -3,7 +3,7 @@ import { Container, DisplayObject } from "pixi.js";
 import { TetrisGame } from "../TetrisGame";
 import { TetrisOption } from "../TetrisOption";
 import { Weight } from "./Weight";
-import { Tetromino } from "../Tetromino";
+import { Tetromino } from "./Tetromino";
 import { Bomb } from "./Bomb";
 
 export type Fallable = Tetromino | FallableItemType

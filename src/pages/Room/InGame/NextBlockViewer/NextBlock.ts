@@ -1,5 +1,5 @@
 
-import { BlockColor, BlockType, Palette } from "../Rapier/Tetromino";
+import { BlockColor, BlockType, Palette } from "../Rapier/Object/Tetromino";
 import * as PIXI from 'pixi.js';
 
 /* Duplicated with BlockCreator but we leave it. */

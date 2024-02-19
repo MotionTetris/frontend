@@ -1,4 +1,4 @@
-import { BlockColor } from "./Tetromino";
+import { BlockColor } from "./Object/Tetromino";
 
 export interface TetrisOption {
     wallColor?: BlockColor;

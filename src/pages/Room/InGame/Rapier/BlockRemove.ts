@@ -1,8 +1,8 @@
 import { Geometry, diff } from "martinez-polygon-clipping";
-import UnionFind from "./UnionFind";
+import UnionFind from "./Util/UnionFind";
 import RAPIER from "@dimforge/rapier2d";
 import Mapper from "./Mapper";
-import { LinearAlgebra } from "./LinearAlgebra";
+import { LinearAlgebra } from "./Util/LinearAlgebra";
 import { BlockCreator } from "./BlockCreator";
 import { calculateArea } from "./BlockScore";
 

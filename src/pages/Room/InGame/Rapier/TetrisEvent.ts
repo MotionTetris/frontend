@@ -1,5 +1,5 @@
 import { TetrisGame } from "./TetrisGame";
-import { BlockColor, BlockType } from "./Tetromino";
+import { BlockColor, BlockType } from "./Object/Tetromino";
 import { FallableItemType } from "./Object/ItemFactory";
 
 export interface BlockCollisionEvent extends GameEvent {

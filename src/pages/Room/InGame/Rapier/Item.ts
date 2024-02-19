@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import RAPIER from "@dimforge/rapier2d";
-import { playBombSpawnSound, playFlipSound, playFogSound, playRotateSound } from "./Sound";
+import { playBombSpawnSound, playFlipSound, playFogSound, playRotateSound } from "./Sound/Sound";
 import { TetrisGame } from "./TetrisGame";
 import { Viewport } from "pixi-viewport";
 import * as particles from '@pixi/particle-emitter'

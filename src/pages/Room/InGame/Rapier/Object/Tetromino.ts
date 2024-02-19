@@ -1,11 +1,11 @@
 
-import { BlockCreator } from "./BlockCreator";
-import { TetrisGame } from "./TetrisGame";
-import { TetrisOption } from "./TetrisOption";
+import { BlockCreator } from "../BlockCreator";
+import { TetrisGame } from "../TetrisGame";
+import { TetrisOption } from "../TetrisOption";
 import * as RAPIER from "@dimforge/rapier2d";
 import * as PIXI from "pixi.js";
-import { ITetrisObject } from "./Object/TetrisObject";
-import { BlockCollisionEvent } from "./TetrisEvent";
+import { ITetrisObject } from "./TetrisObject";
+import { BlockCollisionEvent } from "../TetrisEvent";
 
 export const BlockTypeList = ["I", "O", "T", "S", "Z", "J", "L"] as const;
 

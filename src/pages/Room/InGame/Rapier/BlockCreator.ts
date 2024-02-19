@@ -1,5 +1,5 @@
-import { LinearAlgebra } from "./LinearAlgebra";
-import { BlockType } from "./Tetromino";
+import { LinearAlgebra } from "./Util/LinearAlgebra";
+import { BlockType } from "./Object/Tetromino";
 import * as RAPIER from "@dimforge/rapier2d";
 
 export class BlockCreator {

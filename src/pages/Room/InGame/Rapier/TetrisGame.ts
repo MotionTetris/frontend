@@ -1,12 +1,12 @@
 import { Graphics } from "./Graphics";
 import * as RAPIER from "@dimforge/rapier2d";
 import { TetrisOption } from "./TetrisOption";
-import { BlockColor, BlockColorList, BlockType, BlockTypeList, Tetromino } from "./Tetromino";
+import { BlockColor, BlockColorList, BlockType, BlockTypeList, Tetromino } from "./Object/Tetromino";
 import { Line, createLines } from "./Line";
 import { calculateLineIntersectionArea } from "./BlockScore";
 import { removeLines as removeShapeWithLine } from "./BlockRemove";
 import { MultiplayEvent, PlayerEventType } from "./Multiplay";
-import { Wall } from "./Wall";
+import { Wall } from "./Object/Wall";
 import { EventEmitter } from 'events'
 import { getRandomInt } from "@src/util/random";
 import { MAX_FRAMERATE, MAX_HEIGHT, WallType } from "./TetrisContants";

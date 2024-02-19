@@ -2,10 +2,10 @@ import * as PIXI from "pixi.js";
 import { Ticker, filters } from 'pixi.js';
 import {Viewport} from "pixi-viewport";
 import {GlowFilter} from '@pixi/filter-glow';
-import { BlockTypeList, Tetromino } from "./Tetromino";
+import { BlockTypeList, Tetromino } from "./Object/Tetromino";
 import { gsap } from 'gsap';
 import { Graphics } from "./Graphics";
-import { playBombExplodeSound, playBombSpawnSound, playDoubleComboSound, playFlipSound, playSingleComboSound, playTripleComboSound } from "./Sound";
+import { playBombExplodeSound, playBombSpawnSound, playDoubleComboSound, playFlipSound, playSingleComboSound, playTripleComboSound } from "./Sound/Sound";
 import { TetrisGame } from "./TetrisGame";
 import * as particles from '@pixi/particle-emitter'
 import * as RAPIER from "@dimforge/rapier2d";

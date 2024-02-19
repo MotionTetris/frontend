@@ -2,10 +2,10 @@ import { Socket } from "socket.io-client";
 import { changeBlockGlow, collisionParticleEffect, fallingBlockGlow, handleComboEffect, lightEffectToLine, performPushEffect } from "./Effect";
 import { KeyPointCallback, KeyPoint } from "./PoseNet";
 import { TetrisGame } from "./TetrisGame";
-import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playGameEndSound } from "./Sound";
+import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playGameEndSound } from "./Sound/Sound";
 import * as PIXI from "pixi.js";
 import { BlockSpawnEvent } from "./TetrisEvent";
-import { BlockColor, BlockType, Palette } from "./Tetromino";
+import { BlockColor, BlockType, Palette } from "./Object/Tetromino";
 import { clearBlock, drawBlock } from "../NextBlockViewer/NextBlock";
 import { NumberTuple } from "@tensorflow-models/posenet/dist/keypoints";
 

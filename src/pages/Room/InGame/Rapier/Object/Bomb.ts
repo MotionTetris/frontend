@@ -4,8 +4,8 @@ import { TetrisOption } from "../TetrisOption";
 import * as PIXI from 'pixi.js';
 import { ITetrisObject } from "./TetrisObject";
 import { BlockCollisionEvent } from "../TetrisEvent";
-import { Tetromino } from "../Tetromino";
-import { playBombExplodeSound } from "../Sound";
+import { Tetromino } from "./Tetromino";
+import { playBombExplodeSound } from "../Sound/Sound";
 import { createExplosion, loadExplosionImage } from "../Effect";
 
 export class Bomb implements ITetrisObject {
