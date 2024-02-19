@@ -382,9 +382,9 @@ export const GoLobbyButton = styled.button<GameOverModalProps>`
 `;
 
 export const TetrisNextBlockContainer = styled.div`
-position: relative;
-top: 90px;
-left:62px;
+position: absolute;
+top: 97px;
+left:472px;
 display: flex;
 flex-direction: column;
 align-items: center;

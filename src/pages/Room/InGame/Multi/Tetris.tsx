@@ -59,7 +59,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
   const [shuffledCard, setShuffledCard] = useState<JSX.Element[]>([]);
   const concentrationLineRef = useRef<HTMLCanvasElement>(null);
   const warpControllerRef = useRef<{ setWarpSpeed: (newSpeed: number) => void; } | null>(null);
-
+  const [isCountingDown, setIsCountingDown] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -339,13 +339,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       if (!isSinglePlay) {
         otherGame.run();
       }
-      scoreTexts.current.forEach((text) => {
-        game.graphics.viewport.addChild(text);
-      });
-
-      otherScoreTexts.current.forEach((text) => {
-        otherGame.graphics.viewport.addChild(text);
-      })
+      
 
       myLineGrids.forEach((line) => {
         game.graphics.viewport.addChild(line);
