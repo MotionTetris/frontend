@@ -11,6 +11,9 @@ import { EventEmitter } from 'events'
 import { getRandomInt } from "@src/util/random";
 import { MAX_FRAMERATE, MAX_HEIGHT, WallType } from "./TetrisContants";
 import { TetrisEventMap } from "./TetrisEvent";
+import { FallableItemType, FallableItemMap, createItem } from "./Object/ItemFactory";
+import { Weight } from "./Object/Weight";
+import { ITetrisObject } from "./Object/TetrisObject";
 
 export class TetrisGame {
     graphics: Graphics;
@@ -23,8 +26,9 @@ export class TetrisGame {
     snapStepId?: number;
     option: TetrisOption;
     tetrominos: Map<number, Tetromino>;
+    items: Map<number, ITetrisObject>;
     snapTetrominos?: Map<number, Tetromino>;
-    fallingTetromino?: Tetromino;
+    fallingTetromino?: ITetrisObject;
     lines: Line[];
     userId: string;
     protected _sequence: number;
@@ -32,6 +36,7 @@ export class TetrisGame {
     protected _lastRenderingTime: number;
     protected _nextBlock?: BlockType;
     protected _nextBlockColor?: BlockColor;
+    protected _nextItem?: FallableItemType;
     private _removeBodies: Array<RAPIER.RigidBody>;
     private _walls: Map<number, Wall>
     private _event: EventEmitter;
@@ -47,6 +52,7 @@ export class TetrisGame {
         this.events = new RAPIER.EventQueue(true);
         this.option = option;
         this.tetrominos = new Map();
+        this.items = new Map();
         this.lines = createLines(-MAX_HEIGHT * option.blockSize + 20, 0, option.blockSize);
         this._sequence = 0;
         this._isRunning = false;
@@ -219,6 +225,14 @@ export class TetrisGame {
         return this._nextBlockColor;
     }
 
+    public get nextItem(): FallableItemType | undefined {
+        return this._nextItem;
+    }
+
+    public set nextItem(item: FallableItemType) {
+        this._nextItem = item;
+    }
+
     protected emptyRemoveQueue() {
         if (!this.world) {
             return;
@@ -302,7 +316,7 @@ export class TetrisGame {
         const newBody = this.world.createRigidBody(rigidBodyDesc);
         const tetromino = new Tetromino(this, this.option, this.world, this.graphics.viewport, newBody, color);
         for (let i = 0; i < tetromino.rigidBody.numColliders(); i++) {
-            this.graphics.addCollider(tetromino.rigidBody.collider(i), "brown");
+            this.graphics.addCollider(tetromino.rigidBody.collider(i), color);
             tetromino.rigidBody.collider(i).setRestitution(0);
             tetromino.rigidBody.collider(i).setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
         }
@@ -351,6 +365,50 @@ export class TetrisGame {
         }
 
         return shapes;
+    }
+
+    public spawnItem(item: FallableItemType) {
+        let color = 'red';
+        if (!this.world) {
+            throw new Error("Failed to spawn block. world is not set");
+        }
+
+        const newBody = createItem(item)(this, this.option, this.world, this.graphics.viewport, 100, 200);
+        for (let i = 0; i < newBody.rigidBody.numColliders(); i++) {
+            const graphics = this.graphics.addCollider(newBody.rigidBody.collider(i), 'red', 1);
+            if (graphics) {
+                newBody.addGraphics(graphics);
+            }
+
+            newBody.rigidBody.collider(i).setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+            newBody.rigidBody.collider(i).setRestitution(0);
+        }
+
+        newBody.userData = {
+            color: color,
+            type: item
+        };
+
+        newBody.rigidBody.userData = {
+            color: color,
+            type: item
+        }
+
+        newBody.rigidBody.setLinearDamping(0.25);
+        newBody.rigidBody.setAngularDamping(10);
+        this.fallingTetromino = newBody;
+        this.items.set(newBody.rigidBody.handle, newBody);
+        this.emit("itemSpawn", { game: this, item: item });
+        this._nextItem = undefined;
+        return newBody;
+    }
+
+    public spawnObject(obj: FallableItemType | BlockType, color: BlockColor) {
+        if (obj in BlockTypeList) {
+            return this.spawnBlock(obj as BlockType, color);
+        }
+
+        return this.spawnItem(obj as FallableItemType);
     }
 
     public checkLine(threshold: number) {
@@ -404,18 +462,26 @@ export class TetrisGame {
         return true;
     }
 
+    public findById(handle: number) {
+        return this.items.get(handle) || this.tetrominos.get(handle) || this._walls.get(handle);
+    }
+
     public onRotateLeft() {
-        this.fallingTetromino?.rigidBody.setAngvel(14, false);
-        const event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.TURN_LEFT);
-        this.updateSequence();
-        return event;
+        if (this.fallingTetromino && this.fallingTetromino instanceof Tetromino) {
+            this.fallingTetromino?.rigidBody.setAngvel(14, false);
+            const event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.TURN_LEFT);
+            this.updateSequence();
+            return event;
+        }
     }
 
     public onRotateRight() {
-        this.fallingTetromino?.rigidBody.setAngvel(-14, false);
-        const event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.TURN_RIGHT);
-        this.updateSequence();
-        return event;
+        if (this.fallingTetromino && this.fallingTetromino instanceof Tetromino) {
+            this.fallingTetromino?.rigidBody.setAngvel(-14, false);
+            const event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.TURN_RIGHT);
+            this.updateSequence();
+            return event;
+        }
     }
 
     public onMoveLeft(weight: number) {
@@ -451,7 +517,10 @@ export class TetrisGame {
         }
 
         if (this.isFalling(body1, body2) && !this.collideWithWall(body1, body2)) {
-            this.tetrominos.set(this.fallingTetromino!.rigidBody.handle, this.fallingTetromino!);
+            if (this.fallingTetromino && this.fallingTetromino instanceof Tetromino) {
+                this.tetrominos.set(this.fallingTetromino.rigidBody.handle, this.fallingTetromino);
+            }
+            
             this.emit("prelanding", { game: this, bodyA: collider1, bodyB: collider2 });
             this.fallingTetromino = undefined;
             this.emit("landing", { game: this, bodyA: collider1, bodyB: collider2 });

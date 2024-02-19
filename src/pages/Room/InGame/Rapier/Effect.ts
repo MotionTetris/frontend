@@ -193,7 +193,7 @@ export function lightEffectToLine(lineGrids: PIXI.Graphics[], index: number) {
     lineGrids[index].beginFill(0xff00f0, 0.25);
     lineGrids[index].drawRect(100, -index * 32 +588, 420, 32);
     lineGrids[index].endFill();
-  }, 100);
+  }, 300);
 }
 
 

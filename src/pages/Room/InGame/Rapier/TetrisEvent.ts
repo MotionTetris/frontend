@@ -1,5 +1,6 @@
 import { TetrisGame } from "./TetrisGame";
 import { BlockColor, BlockType } from "./Tetromino";
+import { FallableItemType } from "./Object/ItemFactory";
 
 export interface BlockCollisionEvent extends GameEvent {
     bodyA: any;
@@ -17,6 +18,10 @@ export interface BlockSpawnEvent extends GameEvent {
     nextBlockColor: BlockColor;
 }
 
+export interface ItemSpawnEvent extends GameEvent {
+    item: FallableItemType;
+}
+
 export interface GameEvent {
     game: TetrisGame;
 }
@@ -27,6 +32,7 @@ export interface TetrisEventMap {
     "collision": BlockCollisionEvent;
     "step": StepEvent;
     "blockSpawn": BlockSpawnEvent;
+    "itemSpawn": ItemSpawnEvent;
     "pause": GameEvent;
     "resume": GameEvent;
 }

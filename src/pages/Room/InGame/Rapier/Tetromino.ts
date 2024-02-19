@@ -4,6 +4,8 @@ import { TetrisGame } from "./TetrisGame";
 import { TetrisOption } from "./TetrisOption";
 import * as RAPIER from "@dimforge/rapier2d";
 import * as PIXI from "pixi.js";
+import { ITetrisObject } from "./Object/TetrisObject";
+import { BlockCollisionEvent } from "./TetrisEvent";
 
 export const BlockTypeList = ["I", "O", "T", "S", "Z", "J", "L"] as const;
 
@@ -36,7 +38,7 @@ export class ColorPalette {
 export const Palette = new ColorPalette();
 export const BlockColorList = Object.keys(Palette);
 
-export class Tetromino {
+export class Tetromino implements ITetrisObject {
     private _rigidBody: RAPIER.RigidBody;
     private _blockColor: BlockColor;
     private _blockAlpha: number;
@@ -61,6 +63,18 @@ export class Tetromino {
         }
 
         this._rigidBody = rigidBody;
+    }
+    
+    public onCollision(event: BlockCollisionEvent): void {
+        return;
+    }
+
+    public onLanding(event: BlockCollisionEvent): void {
+        return;
+    }
+
+    public onPreLanding(event: BlockCollisionEvent): void {
+        return;
     }
 
     private createTetromino(option: TetrisOption, blockType?: BlockType) {
