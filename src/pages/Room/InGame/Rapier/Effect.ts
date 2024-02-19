@@ -183,7 +183,7 @@ export function lightEffectToLine(lineGrids: PIXI.Graphics[], index: number) {
   // 색상을 잠시 노란색으로 변경합니다.
   lineGrids[index].clear();
   lineGrids[index].beginFill(0xffff00);
-  lineGrids[index].drawRect(100, -index * 32 +588, 420, 32);
+  lineGrids[index].drawRect(0, -index * 32 +588, 420, 32);
   lineGrids[index].endFill();
 
   // 0.3초 후에 필터를 제거하고 색상을 원래대로 돌려놓습니다.
@@ -191,7 +191,7 @@ export function lightEffectToLine(lineGrids: PIXI.Graphics[], index: number) {
     lineGrids[index].filters = [];
     lineGrids[index].clear();
     lineGrids[index].beginFill(0xff00f0, 0.25);
-    lineGrids[index].drawRect(100, -index * 32 +588, 420, 32);
+    lineGrids[index].drawRect(0, -index * 32 +588, 420, 32);
     lineGrids[index].endFill();
   }, 300);
 }
