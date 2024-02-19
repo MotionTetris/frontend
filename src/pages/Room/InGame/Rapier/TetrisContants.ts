@@ -7,4 +7,4 @@ export enum WallType {
 export const MAX_FRAMERATE = 63;
 export const MAX_WIDTH = 10;
 export const MAX_HEIGHT = 20;
-export const eraseThreshold = 8000;
+export const eraseThreshold = 11000;

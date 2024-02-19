@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas,CountDown, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, OtherScore, ItemImage, DarkBackground, } from "./style.tsx"
-import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage } from "../Rapier/Effect.ts";
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas,CountDown, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, OtherScore, ItemImage, DarkBackground, Concentration} from "./style.tsx"
+import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage,  excitingBG, starWarp } from "../Rapier/Effect.ts";
 import * as io from 'socket.io-client';
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
@@ -24,12 +24,13 @@ import { StepEvent } from "../Rapier/TetrisEvent.ts";
 import { GAME_SOCKET_URL } from "@src/config.ts";
 import { useLocation } from "react-router-dom";
 import { RoomSocketEvent, roomSocket } from "@src/context/roomSocket.ts";
+import { eraseThreshold } from "../Rapier/TetrisContants.ts";
+import { changeIngameSoundSpeed } from "@src/components/sound.ts";
 
 interface TetrisProps {
   isSinglePlay?: boolean;
 }
 
-const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
 const Tetris: React.FC<TetrisProps> = ({ }) => {
   const sceneRef = useRef<HTMLCanvasElement>(null);
@@ -50,23 +51,16 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [nickname, setNickname] = useState("");
   const [timeLeft, setTimeLeft] = useState("");
-  const [isCountingDown, setIsCountingDown] = useState(false);
-
-
-  const scoreTexts = useRef(
-    Array.from({ length: 21 }, () => new PIXI.Text('0', { fontFamily: 'Arial', fontSize: 24, fill: '#ffffff' }))
-  );
-
-  const otherScoreTexts = useRef(
-    Array.from({ length: 21 }, () => new PIXI.Text('0', { fontFamily: 'Arial', fontSize: 24, fill: '#ffffff' }))
-  );
-
   const myLineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
   const otherLineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
   const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
   const [user, setUser] = useState<string>('')
   const [other, setOther] = useState<string>('')
   const [shuffledCard, setShuffledCard] = useState<JSX.Element[]>([]);
+  const concentrationLineRef = useRef<HTMLCanvasElement>(null);
+  const warpControllerRef = useRef<{ setWarpSpeed: (newSpeed: number) => void; } | null>(null);
+
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -125,7 +119,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
         bg.style.opacity = '0.75';
       }
       document.getElementById("item2")?.focus();
-      setTimeout(() => {
+      setTimeout(async () => {
         cards.forEach((elem) => {
           (elem as HTMLElement).style.opacity = '0';
         });
@@ -139,7 +133,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
         if (selectedItem == "BOMB") {
           let event = MultiplayEvent.fromGame(gameRef.current!, user, PlayerEventType.ITEM_USED);
           socket.current!.emit('eventOn', event);
-          bomb = spawnBomb(gameRef.current!, 300, -200);
+          bomb = await spawnBomb(gameRef.current!, 300, -200);
         }
         else {
           socket.current!.emit('item', selectedItem);
@@ -164,6 +158,12 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
 
     //남은시간
     socket.current.on('timer', (timeLeft: string) => {
+      if (timeLeft == "00:30") {
+        changeIngameSoundSpeed(1.25);
+        if (warpControllerRef.current) {
+          warpControllerRef.current.setWarpSpeed(1);
+        }
+      }
       setTimeLeft(timeLeft);
     })
 
@@ -175,6 +175,9 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       };
       return <ShootingStar style={style} key={index} />;
     }));
+
+    warpControllerRef.current = starWarp(concentrationLineRef);
+    
 
     if (!!!sceneRef.current) {
       console.log("sceneRef is null");
@@ -239,8 +242,6 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
         const checkOtherResult = otherGame.checkLine(eraseThreshold);
         createScoreBasedGrid(myLineGrids, checkResult.scoreList, eraseThreshold);
         createScoreBasedGrid(otherLineGrids, checkOtherResult.scoreList, eraseThreshold);
-        showScore(checkResult.scoreList, scoreTexts.current, eraseThreshold);
-        showScore(checkOtherResult.scoreList, otherScoreTexts.current, eraseThreshold);
       }
 
       if (bomb && bomb.lifetime === currentStep) {
@@ -282,7 +283,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     game.on("landing", LandingEvent);
     game.on("prelanding", preLandingEvent);
     game.on("step", StepCallback);
-    game.on("blockSpawn", createBlockSpawnEvent(socket.current, app, 48, 160, 40));
+    game.on("blockSpawn", createBlockSpawnEvent(socket.current, app, 48, 150, 40));
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
 
@@ -310,7 +311,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
 
       if (!poseNetResult) {
         
-        poseNetResult = await loadPoseNet(videoRef, canvasRef, 503, 668);
+        poseNetResult = await loadPoseNet(videoRef, canvasRef, 776, 668);
       }
       prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback);
     }
@@ -321,7 +322,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
      setIsCountingDown(true);
     
       if (!poseNetResult) {
-        poseNetResult = await loadPoseNet(videoRef, canvasRef, 503, 668);
+        poseNetResult = await loadPoseNet(videoRef, canvasRef, 776, 668);
       }
       game.resume();
       for (let i = 0; i < countDown.length; i++) {
@@ -379,6 +380,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
   return (<>
     <DarkBackground id='card-bg'></DarkBackground>
     <Volume page="ingame"></Volume>
+    <Concentration ref={concentrationLineRef} />
     <Container>
     <CountDown message={count} isCountingDown={isCountingDown}> {count} </CountDown>
    <SceneContainer>

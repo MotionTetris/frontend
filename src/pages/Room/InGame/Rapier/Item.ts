@@ -4,7 +4,10 @@ import { playBombSpawnSound, playFlipSound, playFogSound, playRotateSound } from
 import { TetrisGame } from "./TetrisGame";
 import { Viewport } from "pixi-viewport";
 import * as particles from '@pixi/particle-emitter'
+import BOMB_IMG from '@assets/items/Bomb.png';
 import { BOMB_URL, FOG_URL, FLIP_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL } from "../../../../config"
+import { EffectLoader } from "./Effect/EffectLoader";
+import { Fog } from "./Effect/Fog";
 //item-region
 export function getRandomItem(game: TetrisGame) {
     const itemImage = [BOMB_URL,FOG_URL,FLIP_URL,ROTATE_LEFT_URL,ROTATE_RIGHT_URL];
@@ -89,30 +92,22 @@ export function spawnBomb(game: TetrisGame, x: number, y: number) {
     rigidBody!.userData = {type: 'bomb'};
     let colliderDesc = RAPIER.ColliderDesc.ball(radius).setMass(10000);
     let collider = game.world?.createCollider(colliderDesc, rigidBody);
-    
-    let bombSprite : PIXI.Sprite;
-    let bombTexture = PIXI.Loader.shared.resources['src/assets/items/Bomb.png']?.texture;
-    if (!bombTexture) {
-        PIXI.Loader.shared.add('src/assets/items/Bomb.png').load((loader, resources) => {
-            bombTexture = resources['src/assets/items/Bomb.png'].texture;
-            createSprite(bombTexture!);
-        });
-    } else {
-        createSprite(bombTexture);
-    }
-
+    let texture = EffectLoader.getTexture(BOMB_IMG);
+    let sprite = createSprite(texture);
     function createSprite(texture: PIXI.Texture) {
-        bombSprite = new PIXI.Sprite(texture);
+        console.log(texture);
+        let bombSprite = new PIXI.Sprite(texture);
         bombSprite.anchor.set(0.5, 0.5);
         const scale = radius * 2 / Math.max(texture.width, texture.height);
         bombSprite.scale.set(scale, scale);
         game.graphics.viewport.addChild(bombSprite);
         game.graphics.coll2gfx.set(collider!.handle, bombSprite);
+        return bombSprite;
     }
 
     return {destroy: () => {
         rigidBody?.setTranslation({x: -10000, y: -10000}, false);
-        game.graphics.viewport.removeChild(bombSprite);
+        game.graphics.viewport.removeChild(sprite);
         game.graphics.coll2gfx.delete(collider!.handle);
     }, lifetime: game.stepId + 300};
 }
@@ -160,108 +155,15 @@ export function resetFlipViewport(viewport: Viewport) {
 
 export function addFog(game: TetrisGame) {
     playFogSound();
-    var emitter = new particles.Emitter(
-    game.graphics.viewport,
-
-    {
-        lifetime: {
-            min: 3,
-            max: 6
-        },
-        frequency: 0.008,
-        spawnChance: 1,
-        particlesPerWave: 1,
-        emitterLifetime: 0.31,
-        maxParticles: 1000,
-        pos: {
-            x: 0,
-            y: 0
-        },
-        addAtBack: false,
-        behaviors: [
-            {
-                type: 'alpha',
-                config: {
-                    alpha: {
-                        list: [
-                            {
-                                value: 0.8,
-                                time: 0
-                            },
-                            {
-                                value: 0.1,
-                                time: 1
-                            }
-                        ],
-                    },
-                }
-            },
-            {
-                type: 'scale',
-                config: {
-                    scale: {
-                        list: [
-                            {
-                                value: 1,
-                                time: 0
-                            },
-                            {
-                                value: 0.3,
-                                time: 1
-                            }
-                        ],
-                    },
-                }
-            },
-            {
-                type: 'moveSpeed',
-                config: {
-                    speed: {
-                        list: [
-                            {
-                                value: 100,
-                                time: 0
-                            },
-                            {
-                                value: 50,
-                                time: 1
-                            }
-                        ],
-                        isStepped: false
-                    },
-                }
-            },
-            {
-                type: 'rotationStatic',
-                config: {
-                    min: 0,
-                    max: 360
-                }
-            },
-            {
-                type: 'spawnShape',
-                config: {
-                    type: 'torus',
-                    data: {
-                        x: 250,
-                        y: 500,
-                        radius: 10
-                    }
-                }
-            },
-            {
-                type: 'textureSingle',
-                config: {
-                    texture: PIXI.Texture.from('src/assets/fog.png')
-                }
-            }
-        ],
+    let fog = new Fog(100, 300, 300, 300, 100, 0.0025);
+    fog.addTo(game.graphics.effectScene);
+    const fogAnimation = (dt: number) => {
+      fog.animate(dt);
+      if (fog.isDone) {
+        game.graphics.ticker.remove(fogAnimation);
+        fog.init();
+      }
     }
-);
-    game.graphics.ticker.add((delta) => {
-        emitter.update(delta * 0.01);
-    });
-
-    emitter.emit = true;
+    game.graphics.ticker.add(fogAnimation)
     game.graphics.ticker.start();
 };

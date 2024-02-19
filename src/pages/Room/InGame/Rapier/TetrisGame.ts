@@ -420,7 +420,7 @@ export class TetrisGame {
 
     public onMoveLeft(weight: number) {
         let velocity = this.fallingTetromino?.rigidBody.linvel()!;
-        this.fallingTetromino?.rigidBody.setLinvel({ x: -weight * 100, y: velocity.y }, false);
+        this.fallingTetromino?.rigidBody.setLinvel({ x: -weight * 200, y: velocity.y }, false);
         const event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.MOVE_LEFT);
         event.userData = weight;
         this.updateSequence();
@@ -429,7 +429,7 @@ export class TetrisGame {
 
     public onMoveRight(weight: number) {
         let velocity = this.fallingTetromino?.rigidBody.linvel()!;
-        this.fallingTetromino?.rigidBody.setLinvel({ x: weight * 100, y: velocity.y }, false);
+        this.fallingTetromino?.rigidBody.setLinvel({ x: weight * 200, y: velocity.y }, false);
         const event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.MOVE_RIGHT);
         event.userData = weight;
         this.updateSequence();

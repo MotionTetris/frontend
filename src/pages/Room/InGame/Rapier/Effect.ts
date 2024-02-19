@@ -10,7 +10,7 @@ import { TetrisGame } from "./TetrisGame";
 import * as particles from '@pixi/particle-emitter'
 import * as RAPIER from "@dimforge/rapier2d";
 import { STAR_URL } from "@src/config"
-
+import EXPLOSION_IMAGE from '@assets/explosion.png';
 export const explodeParticleEffect = (x: number, y: number, graphics: Graphics ) => {
   const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
   const viewport = graphics.viewport;
@@ -163,7 +163,7 @@ export function createScoreBasedGrid(lineGrids: PIXI.Graphics[], scoreList: numb
   for (let i = 0; i < lineGrids.length; i++) {
     const alpha = scoreList[i] / threshold;
     lineGrids[i].clear();
-    lineGrids[i].beginFill(0xff00f0, alpha/4);
+    lineGrids[i].beginFill(0xff00f0, alpha/2);
     lineGrids[i].drawRect(0, -i * 32 +588, 520, 32);
     lineGrids[i].endFill();
   }  
@@ -316,27 +316,6 @@ export function removeGlowWithDelay(fallingBlock: Tetromino) {
   }, 200); // 500 밀리세컨드 후에 함수를 실행합니다.
 }
 
-
-
-export function loadStarImage() {
-  return new Promise((resolve, reject) => {
-    if (PIXI.Loader.shared.resources['src/assets/whitestar.png']) {
-      // 이미 로드된 이미지라면 즉시 resolve를 호출.
-      resolve(PIXI.Loader.shared.resources['src/assets/whitestar.png'].texture);
-    } else {
-      PIXI.Loader.shared.add('src/assets/whitestar.png').load((loader, resources) => {
-        if (resources['src/assets/whitestar.png']) {
-          console.log("스타 이미지 로드 성공");
-          resolve(resources['src/assets/whitestar.png'].texture);
-        } else {
-          reject("스타 이미지 로드 실패");
-        }
-      });
-    }
-  });
-}
-
-
 export function handleComboEffect(combo: number, graphics: Graphics): string {
   startShake({ viewport: graphics.viewport, strength: 5 + 10 * combo, duration: 400 + 50 * combo})
   if (combo === 1) {
@@ -396,22 +375,8 @@ export function explodeBomb(game: TetrisGame, bodyA: RAPIER.Collider, bodyB: RAP
 }
 
 
-export function loadExplosionImage(): Promise<PIXI.Texture> {
-  return new Promise((resolve, reject) => {
-    const imagePath = 'src/assets/explosion.png';
-    if (PIXI.Loader.shared.resources[imagePath]?.texture) {
-      resolve(PIXI.Loader.shared.resources[imagePath].texture);
-    } else {
-      PIXI.Loader.shared.add(imagePath).load((loader, resources) => {
-        if (resources[imagePath]?.texture) {
-          console.log("폭발 이미지 로드 성공");
-          resolve(resources[imagePath].texture);
-        } else {
-          reject("폭발 이미지 로드 실패");
-        }
-      });
-    }
-  });
+export async function loadExplosionImage(): Promise<PIXI.Texture> {
+  return await PIXI.Assets.load(EXPLOSION_IMAGE);
 }
 
 
@@ -450,4 +415,92 @@ export function showGameOverModal(message: string) {
 export function getNextBlockImage(nextBlock: string) {
   const imgPath = `src/assets/blocks/${nextBlock}block.png`
   return imgPath;
+}
+
+export function starWarp(concentrationLineRef: React.RefObject<HTMLCanvasElement>) {
+  const graphics = new PIXI.Application({
+    view: concentrationLineRef.current!,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    backgroundAlpha: 0,
+  });
+
+  const starTexture = PIXI.Texture.from('https://pixijs.com/assets/star.png');
+
+  const starAmount = 1000;
+  let cameraZ = 0;
+  const fov = 20;
+  const baseSpeed = 0.025;
+  let speed = 1;
+  let warpSpeed = 0;
+  const starStretch = 5;
+  const starBaseSize = 0.05;
+  let maxSpeed = 0.5;  // 최대 속도 설정
+
+  function setWarpSpeed(newSpeed: number){
+    warpSpeed = newSpeed;
+  }
+
+  // Create the stars
+  const stars: any = [];
+
+  for (let i = 0; i < starAmount; i++)
+  {
+      const star = {
+          sprite: new PIXI.Sprite(starTexture),
+          z: 0,
+          x: 0,
+          y: 0,
+      };
+
+      star.sprite.anchor.x = 0.5;
+      star.sprite.anchor.y = 0.7;
+      randomizeStar(star, true);
+      graphics.stage.addChild(star.sprite);
+      stars.push(star);
+  }
+
+  function randomizeStar(star: any, initial: boolean)
+  {
+      star.z = initial ? Math.random() * 2000 : cameraZ + Math.random() * 1000 + 2000;
+      const deg = Math.random() * Math.PI * 2;
+      const distance = Math.random() * 50 + 1;
+
+      star.x = Math.cos(deg) * distance;
+      star.y = Math.sin(deg) * distance;
+  }
+
+
+  graphics.ticker.add((delta) =>
+  {
+      speed += (warpSpeed - speed) / 20;
+      speed = Math.min(speed, maxSpeed);
+      cameraZ += delta * 10 * (speed + baseSpeed);
+      for (let i = 0; i < starAmount; i++)
+      {
+          const star = stars[i];
+
+          if (star.z < cameraZ) randomizeStar(star, false);
+
+          const z = star.z - cameraZ;
+
+          star.sprite.x = star.x * (fov / z) * graphics.renderer.screen.width + graphics.renderer.screen.width / 2;
+          star.sprite.y = star.y * (fov / z) * graphics.renderer.screen.width +graphics.renderer.screen.height / 2;
+
+          const dxCenter = star.sprite.x - graphics.renderer.screen.width / 2;
+          const dyCenter = star.sprite.y - graphics.renderer.screen.height / 2;
+          const distanceCenter = Math.sqrt(dxCenter * dxCenter + dyCenter * dyCenter);
+          const distanceScale = Math.max(0, (2000 - z) / 2000);
+
+          star.sprite.scale.x = distanceScale * starBaseSize;
+          star.sprite.scale.y = distanceScale * starBaseSize
+              + distanceScale * speed * starStretch * distanceCenter / graphics.renderer.screen.width;
+          star.sprite.rotation = Math.atan2(dyCenter, dxCenter) + Math.PI / 2;
+      }
+  });
+  graphics.ticker.start();
+  
+  return {
+    setWarpSpeed,
+  };
 }

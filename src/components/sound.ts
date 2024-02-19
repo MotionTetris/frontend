@@ -59,3 +59,10 @@ function playIngameSound(volume: number, play = true) {
     }
   }
 }
+
+
+export function changeIngameSoundSpeed(speed: number) {
+  if (INGAME_SOUND) {
+    INGAME_SOUND.playbackRate = speed;
+  }
+}
