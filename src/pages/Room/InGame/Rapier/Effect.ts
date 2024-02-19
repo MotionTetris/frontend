@@ -163,7 +163,7 @@ export function createScoreBasedGrid(lineGrids: PIXI.Graphics[], scoreList: numb
   for (let i = 0; i < lineGrids.length; i++) {
     const alpha = scoreList[i] / threshold;
     lineGrids[i].clear();
-    lineGrids[i].beginFill(0xff00f0, alpha/4);
+    lineGrids[i].beginFill(0xff00f0, alpha/2);
     lineGrids[i].drawRect(0, -i * 32 +588, 520, 32);
     lineGrids[i].endFill();
   }  
@@ -415,4 +415,92 @@ export function showGameOverModal(message: string) {
 export function getNextBlockImage(nextBlock: string) {
   const imgPath = `src/assets/blocks/${nextBlock}block.png`
   return imgPath;
+}
+
+export function starWarp(concentrationLineRef: React.RefObject<HTMLCanvasElement>) {
+  const graphics = new PIXI.Application({
+    view: concentrationLineRef.current!,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    backgroundAlpha: 0,
+  });
+
+  const starTexture = PIXI.Texture.from('https://pixijs.com/assets/star.png');
+
+  const starAmount = 1000;
+  let cameraZ = 0;
+  const fov = 20;
+  const baseSpeed = 0.025;
+  let speed = 1;
+  let warpSpeed = 0;
+  const starStretch = 5;
+  const starBaseSize = 0.05;
+  let maxSpeed = 0.5;  // 최대 속도 설정
+
+  function setWarpSpeed(newSpeed: number){
+    warpSpeed = newSpeed;
+  }
+
+  // Create the stars
+  const stars: any = [];
+
+  for (let i = 0; i < starAmount; i++)
+  {
+      const star = {
+          sprite: new PIXI.Sprite(starTexture),
+          z: 0,
+          x: 0,
+          y: 0,
+      };
+
+      star.sprite.anchor.x = 0.5;
+      star.sprite.anchor.y = 0.7;
+      randomizeStar(star, true);
+      graphics.stage.addChild(star.sprite);
+      stars.push(star);
+  }
+
+  function randomizeStar(star: any, initial: boolean)
+  {
+      star.z = initial ? Math.random() * 2000 : cameraZ + Math.random() * 1000 + 2000;
+      const deg = Math.random() * Math.PI * 2;
+      const distance = Math.random() * 50 + 1;
+
+      star.x = Math.cos(deg) * distance;
+      star.y = Math.sin(deg) * distance;
+  }
+
+
+  graphics.ticker.add((delta) =>
+  {
+      speed += (warpSpeed - speed) / 20;
+      speed = Math.min(speed, maxSpeed);
+      cameraZ += delta * 10 * (speed + baseSpeed);
+      for (let i = 0; i < starAmount; i++)
+      {
+          const star = stars[i];
+
+          if (star.z < cameraZ) randomizeStar(star, false);
+
+          const z = star.z - cameraZ;
+
+          star.sprite.x = star.x * (fov / z) * graphics.renderer.screen.width + graphics.renderer.screen.width / 2;
+          star.sprite.y = star.y * (fov / z) * graphics.renderer.screen.width +graphics.renderer.screen.height / 2;
+
+          const dxCenter = star.sprite.x - graphics.renderer.screen.width / 2;
+          const dyCenter = star.sprite.y - graphics.renderer.screen.height / 2;
+          const distanceCenter = Math.sqrt(dxCenter * dxCenter + dyCenter * dyCenter);
+          const distanceScale = Math.max(0, (2000 - z) / 2000);
+
+          star.sprite.scale.x = distanceScale * starBaseSize;
+          star.sprite.scale.y = distanceScale * starBaseSize
+              + distanceScale * speed * starStretch * distanceCenter / graphics.renderer.screen.width;
+          star.sprite.rotation = Math.atan2(dyCenter, dxCenter) + Math.PI / 2;
+      }
+  });
+  graphics.ticker.start();
+  
+  return {
+    setWarpSpeed,
+  };
 }
