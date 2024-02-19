@@ -17,11 +17,12 @@ import { useRoomSocket, RoomSocketEvent } from "@context/roomSocket";
 import { InGamePlayerCard } from "@type/Refactoring";
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles";
 import { useParams } from 'react-router-dom';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setOtherNickname, setCreatorNickname } from "@redux/game/gameSlice";
 import { getUserNickname } from "@src/data-store/token";
 import { ModalOverlay, StyledTutorial } from "./InGame/Single/style";
 import Chat from "@src/components/Ingame/Chat";
+import { RootState } from "@src/app/store";
 
 
 const GameRoom: React.FC = () => {
@@ -37,8 +38,9 @@ const GameRoom: React.FC = () => {
   const [players, setPlayers] = useState<string[]>([]);
   const [isGameALLReady, setIsGameALLReady] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(true);
-  
   const dispatch = useDispatch();
+  const isSinglePlay = useSelector((state: RootState) => state.game.isSinglePlay);
+
   const shootingStars = Array(20).fill(null).map((_, index) =>
     <ShootingStar
       style={{
@@ -160,14 +162,13 @@ const GameRoom: React.FC = () => {
       <GameRoomTitle>{inGameCard?.roomTitle}</GameRoomTitle>
       </RoomInfoContainer>
       <FaBackspaced onClick={handleBackButtonClick} />
-      
       {isCreator ? (
         <StartButton
           disabled={players.length !== 1 && !isGameALLReady}
           onClick={() => {
             if (players.length === 1) {
               if (window.confirm('싱글 게임으로 시작하시겠습니까?')) {
-                navigate('/singleplay');
+                navigate(`/gameplay?roomId=${roomInfo?.roomInfo.roomId}&max=${roomInfo?.roomInfo.maxCount}`, state);
               }
             } else {
               roomSocket?.emit(RoomSocketEvent.EMIT_GAME_START);

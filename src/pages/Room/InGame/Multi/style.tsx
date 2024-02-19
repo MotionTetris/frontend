@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import { BOMB_URL, FOG_URL, FLIP_URL, FLIP_NOT_URL, ROTATE_NOT_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL } from "../../../../config"
 
 
@@ -68,13 +68,12 @@ export const FogButton = styled(IconButtonBase)`
 export const BombButton = styled(IconButtonBase)`
   background-image: url(${BOMB_URL});
 `;
-
-
 export const Container = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
 `;
+
 
 export const DarkBackground = styled.div`
   position: fixed;
@@ -129,6 +128,7 @@ export const SceneContainer = styled.div`
   height: 900px;
   position: absolute;
 `;
+
 
 export const PlayerContainer = styled.div`
   top: 0%;
@@ -213,6 +213,10 @@ export const MessageDiv = styled.div`
 `;
 
 
+interface ModalMessageProps {
+  color?: string; // color prop은 optional입니다.
+}
+
 
 interface GameOverModalProps {
   visible: boolean;
@@ -226,10 +230,11 @@ export const GameOverModal = styled.div<GameOverModalProps>`
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0,0,0,0.6); // 더 진한 배경색으로 변경
   display: ${props => props.visible ? 'flex' : 'none'};
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(5px); // 배경 흐림 효과 추가
 `;
 
 const fadeIn = keyframes`
@@ -237,24 +242,93 @@ const fadeIn = keyframes`
   100% { opacity: 1; }
 `;
 
-export const ModalMessage = styled.p`
-  background: linear-gradient(45deg, #000080 30%, #000000 90%); // 남색에서 검정으로 변하는 그라디언트 배경 적용
+const popin = keyframes`
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.5); opacity: 0.7; } // scale의 크기를 더 크게 조정
+  100% { transform: scale(1); opacity: 1; }
+`;
+
+const blink = (color: string) => keyframes`
+  0% { color: ${color};}
+  50% { color: white;}
+  100% { color: ${color};}
+`;
+export const CountDown = styled.div<{ message: string, isCountingDown: boolean }>`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: ${({ message }) => message === '게임 시작!' ? 'red' : 'white'};
+  animation: ${popin} 1s ease-in;
+  z-index: 600;
+  font-family: "DNFBitBitv2", sans-serif;
+  font-style: light;
+  font-weight: 600;
+  font-size: 80px;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  text-shadow: 
+    2px 2px 0px #FFF,
+    -2px -2px 0px #FFF,
+    -2px 2px 0px #FFF,
+    2px -2px 0px #FFF,
+    20px 0px 5px rgba(0, 0, 0, 0.5);
+  animation: light 1s linear infinite;
+  text-align: center;
+  white-space: nowrap;
+  display: ${({ isCountingDown }) => isCountingDown ? 'flex' : 'none'};
+
+  @keyframes light {
+    0% { color: #3A4CA8; }
+    50% { color: #657ED4; }
+    100% { color: #3A4CA8; }
+  }
+  background-color: rgba(0, 0, 0, 0.5); // 배경색을 검정색으로 설정하고 투명도를 조금 줍니다.
+  backdrop-filter: blur(5px); // 배경에 흐림 효과를 줍니다.
+`;
+
+
+const ModalMessage = styled.p<ModalMessageProps>`
+    position: relative;
+    transform: translateY(-20px);
+  background: rgba( 255, 255, 255, 0.4 );
+box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+backdrop-filter: blur( 5.5px );
+-webkit-backdrop-filter: blur( 5.5px );
+border-radius: 10px;
+border: 1px solid rgba( 255, 255, 255, 0.18 );
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 20px; // 더 큰 border-radius로 변경
   width: 80%;  
   max-width: 800px; 
   text-align: center;
-  font-size: 36px;
-  color: white; // 텍스트 색상은 흰색 유지
-  box-shadow: 0 3px 5px 2px rgba(0, 0, 128, .3); // 그림자 색상을 남색 계열로 변경
+
+  color: white;
+  box-shadow: 0 5px 15px 5px rgba(255, 105, 135, .3); // 더 큰 그림자로 변경
   transition: all 0.3s ease-out;
   animation: ${fadeIn} 1s ease-in;
+  h2 {
+    font-family: "DNFBitBitv2", sans-serif;
+  font-style: bold;
+  font-size: 80px;
+    font-weight: 600;
+    animation: ${({ color = "black" }) => css`${blink(color)} 1s infinite, ${popin} 1s ease-in`};
+  animation-iteration-count: infinite, 1;
+  }
+  p {
+    font-family: "DNFBitBitv2", sans-serif;
+  font-style: light;
+  font-size: 30px;
+    font-weight: 100;
+  }
   &:hover {
     transform: scale(1.05);
-    box-shadow: 0 5px 8px 3px rgba(0, 0, 128, .3);
+    box-shadow: 0 8px 15px 5px rgba(255, 105, 135, .3); // hover 시 더 큰 그림자로 변경
   }
 `;
-
 
 interface GameResultProps {
   score: number;
@@ -263,30 +337,31 @@ interface GameResultProps {
 
 export const GameResult: React.FC<GameResultProps> = ({ score, otherScore }) => {
   let result = "";
+  let color = "";
 
   if (score > otherScore) {
     result = "승리";
+    color = "green"; // 승리 시 색상
   } else if (score < otherScore) {
     result = "패배";
+    color = "red"; // 패배 시 색상
   } else {
     result = "무승부";
+    color = "gray"; // 무승부 시 색상
   }
 
   return (
-    <ModalMessage id="modal-message">
-      게임 결과: {result}<br />
-      나의점수: {score}<br />
-      상대점수: {otherScore}<br />
+    <ModalMessage id="modal-message" color={color}>
+      <h2>{result}</h2>
+      <p>당신의 점수: {score}</p>
+      <p>상대방의 점수: {otherScore}</p>
     </ModalMessage>
   );
 };
-
-
-
 export const GoLobbyButton = styled.button<GameOverModalProps>`
   position: absolute;
   top: 60%;
-  left: 45%;
+  left: 30%;
   background-color: ${props => props.visible ? '#4CAF50' : 'transparent'};
   border: none;
   color: ${props => props.visible ? 'white' : 'transparent'};
@@ -299,9 +374,12 @@ export const GoLobbyButton = styled.button<GameOverModalProps>`
   z-index: 50;
   cursor: ${props => props.visible ? 'pointer' : 'default'};
   pointer-events: ${props => props.visible ? 'auto' : 'none'};
+  border-radius: 20px; // 더 큰 border-radius로 변경
+  transition: background 0.3s;
+  &:hover {
+    background-color: ${props => props.visible ? '#45a049' : 'transparent'};
+  }
 `;
-
-
 
 export const TetrisNextBlockContainer = styled.div`
 position: relative;
@@ -385,20 +463,33 @@ export const Card = styled.div`
   width: 400px;
   height: 600px;
   margin: 0 10px;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  background: white;
+  border: 1px solid white;
+  box-shadow: 12px 17px 51px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(6px);
+  border-radius: 17px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.5s;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  user-select: none;
+  font-weight: bolder;
+  color: black;
   opacity: 0;
-  transition: opacity 1s ease-in-out;
   z-index: 50;
   &:focus {
-    box-shadow: 0 0 100px rgba(0, 0, 255, 0.8);
-    background-color: blue;
+    border: 1px solid black;
+    transform: scale(1.25);
+    box-shadow: 0 0 10px black;
+    z-index: 60;
+  }
+  &:not(:focus) {
+    filter: blur(10px);
   }
 `;
+
 
 export const ItemImage = styled.img`
   width: 270px;

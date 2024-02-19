@@ -10,9 +10,8 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const bannerImages = [
-  "src/assets/Banner1.png",
-  "src/assets/Banner2.png",
-  "src/assets/Banner3.png",
+  "public/assets/Banner1.png",
+  "public/assets/Banner2.png",
 ];
 const Banner: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -25,7 +24,7 @@ const Banner: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % bannerImages.length);
-    }, 3000);
+    }, 7000);
     return () => clearInterval(interval);
   }, []);
   
