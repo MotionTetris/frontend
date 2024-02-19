@@ -136,6 +136,10 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
         let blockToSpawn: BlockType = game.nextBlock;
         let blockColor: BlockColor = game.nextBlockColor;
         if (needSpawn) {
+            if (game.nextItem) {
+                game.spawnItem(game.nextItem);
+                return;
+            }
             game.spawnBlock(blockToSpawn, blockColor);
             fallingBlockGlow(game.fallingTetromino!, Palette[blockColor][2]);
         }

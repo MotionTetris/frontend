@@ -68,12 +68,17 @@ const TetrisSingle: React.FC = () => {
         let collisionX = bodyA.parent()?.userData.type;
         let collisionY = bodyB.parent()?.userData.type;
 
-        if ((collisionX === 'bomb' || collisionY === 'bomb') &&
+        if ((collisionX === 'weight' || collisionY === 'weight') &&
           collisionX !== 'ground' && collisionY !== 'ground' &&
           collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
           collisionX !== 'right_wall' && collisionY !== 'right_wall') {
-          let ver = (collisionX === 'bomb') ? 0 : 1;
+          let ver = (collisionX === 'weight') ? 0 : 1;
           explodeBomb(game, bodyA, bodyB, ver);
+        }
+
+        if ((collisionX === 'weight' || collisionY === 'weight') && (collisionX === 'ground') || (collisionY === 'ground')) {
+          let ver = (collisionX === 'weight') ? bodyA.parent()?.handle : bodyB.parent()?.handle;
+          game.findById(ver).remove();
         }
       }
 
@@ -195,7 +200,7 @@ const TetrisSingle: React.FC = () => {
         </TetrisNextBlockContainer>
         <VideoContainer>
           <ButtonContainer>
-            <RotateRightButton onClick={() => gameRef.current && rotateViewport(gameRef.current.graphics.viewport, 15)}>
+            <RotateRightButton onClick={() => gameRef.current && (gameRef.current.nextItem = 'weight')}>
             </RotateRightButton>
             <RotateLeftButton onClick={() => gameRef.current && rotateViewport(gameRef.current.graphics.viewport, -15)}>
             </RotateLeftButton>

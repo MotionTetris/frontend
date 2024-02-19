@@ -10,7 +10,7 @@ const BALL_INSTANCE_INDEX = 1;
 let kk = 0;
 
 export class Graphics {
-    coll2gfx: Map<number, PIXI.Graphics>;
+    coll2gfx: Map<number, PIXI.DisplayObject>;
     colorIndex: number;
     renderer: PIXI.Renderer;
     scene: PIXI.Container;
@@ -98,6 +98,23 @@ export class Graphics {
         });
         this.coll2gfx = new Map();
         this.colorIndex = 0;
+    }
+
+    public addGraphics(texture: PIXI.Texture, x: number, y: number, collider?: RAPIER.Collider, scaleX?: number, scaleY?: number) {
+        const sprite = new PIXI.Sprite(texture);
+        sprite.anchor.set(0.5, 0.5);
+        sprite.scale.set(scaleX, scaleY);
+        sprite.x = x;
+        sprite.y = -y;
+        if (collider) {
+            this.coll2gfx.set(collider.handle, sprite);
+        }
+        this.viewport.addChild(sprite);
+        return sprite;
+    }
+
+    public removeGraphics(gfx: PIXI.Graphics | PIXI.Sprite) {
+        this.viewport.removeChild(gfx);
     }
 
     public addCollider(collider: RAPIER.Collider, color: BlockColor, alpha: number = 1) {
