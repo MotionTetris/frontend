@@ -31,15 +31,15 @@ const getBlockInfo = (rad: number) => (blockType: BlockType) => {
                     -2 * rad, 2 * rad,
                     0, 2 * rad];
         case "J":
-            return [-2 * rad, 0,
+            return [-2 * rad, -2 * rad,
+                    0, -2 * rad,
                     0, 0,
-                    0, 2 * rad,
-                    0, 4 * rad];
+                    0, 2 * rad];
         case "L":
-            return [2 * rad, 0,
+            return [2 * rad, -2 * rad,
+                    0, -2 * rad,
                     0, 0,
-                    0, 2 * rad,
-                    0, 4 * rad];
+                    0, 2 * rad];
         default:
             throw new Error("Unkown BlockInfo");
     }
@@ -56,7 +56,7 @@ export const drawBlock = (size: number) => {
             colorIndex += 1;
             let graphics = new PIXI.Graphics();
             graphics.beginFill(colorPalette[colorIndex]);
-            graphics.drawRect(-1.0, 1.0, 2.0, -2.0);
+            graphics.drawRect(0, 0, 2.0, 2.0);
             graphics.scale.x = size / 2;
             graphics.scale.y = size / 2;
             graphics.position.x = translationInfo[i] + x;

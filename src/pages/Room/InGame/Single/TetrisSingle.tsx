@@ -15,12 +15,14 @@ import Volume from "@src/components/volume.tsx";
 import { getUserNickname } from "@src/data-store/token.ts";
 import { eraseThreshold } from "../Rapier/TetrisContants.ts";
 import { StepEvent } from "../Rapier/TetrisEvent.ts";
+import { Fog } from "../Rapier/Effect/Fog.ts";
 
-const RAPIER = await import('@dimforge/rapier2d')
+const RAPIER = await import('@dimforge/rapier2d');
 const TetrisSingle: React.FC = () => {
   const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
   const sceneRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const nextBlockRef = useRef<HTMLCanvasElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [nextBlock, setNextBlock] = useState("");
   const [item, setItem] = useState("");
@@ -56,6 +58,9 @@ const TetrisSingle: React.FC = () => {
         return;
       }
 
+      if (!nextBlockRef.current) {
+        return;
+      }
       sceneRef.current.width = 500;
       sceneRef.current.height = 800;
       const CollisionEvent = ({ game, bodyA, bodyB }: any) => {
@@ -86,8 +91,8 @@ const TetrisSingle: React.FC = () => {
           return;
         }
         if (currentStep != 0 && currentStep % 600 == 0) {
-          console.log("아이템", currentStep);
-          setItem(getRandomItem(gameRef.current!));
+          // console.log("아이템", currentStep);
+          // setItem(getRandomItem(gameRef.current!));
         }
         const checkResult = game.checkLine(eraseThreshold);
         createScoreBasedGrid(lineGrids, checkResult.scoreList, eraseThreshold);
@@ -109,13 +114,19 @@ const TetrisSingle: React.FC = () => {
         backgroundColor: 0x222929,
         backgroundAlpha: 0
       };
-
+      const app = new PIXI.Application({
+        view: nextBlockRef.current!,
+        backgroundColor: 0xFFFFFF,
+        width: nextBlockRef.current.width,
+        height: nextBlockRef.current.height
+      });
+      app.start();
       const game = new TetrisGame(TetrisOption, "user");
       game.on("collision", CollisionEvent);
       game.on("landing", LandingEvent);
       game.on("prelanding", preLandingEvent);
       game.on("step", StepCallback);
-      game.on("blockSpawn", createBlockSpawnEvent(undefined, setNextBlock));
+      game.on("blockSpawn", createBlockSpawnEvent(undefined, app, 48, 150, 40));
       gameRef.current = game;
       game.setWorld(initWorld(RAPIER, TetrisOption));
       game.spawnBlock("T", "red");
@@ -136,7 +147,7 @@ const TetrisSingle: React.FC = () => {
         }
     
         if (!poseNetResult) {
-          poseNetResult = await loadPoseNet(videoRef, canvasRef, 500, 618);
+          poseNetResult = await loadPoseNet(videoRef, canvasRef, 776, 618);
         }
         prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback);
       }
@@ -144,7 +155,7 @@ const TetrisSingle: React.FC = () => {
       let id: any;
       const run = async () => {
         if (!poseNetResult) {
-          poseNetResult = await loadPoseNet(videoRef, canvasRef, 500, 618);
+          poseNetResult = await loadPoseNet(videoRef, canvasRef, 776, 618);
         }
         game.resume();
         setMessage("게임 시작!");
@@ -180,7 +191,7 @@ const TetrisSingle: React.FC = () => {
           <TextContainer>
             <NextBlockText>NEXT BLOCK</NextBlockText>
           </TextContainer>
-          <NextBlockImage><img src={getNextBlockImage(nextBlock)} /></NextBlockImage>
+          <NextBlockImage><canvas ref={nextBlockRef}/></NextBlockImage>
         </TetrisNextBlockContainer>
         <VideoContainer>
           <ButtonContainer>
