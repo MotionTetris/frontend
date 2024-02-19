@@ -145,10 +145,10 @@ export const SceneCanvas = styled.canvas`
 
 export const VideoContainer = styled.div`
   position: absolute;
-  top: 280px;
-  left: 660px;
-  width: 500px;
-  height: 618px;
+  top: 228px;
+  left: 572px;
+  width: 776px;
+  height: 668px;
   border: 2px solid black;
   background-color: white;
   `;

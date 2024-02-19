@@ -147,7 +147,7 @@ const TetrisSingle: React.FC = () => {
         }
     
         if (!poseNetResult) {
-          poseNetResult = await loadPoseNet(videoRef, canvasRef, 500, 618);
+          poseNetResult = await loadPoseNet(videoRef, canvasRef, 776, 618);
         }
         prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback);
       }
@@ -155,7 +155,7 @@ const TetrisSingle: React.FC = () => {
       let id: any;
       const run = async () => {
         if (!poseNetResult) {
-          poseNetResult = await loadPoseNet(videoRef, canvasRef, 500, 618);
+          poseNetResult = await loadPoseNet(videoRef, canvasRef, 776, 618);
         }
         game.resume();
         setMessage("게임 시작!");
@@ -169,18 +169,6 @@ const TetrisSingle: React.FC = () => {
         id = setInterval(poseNetLoop, 250);
       }
 
-      let fog = new Fog(100, 300, 300, 300, 100, 0.0025);
-      fog.addTo(game.graphics.effectScene);
-      const fogAnimation = (dt: number) => {
-        fog.animate(dt);
-        if (fog.isDone) {
-          game.graphics.ticker.remove(fogAnimation);
-          fog.init();
-          game.graphics.ticker.add(fogAnimation);
-        }
-      }
-      game.graphics.ticker.add(fogAnimation)
-      game.graphics.ticker.start();
       run();
       return () => {
         game.dispose();

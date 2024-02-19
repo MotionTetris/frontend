@@ -4,7 +4,7 @@ import { TetrisOption } from "./TetrisOption";
 type RAPIER_API = typeof import("@dimforge/rapier2d");
 
 export function initWorld(RAPIER: RAPIER_API, option: TetrisOption) {
-    const gravity = new RAPIER.Vector2(0.0, -100);
+    const gravity = new RAPIER.Vector2(0.0, -125);
     const world = new RAPIER.World(gravity);
     const wall = createWall(option.worldWidth, option.worldHeight, 10, 20, option.blockSize);
     

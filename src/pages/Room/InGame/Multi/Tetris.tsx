@@ -22,9 +22,9 @@ import { Timer } from "@src/components/Ingame/Timer.tsx";
 import Volume from "@src/components/volume.tsx";
 import { StepEvent } from "../Rapier/TetrisEvent.ts";
 import { GAME_SOCKET_URL } from "@src/config.ts";
+import { eraseThreshold } from "../Rapier/TetrisContants.ts";
 
 
-const eraseThreshold = 8000;
 const RAPIER = await import('@dimforge/rapier2d')
 const Tetris: React.FC = () => {
   const sceneRef = useRef<HTMLCanvasElement>(null);
@@ -300,7 +300,7 @@ const Tetris: React.FC = () => {
 
       if (!poseNetResult) {
         
-        poseNetResult = await loadPoseNet(videoRef, canvasRef, 503, 668);
+        poseNetResult = await loadPoseNet(videoRef, canvasRef, 776, 668);
       }
       prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback);
     }
@@ -308,7 +308,7 @@ const Tetris: React.FC = () => {
     let id: any;
     const run = async () => {
       if (!poseNetResult) {
-        poseNetResult = await loadPoseNet(videoRef, canvasRef, 503, 668);
+        poseNetResult = await loadPoseNet(videoRef, canvasRef, 776, 668);
       }
       game.resume();
       otherGame.run();
