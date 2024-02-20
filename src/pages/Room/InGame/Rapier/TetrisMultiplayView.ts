@@ -125,10 +125,9 @@ export class TetrisMultiplayView extends TetrisGame {
             case PlayerEventType.BLOCK_SPAWNED:
                 this.spawnBlock(event.userData.type, event.userData.blockColor);
                 break;
-            case PlayerEventType.ITEM_USED:
-                this.bomb = spawnBomb(this, 300, -200);
+            case PlayerEventType.SPAWN_ITEM:
+                this.spawnItem(event?.userData.item);
                 break;
-                //폭탄떨구기.
             default:
                 console.debug(`undefined evnet at ${this.stepId}, desired keyframe: ${event.stepId}`);
         }

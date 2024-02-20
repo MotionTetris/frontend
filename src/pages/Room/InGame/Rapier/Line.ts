@@ -20,3 +20,18 @@ export function createLines(startY: number, endY: number, thickness: number, x: 
     
     return lines;
 }
+
+/**
+ * Create bomb boundary
+ */
+export function createBombBoundary(x: number, y: number, width: number, height: number): Line {
+    const hx = width / 2;
+    const hy = height / 2;
+    return [[
+        [x - hx, y - hy],
+        [x - hx, y + hy],
+        [x + hx, y + hy],
+        [x + hx, y - hy],
+        [x - hx, y - hy]
+    ]];
+}
