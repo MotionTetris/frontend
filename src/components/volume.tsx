@@ -32,7 +32,7 @@ const Volume: React.FC<VolumeProps> = ({ page }) => {
     <VolumeControl>
       <VolumeButton 
         onClick={handlePlayClick}>
-        {isPlaying ? <IoVolumeMediumSharp size="50"/> : <IoVolumeMuteOutline size="50"/>}
+        {isPlaying ? <IoVolumeMediumSharp size="25"/> : <IoVolumeMuteOutline size="25"/>}
       </VolumeButton>
     </VolumeControl>
   );

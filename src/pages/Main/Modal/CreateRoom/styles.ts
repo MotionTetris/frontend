@@ -1,5 +1,7 @@
 // CreateRoom
 import styled from "styled-components";
+import ROOM_BG1_URL from "../../../../../public/assets/Gameroom1.png";
+
 export const CreateRoomBackground = styled.div`
   position: fixed;
   top: 0;
@@ -21,14 +23,35 @@ export const CreateRoomContainer = styled.div`
   top: 0vh;
   right: 0;
   background: white;
-  border-radius: 10px;
+  border: 3px solid #BFEFFF;  // 연한 파란색보다 조금 더 하얗게
+  border-radius: 20px;  // 테두리 반경 20px
   width: 30%;
-  height: 45%;
+  height: 48%;
   max-width: 600px;
 `;
-
 export const RoomLabel = styled.label`
-  // 여기에 CSS 스타일을 추가합니다.
+     font-family: 'JalnanGothic';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 46px;
+`;
+
+export const Line = styled.div`
+  position: fixed;
+  top: 250px;
+  right: 670px;
+  width: 12%;
+  height: 12%;
+  background: url(${ROOM_BG1_URL}) no-repeat center center; // 배경 이미지 적용 및 위치 조정
+  background-size: cover; // 배경 이미지 크기 조정
+`;
+
+export const BG = styled.div`
+  position: absolute;
+  top: 125px;
+  right: 40px;
+  width: 500px;
+  border: 1px solid rgba(128, 128, 128, 0.5);
 `;
 
 export const RoomInput = styled.input`
@@ -121,10 +144,13 @@ export const CreateRoomSelect = styled.select`
 
 export const CreateRoomMain = styled.span`
   position: absolute;
-  top: 9vh;
-  left: 50%;
+  top: 8vh;
+  left: 22%;
   transform: translate(-50%, -50%);
-  font-size: 40px;
+  font-family: 'JalnanGothic';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 60px;
   text-align: center;
 `;
 
@@ -133,7 +159,7 @@ export const OutlinedInputWrapper = styled.div`
   margin-bottom: 10px;
   width: 90%;
   position: absolute;
-  top: 18vh;
+  top: 22vh;
 
   &:hover,
     &:focus {
@@ -166,7 +192,7 @@ export const OutlinedSelectWrapper = styled.div`
   margin-bottom: 10px;
   width: 90%;
   position: absolute;
-  top:27vh;
+  top:32vh;
 
   & select {
     box-sizing: border-box;

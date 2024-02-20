@@ -11,7 +11,9 @@ import {
   WarningMessage,
   RoomSelect,
   OutlinedInputWrapper,
-  OutlinedSelectWrapper
+  OutlinedSelectWrapper,
+  Line,
+  BG,
 } from "./styles";
 import { useNavigate } from "react-router-dom";
 import { useRoomSocket, RoomSocketEvent } from "@context/roomSocket";
@@ -71,6 +73,8 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
   return (
     <CreateRoomBackground>
       <CreateRoomContainer>
+        <Line></Line>
+        <BG></BG>
         <CreateRoomMain>방 생성</CreateRoomMain>
         <OutlinedInputWrapper>
           <RoomLabel>방 제목</RoomLabel>

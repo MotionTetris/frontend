@@ -85,7 +85,7 @@ export const HeaderStyledLink = styled(Link)<StyledLinkProps>`
   width: 200px;
   height: 55px;
   left: 25vw;
-  scale: 1.4;
+  scale: 1.15;
   font-size:20px;
   margin: 60px 40px;
   color: white;
