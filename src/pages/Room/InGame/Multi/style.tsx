@@ -146,13 +146,32 @@ export const MultiplayContainer = styled.div`
   height: 800px;
   position: absolute;
 `
+interface CombineLineProps {
+  Combine: boolean;
+}
 
-export const SceneCanvas = styled.canvas`
+const glow = keyframes`
+  0% {
+    box-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff, 0 0 30px #ffffff;
+  }
+  100% {
+    box-shadow:  0 0 10px #00ff00,0 0 20px #00ff00,0 0 30px #00ff00,
+  }
+`
+export const SceneCanvas = styled.canvas<CombineLineProps>`
   position: absolute;
   top: ${({ id }) => (id === 'otherGame' ? '100px' : '100px')};
-  left: ${({ id }) => (id === 'otherGame' ? '-20px' : '108px')};
-  border: 2px solid black;
-  border-radius: 20px;
+
+  left: ${({ id }) => (id === 'otherGame' ? '-30px' : '110px')};
+  border: 2px solid white;
+  border-top-right-radius: 20px;
+  border-top-left-radius: 20px;
+  box-shadow:  0 0 10px #ffffff, 0 0 20px #ffffff, 0 0 30px #ffffff,
+  ${({ Combine }) =>
+    Combine &&
+    css`
+      animation: ${glow} 0.25s infinite alternate;
+    `}
 `;
 
 export const VideoContainer = styled.div`
@@ -213,7 +232,6 @@ export const MessageDiv = styled.div`
     100% { color: #3A4CA8; }
   }
 `;
-
 
 interface ModalMessageProps {
   color?: string; // color prop은 optional입니다.

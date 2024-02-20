@@ -92,7 +92,7 @@ export function createBlockSpawnEvent(socket?: Socket, app?: PIXI.Application, b
     }
 }
 
-export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, needSpawn: boolean, isMyGame: boolean,socket?: Socket ) {
+export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsCombine: (isCombine: boolean)=>void, needSpawn: boolean, isMyGame: boolean,socket?: Socket ) {
     return ({ game, bodyA, bodyB }: any) => {
         playLandingSound();
 
@@ -121,6 +121,12 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
         }
 
         if (game.removeLines(checkResult.lines)) {
+            if(isMyGame) {
+                setIsCombine(true);
+                setTimeout(()=> {
+                    setIsCombine(false);
+                }, 2500)
+            }
             playExplodeSound();
             setPlayerScore((prevScore: number) => Math.round(prevScore + scoreIncrement * (1 + 0.1 * combo)));
             if (isMyGame) {

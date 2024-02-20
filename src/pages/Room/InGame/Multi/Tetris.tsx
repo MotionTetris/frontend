@@ -64,7 +64,9 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
   const concentrationLineRef = useRef<HTMLCanvasElement>(null);
   const warpControllerRef = useRef<{ setWarpSpeed: (newSpeed: number) => void; } | null>(null);
   const [isCountingDown, setIsCountingDown] = useState(false);
-  console.log(isSinglePlay);
+  const [isCombine, setIsCombine] = useState(false);
+
+  
   useEffect(() => {
     setNickname(getUserNickname());
   },);
@@ -232,8 +234,8 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       removeGlow(game.fallingTetromino);
     }
 
-    const LandingEvent = createLandingEvent(eraseThreshold, myLineGrids, setMessage, setPlayerScore, true, true, socket.current);
-    const LandingEvent1 = createLandingEvent(eraseThreshold, otherLineGrids, setMessage, setOtherScore, false, false);
+    const LandingEvent = createLandingEvent(eraseThreshold, myLineGrids, setMessage, setPlayerScore, setIsCombine, true, true, socket.current);
+    const LandingEvent1 = createLandingEvent(eraseThreshold, otherLineGrids, setMessage, setOtherScore, setIsCombine, false, false);
 
     const StepCallback = ({ game, currentStep }: StepEvent) => {
       if (currentStep % 15 === 0) {
@@ -382,7 +384,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     <Container>
       <CountDown message={count} isCountingDown={isCountingDown}> {count} </CountDown>
       <SceneContainer>
-        <SceneCanvas id="game" ref={sceneRef}></SceneCanvas>
+        <SceneCanvas Combine={isCombine} id="game" ref={sceneRef}></SceneCanvas>
         <MessageDiv>  {message} </MessageDiv>
       </SceneContainer>
       <TetrisNextBlockContainer>
@@ -414,7 +416,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       {!isSinglePlay && (
         <MultiplayContainer>
           <OtherScore> 남의 스코어: {otherScore} </OtherScore>
-          <SceneCanvas id="otherGame" ref={otherSceneRef} />
+          <SceneCanvas Combine={false} id="otherGame" ref={otherSceneRef} />
           {Array.from(otherNicknames).map((nickname, index) => (
             <div key={index}>
               <OtherNickName>상대방: {nickname}</OtherNickName>
