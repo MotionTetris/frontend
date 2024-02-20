@@ -10,8 +10,8 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const bannerImages = [
-  "public/assets/Banner1.png",
-  "public/assets/Banner2.png",
+  "/assets/Banner1.png",
+  "/assets/Banner2.png",
 ];
 const Banner: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
