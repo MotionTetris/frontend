@@ -10,9 +10,8 @@ import { Wall } from "./Object/Wall";
 import { EventEmitter } from 'events'
 import { getRandomInt } from "@src/util/random";
 import { MAX_FRAMERATE, MAX_HEIGHT, WallType } from "./TetrisContants";
-import { ItemSpawnEvent, TetrisEventMap } from "./TetrisEvent";
-import { FallableItemType, FallableItemMap, createItem } from "./Object/ItemFactory";
-import { Rock } from "./Object/Rock";
+import { TetrisEventMap } from "./TetrisEvent";
+import { FallableItemType, createItem } from "./Object/ItemFactory";
 import { ITetrisObject } from "./Object/TetrisObject";
 
 export class TetrisGame {
@@ -106,7 +105,7 @@ export class TetrisGame {
         });
 
         world.forEachRigidBody((body) => {
-            let wall = new Wall(body);
+            const wall = new Wall(body);
             wall.userData = body.userData;
             this._walls.set(wall.rigidBody.handle, wall);
         });
@@ -152,7 +151,7 @@ export class TetrisGame {
 
     public run(time?: number) {
         time ??= 0;
-        let dt = time - this._lastRenderingTime;
+        const dt = time - this._lastRenderingTime;
 
         if (!this.world) {
             console.error("Failed to run. world is not set");
@@ -238,7 +237,7 @@ export class TetrisGame {
             return;
         }
 
-        for (let body of this._removeBodies) {
+        for (const body of this._removeBodies) {
             this.world.removeRigidBody(body);
         }
         this._removeBodies = [];
@@ -474,7 +473,7 @@ export class TetrisGame {
     }
 
     public onMoveLeft(weight: number) {
-        let velocity = this.fallingTetromino?.rigidBody.linvel()!;
+        const velocity = this.fallingTetromino?.rigidBody.linvel()!;
         this.fallingTetromino?.rigidBody.setLinvel({ x: -weight * 200, y: velocity.y }, false);
         const event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.MOVE_LEFT);
         event.userData = weight;
@@ -483,7 +482,7 @@ export class TetrisGame {
     }
 
     public onMoveRight(weight: number) {
-        let velocity = this.fallingTetromino?.rigidBody.linvel()!;
+        const velocity = this.fallingTetromino?.rigidBody.linvel()!;
         this.fallingTetromino?.rigidBody.setLinvel({ x: weight * 200, y: velocity.y }, false);
         const event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.MOVE_RIGHT);
         event.userData = weight;
@@ -499,7 +498,7 @@ export class TetrisGame {
     }
 
     public onItemSpawned(type: FallableItemType) {
-        let event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.SPAWN_ITEM);
+        const event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.SPAWN_ITEM);
         event.userData = { item: type };
         this._sequence += 1;
         return event;
@@ -532,8 +531,8 @@ export class TetrisGame {
     }
 
     private collideWithWall(body1: RAPIER.RigidBody, body2: RAPIER.RigidBody) {
-        let userData1 = this._walls.get(body1.handle)?.userData;
-        let userData2 = this._walls.get(body2.handle)?.userData;
+        const userData1 = this._walls.get(body1.handle)?.userData;
+        const userData2 = this._walls.get(body2.handle)?.userData;
         return (userData1?.type === WallType.LEFT_WALL || userData1?.type === WallType.RIGHT_WALL) ||
             (userData2?.type === WallType.LEFT_WALL || userData2?.type === WallType.RIGHT_WALL);
     }

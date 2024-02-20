@@ -4,9 +4,6 @@ import * as RAPIER from "@dimforge/rapier2d";
 import { TetrisOption } from "./TetrisOption";
 import { createRectangle } from "./Effect";
 import { BlockColor, Palette } from "./Object/Tetromino";
-const BOX_INSTANCE_INDEX = 0;
-const BALL_INSTANCE_INDEX = 1;
-
 let kk = 0;
 
 export class Graphics {

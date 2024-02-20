@@ -20,7 +20,7 @@ export function unmuteBGM() {
  * @returns {boolean} true if the BGM is muted, false otherwise.
  */
 export function isMuted(): boolean {
-    let isMuted = localStorage.getItem(VolumeMuted);
+    const isMuted = localStorage.getItem(VolumeMuted);
     if (!isMuted) {
         localStorage.setItem(VolumeMuted, False);
         return false;

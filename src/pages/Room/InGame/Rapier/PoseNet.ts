@@ -84,50 +84,50 @@ export async function processPose(poseNet: PoseNet.PoseNet, video: HTMLVideoElem
         drawKeypoint(k, renderingContext);
     });
 
-    let leftShoulderKeypoint = pose.keypoints.find(
+    const leftShoulderKeypoint = pose.keypoints.find(
         (keypoint) => keypoint.part === "leftShoulder"
     );
 
-    let leftElbowKeypoint = pose.keypoints.find(
+    const leftElbowKeypoint = pose.keypoints.find(
         (keypoint) => keypoint.part === "leftElbow"
     );
 
-    let leftWristKeypoint = pose.keypoints.find(
+    const leftWristKeypoint = pose.keypoints.find(
         (keypoint) => keypoint.part === "leftWrist"
     );
 
-    let rightShoulderKeypoint = pose.keypoints.find(
+    const rightShoulderKeypoint = pose.keypoints.find(
         (keypoint) => keypoint.part === "rightShoulder"
     );
 
-    let rightElbowKeypoint = pose.keypoints.find(
+    const rightElbowKeypoint = pose.keypoints.find(
         (keypoint) => keypoint.part === "rightElbow"
     );
 
-    let rightWristKeypoint = pose.keypoints.find(
+    const rightWristKeypoint = pose.keypoints.find(
         (keypoint) => keypoint.part === "rightWrist"
     );
 
-    let noseKeypoint = pose.keypoints.find(
+    const noseKeypoint = pose.keypoints.find(
         (keypoint) => keypoint.part === "nose"
     );
 
-    let leftShoulder = leftShoulderKeypoint ? leftShoulderKeypoint.position : null;
-    let rightShoulder = rightShoulderKeypoint ? rightShoulderKeypoint.position : null;
-    let leftElbow = leftElbowKeypoint ? leftElbowKeypoint.position : null;
-    let rightElbow = rightElbowKeypoint ? rightElbowKeypoint.position : null;
-    let leftWrist = leftWristKeypoint ? leftWristKeypoint.position : null;
-    let rightWrist = rightWristKeypoint ? rightWristKeypoint.position : null;
-    let nose = noseKeypoint ? noseKeypoint.position : null;
-    let centerX = video ? video.offsetWidth / 2 : null;
-    let leftShoulderScore = leftShoulderKeypoint ? leftShoulderKeypoint.score : Infinity;
-    let rightShoulderScore = rightShoulderKeypoint ? rightShoulderKeypoint.score : Infinity;
-    let leftElbowScore = leftElbowKeypoint ? leftElbowKeypoint.score : Infinity;
-    let rightElbowScore = rightElbowKeypoint ? rightElbowKeypoint.score : Infinity;
-    let leftWristScore = leftWristKeypoint ? leftWristKeypoint.score : Infinity;
-    let rightWristScore = rightWristKeypoint ? rightWristKeypoint.score : Infinity;
-    let leftMinScore = Math.min(leftShoulderScore, leftElbowScore, leftWristScore);
-    let rightMinScore = Math.min(rightShoulderScore, rightElbowScore, rightWristScore);
+    const leftShoulder = leftShoulderKeypoint ? leftShoulderKeypoint.position : null;
+    const rightShoulder = rightShoulderKeypoint ? rightShoulderKeypoint.position : null;
+    const leftElbow = leftElbowKeypoint ? leftElbowKeypoint.position : null;
+    const rightElbow = rightElbowKeypoint ? rightElbowKeypoint.position : null;
+    const leftWrist = leftWristKeypoint ? leftWristKeypoint.position : null;
+    const rightWrist = rightWristKeypoint ? rightWristKeypoint.position : null;
+    const nose = noseKeypoint ? noseKeypoint.position : null;
+    const centerX = video ? video.offsetWidth / 2 : null;
+    const leftShoulderScore = leftShoulderKeypoint ? leftShoulderKeypoint.score : Infinity;
+    const rightShoulderScore = rightShoulderKeypoint ? rightShoulderKeypoint.score : Infinity;
+    const leftElbowScore = leftElbowKeypoint ? leftElbowKeypoint.score : Infinity;
+    const rightElbowScore = rightElbowKeypoint ? rightElbowKeypoint.score : Infinity;
+    const leftWristScore = leftWristKeypoint ? leftWristKeypoint.score : Infinity;
+    const rightWristScore = rightWristKeypoint ? rightWristKeypoint.score : Infinity;
+    const leftMinScore = Math.min(leftShoulderScore, leftElbowScore, leftWristScore);
+    const rightMinScore = Math.min(rightShoulderScore, rightElbowScore, rightWristScore);
     let leftAngleInDegrees = 0;
     let rightAngleInDegrees = 0;
     let leftWristX = 0;
@@ -180,22 +180,22 @@ export async function processPose(poseNet: PoseNet.PoseNet, video: HTMLVideoElem
 }
 
 function calculateAngle(pointA: KeyPoint, pointB: KeyPoint, pointC: KeyPoint): number {
-    let vectorA = {
+    const vectorA = {
         x: pointA.x - pointB.x,
         y: pointA.y - pointB.y,
     };
 
-    let vectorB = {
+    const vectorB = {
         x: pointC.x - pointB.x,
         y: pointC.y - pointB.y,
     };
 
-    let dotProduct = vectorA.x * vectorB.x + vectorA.y * vectorB.y;
-    let magnitudeA = Math.sqrt(vectorA.x * vectorA.x + vectorA.y * vectorA.y);
-    let magnitudeB = Math.sqrt(vectorB.x * vectorB.x + vectorB.y * vectorB.y);
+    const dotProduct = vectorA.x * vectorB.x + vectorA.y * vectorB.y;
+    const magnitudeA = Math.sqrt(vectorA.x * vectorA.x + vectorA.y * vectorA.y);
+    const magnitudeB = Math.sqrt(vectorB.x * vectorB.x + vectorB.y * vectorB.y);
 
-    let angleInRadians = Math.acos(dotProduct / (magnitudeA * magnitudeB));
-    let angleInDegrees = angleInRadians * (180 / Math.PI);
+    const angleInRadians = Math.acos(dotProduct / (magnitudeA * magnitudeB));
+    const angleInDegrees = angleInRadians * (180 / Math.PI);
 
     return angleInDegrees;
 }

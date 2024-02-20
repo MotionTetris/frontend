@@ -64,7 +64,7 @@ const GameMain = () => {
     setRooms(await requestRoomAPI());
   }
   
-  let roomSocket = useRoomSocket();
+  const roomSocket = useRoomSocket();
   console.assert(roomSocket, "socket is undefined");
 
   if (!roomSocket || !roomSocket.connected) {

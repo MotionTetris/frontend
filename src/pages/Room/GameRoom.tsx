@@ -17,12 +17,11 @@ import { useRoomSocket, RoomSocketEvent } from "@context/roomSocket";
 import { InGamePlayerCard } from "@type/Refactoring";
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles";
 import { useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setOtherNickname, setCreatorNickname } from "@redux/game/gameSlice";
 import { getUserNickname } from "@src/data-store/token";
 import { ModalOverlay, StyledTutorial } from "./InGame/Single/style";
 import Chat from "@src/components/Ingame/Chat";
-import { RootState } from "@src/app/store";
 import { playReadySound, playStartSound } from "@src/components/sound";
 import Volume from "@src/components/volume";
 

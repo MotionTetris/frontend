@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   CreateRoomBackground,
   CreateRoomContainer,
@@ -10,14 +10,12 @@ import {
   RoomLabel,
   WarningMessage,
   RoomSelect,
-  CreateRoomInput,
-  CreateRoomSelect,
   OutlinedInputWrapper,
   OutlinedSelectWrapper
 } from "./styles";
 import { useNavigate } from "react-router-dom";
 import { useRoomSocket, RoomSocketEvent } from "@context/roomSocket";
-import { InGamePlayerCard, CreateRoomCard, LobbyGameRoomCard } from "@type/Refactoring"
+import { CreateRoomCard, LobbyGameRoomCard } from "@type/Refactoring"
 import { createRoomAPI } from "@api/room";
 import {ROOM_BG1_URL,ROOM_BG2_URL,ROOM_BG3_URL,ROOM_BG4_URL,ROOM_BG5_URL} from "@src/config"
 interface CreateCreateRoomProps {

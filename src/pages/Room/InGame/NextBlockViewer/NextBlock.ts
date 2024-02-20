@@ -46,7 +46,7 @@ const getBlockInfo = (rad: number) => (blockType: BlockType) => {
 }
 
 export const drawBlock = (size: number) => { 
-    let blockInfo = getBlockInfo(size / 2);
+    const blockInfo = getBlockInfo(size / 2);
     return (app: PIXI.Application, x: number, y: number, blockType: BlockType, blockColor: BlockColor) => {
         const translationInfo = blockInfo(blockType);
         const colorPalette = Palette[blockColor];
@@ -54,7 +54,7 @@ export const drawBlock = (size: number) => {
         
         for (let i = 0; i < translationInfo.length; i += 2) {
             colorIndex += 1;
-            let graphics = new PIXI.Graphics();
+            const graphics = new PIXI.Graphics();
             graphics.beginFill(colorPalette[colorIndex]);
             graphics.drawRect(0, 0, 2.0, 2.0);
             graphics.scale.x = size / 2;

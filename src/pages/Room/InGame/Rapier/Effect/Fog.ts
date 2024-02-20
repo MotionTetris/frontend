@@ -21,7 +21,7 @@ export class Fog implements IEffect {
         }
 
         for (let i = 0; i < numParticle; i++) {
-            let particle = new PIXI.Sprite(texture);
+            const particle = new PIXI.Sprite(texture);
             particle.position.set(x + Math.random() * rx, y + Math.random() * ry);
             particle.anchor.set(0.5, 0.5);
             particle.rotation = Math.random() * 360;
@@ -93,7 +93,7 @@ export class Fog implements IEffect {
         this._x = x;
         this._y = y;
         for (let i = 0; i < this._particles.length; i++) {
-            let pos = this._particles[i].position;
+            const pos = this._particles[i].position;
             this._particles[i].position.x = pos.x + x;
             this._particles[i].position.y = pos.y + y;
         }

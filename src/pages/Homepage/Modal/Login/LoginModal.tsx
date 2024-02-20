@@ -1,4 +1,4 @@
-import { useState, useEffect} from "react";
+import { useState} from "react";
 import {
   AnimatedSection,
   HomepagesubTitle,
@@ -16,20 +16,15 @@ import {
   HomepageContainer,
 } from "./styles";
 import SignupModal from "@pages/Homepage/Modal/Signup/SignupModal";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setUser } from "@redux/hompage/homepageSlice";
 import { loginAPI } from "@api/auth";
 import { FaUserAlt } from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
-
 import { RiLockPasswordFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
-import { useRoomSocket } from "@context/roomSocket"
-import { RootState } from "@app/store";
 import { setToken } from "@src/data-store/token";
 import { playLoginSound } from "@src/components/sound";
 const LoginModal: React.FC = () => {
-  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignupModalOpen, setSignupModalOpen] = useState(false);

@@ -20,16 +20,16 @@ export class Rock implements ITetrisObject {
         this._world = world;
         this._context = ctx;
         this._graphics = [];
-        let x = option.spawnX ?? 0;
-        let y = option.spawnY ?? 0;
+        const x = option.spawnX ?? 0;
+        const y = option.spawnY ?? 0;
 
         const rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
         const rigidBody = this._world.createRigidBody(rigidBodyDesc);
         const colliderDesc = RAPIER.ColliderDesc.cuboid(50, 50);
         this._world.createCollider(colliderDesc, rigidBody);
         this._rigidBody = rigidBody;
-        let texture = EffectLoader.getTexture(RockImage)!;
-        let graphic = game.graphics.addGraphics(texture, x, -y, rigidBody.collider(0), 160 / texture.width, 160 / texture.height);
+        const texture = EffectLoader.getTexture(RockImage)!;
+        const graphic = game.graphics.addGraphics(texture, x, -y, rigidBody.collider(0), 160 / texture.width, 160 / texture.height);
         this._graphics.push(graphic);
     }
 

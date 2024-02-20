@@ -1,12 +1,7 @@
-import * as PIXI from "pixi.js";
-import RAPIER from "@dimforge/rapier2d";
-import { playBombSpawnSound, playFlipSound, playFogSound, playRotateSound } from "./Sound/Sound";
+import { playFlipSound, playFogSound, playRotateSound } from "./Sound/Sound";
 import { TetrisGame } from "./TetrisGame";
 import { Viewport } from "pixi-viewport";
-import * as particles from '@pixi/particle-emitter'
-import BOMB_IMG from '@assets/items/Bomb.png';
 import { BOMB_URL, FOG_URL, FLIP_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL, ROCK_URL } from "../../../../config"
-import { EffectLoader } from "./Effect/EffectLoader";
 import { Fog } from "./Effect/Fog";
 
 export function applyItem(game: TetrisGame, item: string) {
@@ -27,7 +22,6 @@ export function applyItem(game: TetrisGame, item: string) {
             console.log('Invalid index');
     }
 }
-
 
 export function getItemUrl(item: string): string {
     let itemUrl: string;
@@ -72,14 +66,12 @@ export function rotateViewport(viewport: Viewport, degree: number) {
     }, 5000);
 }
 
-
 export function resetRotateViewport(viewport: Viewport) {
     viewport.rotation = 0;
     viewport.scale.x = 1;
     viewport.scale.y = 1;
-    viewport.x = 0;;
+    viewport.x = 0;
 }
-
 
 export function flipViewport(viewport: Viewport) {
     playFlipSound();
@@ -95,10 +87,9 @@ export function resetFlipViewport(viewport: Viewport) {
     viewport.x = 0;
 }
 
-
 export function addFog(game: TetrisGame) {
     playFogSound();
-    let fog = new Fog(100, 300, 300, 300, 100, 0.0025);
+    const fog = new Fog(100, 300, 300, 300, 100, 0.0025);
     fog.addTo(game.graphics.effectScene);
     const fogAnimation = (dt: number) => {
       fog.animate(dt);
@@ -109,4 +100,4 @@ export function addFog(game: TetrisGame) {
     }
     game.graphics.ticker.add(fogAnimation)
     game.graphics.ticker.start();
-};
+}

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, CountDown, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, OtherScore, ItemImage, DarkBackground, Concentration, GoGameMainButton } from "./style.tsx"
-import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage, excitingBG, starWarp } from "../Rapier/Effect.ts";
+import { createScoreBasedGrid, fallingBlockGlow, removeGlow, explodeBomb, starWarp } from "../Rapier/Effect.ts";
 import * as io from 'socket.io-client';
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
@@ -13,17 +13,15 @@ import { PoseNet } from "@tensorflow-models/posenet";
 import { KeyPointResult, loadPoseNet, processPose } from "../Rapier/PoseNet.ts";
 import { createBlockSpawnEvent, createItemSpawnEvent, createLandingEvent, createUserEventCallback } from "../Rapier/TetrisCallback.ts";
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
-import { jwtDecode } from "jwt-decode";
 import { useSelector } from 'react-redux';
 import { RootState } from "@app/store";
 import { applyItem, getItemUrl } from "../Rapier/Item.ts";
-import { MultiplayEvent, PlayerEventType } from "../Rapier/Multiplay.ts";
 import { Timer } from "@src/components/Ingame/Timer.tsx";
 import Volume from "@src/components/volume.tsx";
 import { StepEvent } from "../Rapier/TetrisEvent.ts";
 import { GAME_SOCKET_URL } from "@src/config.ts";
 import { useLocation } from "react-router-dom";
-import { RoomSocketEvent, roomSocket } from "@src/context/roomSocket.ts";
+import { RoomSocketEvent } from "@src/context/roomSocket.ts";
 import { eraseThreshold } from "../Rapier/TetrisContants.ts";
 import { changeIngameSoundSpeed } from "@src/components/sound.ts";
 import { getToken, getUserNickname } from "@src/data-store/token.ts";
@@ -104,7 +102,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       gameRef.current!.pause();
       // 형식: "BOMB", "FOG",  "FLIP", "ROTATE_RIGHT", "ROTATE_LEFT",
       const itemImages = items.map(item => {
-        let itemUrl = getItemUrl(item);
+        const itemUrl = getItemUrl(item);
         return <ItemImage src={itemUrl} />;
       });
 
@@ -114,11 +112,11 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       itemMap.set("item3", items[2]);
       setShuffledCard([...itemImages]);
 
-      let cards = document.querySelectorAll('[tabindex]');
+      const cards = document.querySelectorAll('[tabindex]');
       cards.forEach((elem) => {
         (elem as HTMLElement).style.opacity = '1';
       });
-      let bg = document.getElementById('card-bg')
+      const bg = document.getElementById('card-bg')
       if (bg) {
         bg.style.opacity = '0.75';
       }
@@ -186,13 +184,13 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     warpControllerRef.current = starWarp(concentrationLineRef);
 
 
-    if (!!!sceneRef.current) {
+    if (!sceneRef.current) {
       console.log("sceneRef is null");
       return;
     }
 
     if (!isSinglePlay) {
-      if (!!!otherSceneRef.current) {
+      if (!otherSceneRef.current) {
         return;
       }
     }
@@ -209,40 +207,40 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     }
 
     const CollisionEvent = ({ game, bodyA, bodyB }: any) => {
-      let collisionX = bodyA.parent()?.userData.type;
-      let collisionY = bodyB.parent()?.userData.type;
+      const collisionX = bodyA.parent()?.userData.type;
+      const collisionY = bodyB.parent()?.userData.type;
 
       if ((collisionX === 'rock' || collisionY === 'rock') &&
         collisionX !== 'ground' && collisionY !== 'ground' &&
         collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
         collisionX !== 'right_wall' && collisionY !== 'right_wall') {
-        let ver = (collisionX === 'rock') ? 0 : 1;
+        const ver = (collisionX === 'rock') ? 0 : 1;
         explodeBomb(game, bodyA, bodyB, ver);
         setPlayerScore((prevScore: number) => prevScore + 10000);
       }
 
       if ((collisionX === 'rock' || collisionY === 'rock') && (collisionX === 'ground') || (collisionY === 'ground')) {
-        let ver = (collisionX === 'rock') ? bodyA.parent()?.handle : bodyB.parent()?.handle;
+        const ver = (collisionX === 'rock') ? bodyA.parent()?.handle : bodyB.parent()?.handle;
         game.findById(ver).remove();
       }
     }
 
 
     const CollisionEvent1 = ({ game, bodyA, bodyB }: any) => {
-      let collisionX = bodyA.parent()?.userData.type;
-      let collisionY = bodyB.parent()?.userData.type;
+      const collisionX = bodyA.parent()?.userData.type;
+      const collisionY = bodyB.parent()?.userData.type;
 
       if ((collisionX === 'rock' || collisionY === 'rock') &&
         collisionX !== 'ground' && collisionY !== 'ground' &&
         collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
         collisionX !== 'right_wall' && collisionY !== 'right_wall') {
-        let ver = (collisionX === 'rock') ? 0 : 1;
+        const ver = (collisionX === 'rock') ? 0 : 1;
         explodeBomb(game, bodyA, bodyB, ver);
         setOtherScore((prevScore: number) => prevScore + 10000);
       }
 
       if ((collisionX === 'rock' || collisionY === 'rock') && (collisionX === 'ground') || (collisionY === 'ground')) {
-        let ver = (collisionX === 'rock') ? bodyA.parent()?.handle : bodyB.parent()?.handle;
+        const ver = (collisionX === 'rock') ? bodyA.parent()?.handle : bodyB.parent()?.handle;
         game.findById(ver).remove();
       }
     }
@@ -327,7 +325,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       leftWristX: 0
     }
 
-    let eventCallback = createUserEventCallback(game, socket.current);
+    const eventCallback = createUserEventCallback(game, socket.current);
     const poseNetLoop = async () => {
       if (!videoRef.current) {
         return;

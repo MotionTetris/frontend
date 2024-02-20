@@ -7,7 +7,7 @@ import RockImage from '@assets/items/Stone.png';
 export class EffectLoader {
     static textures: Map<string, PIXI.Texture> = new Map();
     static async loadTextrue(url: string) {
-        let texture = this.textures.get(url);
+        const texture = this.textures.get(url);
         if (!texture) {
             this.textures.set(url, await PIXI.Texture.fromURL(url));
             console.debug(this.textures);
@@ -18,7 +18,7 @@ export class EffectLoader {
         await PIXI.Assets.load(sheetUrl, (progress) => {
             console.log(`load sprite ${sheetUrl} ${progress * 100}%`);
         });
-        for (let spriteName of spriteNames) {
+        for (const spriteName of spriteNames) {
             const texture = PIXI.Texture.from(spriteName);
             this.textures.set(spriteName, texture);
         }

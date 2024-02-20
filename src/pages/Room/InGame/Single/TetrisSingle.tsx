@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ButtonContainer, TetrisNextBlockContainer, TextContainer, NextBlockText, NextBlockImage, ModalOverlay, StyledTutorial, } from "./style.tsx";
-import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage } from "../Rapier/Effect.ts";
+import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, explodeBomb } from "../Rapier/Effect.ts";
 import { rotateViewport, flipViewport, addFog } from "../Rapier/Item.ts";
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
@@ -15,7 +15,6 @@ import Volume from "@src/components/volume.tsx";
 import { getUserNickname } from "@src/data-store/token.ts";
 import { eraseThreshold } from "../Rapier/TetrisContants.ts";
 import { StepEvent } from "../Rapier/TetrisEvent.ts";
-import { Fog } from "../Rapier/Effect/Fog.ts";
 
 const RAPIER = await import('@dimforge/rapier2d');
 const TetrisSingle: React.FC = () => {
@@ -53,7 +52,7 @@ const TetrisSingle: React.FC = () => {
         return <ShootingStar style={style} key={index} />;
       }));
 
-      if (!!!sceneRef.current) {
+      if (!sceneRef.current) {
         console.log("sceneRef is null");
         return;
       }
@@ -64,19 +63,19 @@ const TetrisSingle: React.FC = () => {
       sceneRef.current.width = 500;
       sceneRef.current.height = 800;
       const CollisionEvent = ({ game, bodyA, bodyB }: any) => {
-        let collisionX = bodyA.parent()?.userData.type;
-        let collisionY = bodyB.parent()?.userData.type;
+        const collisionX = bodyA.parent()?.userData.type;
+        const collisionY = bodyB.parent()?.userData.type;
 
         if ((collisionX === 'rock' || collisionY === 'rock') &&
           collisionX !== 'ground' && collisionY !== 'ground' &&
           collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
           collisionX !== 'right_wall' && collisionY !== 'right_wall') {
-          let ver = (collisionX === 'rock') ? 0 : 1;
+          const ver = (collisionX === 'rock') ? 0 : 1;
           explodeBomb(game, bodyA, bodyB, ver);
         }
 
         if ((collisionX === 'rock' || collisionY === 'rock') && (collisionX === 'ground') || (collisionY === 'ground')) {
-          let ver = (collisionX === 'rock') ? bodyA.parent()?.handle : bodyB.parent()?.handle;
+          const ver = (collisionX === 'rock') ? bodyA.parent()?.handle : bodyB.parent()?.handle;
           game.findById(ver).remove();
         }
       }
@@ -144,7 +143,7 @@ const TetrisSingle: React.FC = () => {
         leftWristX: 0
       }
 
-      let eventCallback = createUserEventCallback(game);
+      const eventCallback = createUserEventCallback(game);
       const poseNetLoop = async () => {
         if (!videoRef.current) {
           return;

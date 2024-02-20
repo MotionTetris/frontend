@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { userChangePasswordAPI, userByeAPI } from "@api/user";
 import {ByeButton,ProfileHeader,ProfileChange, GameDashboardContainer, Button, Input, FormContainer } from "./styles";
-import {Circle, BackgroundColor1, Span, BackgroundColor2, BackgroundColor3} from "@src/BGstyles"
 import { removeToken } from "@src/data-store/token";
 import { useNavigate } from "react-router-dom";
 

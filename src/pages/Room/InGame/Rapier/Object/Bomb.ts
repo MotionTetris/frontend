@@ -4,12 +4,8 @@ import { TetrisOption } from "../TetrisOption";
 import * as PIXI from 'pixi.js';
 import { ITetrisObject } from "./TetrisObject";
 import { BlockCollisionEvent } from "../TetrisEvent";
-import { Tetromino } from "./Tetromino";
-import { playBombExplodeSound } from "../Sound/Sound";
-import { createExplosion, loadExplosionImage } from "../Effect";
 import BombImage from '@assets/items/Bomb.png';
 import { EffectLoader } from "../Effect/EffectLoader";
-import { text } from "stream/consumers";
 
 export class Bomb implements ITetrisObject {
     private _rigidBody: RAPIER.RigidBody;
@@ -24,8 +20,8 @@ export class Bomb implements ITetrisObject {
         this._world = world;
         this._context = ctx;
         this._graphics = [];
-        let x = option.spawnX ?? 0;
-        let y = option.spawnY ?? 0;
+        const x = option.spawnX ?? 0;
+        const y = option.spawnY ?? 0;
 
         const rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
         const rigidBody = this._world.createRigidBody(rigidBodyDesc);
@@ -33,9 +29,9 @@ export class Bomb implements ITetrisObject {
         this._world.createCollider(colliderDesc, rigidBody);
         this._rigidBody = rigidBody;
 
-        let texture = EffectLoader.getTexture(BombImage)!;
+        const texture = EffectLoader.getTexture(BombImage)!;
         console.log(texture.width, texture.height);
-        let graphic = game.graphics.addGraphics(texture, x, -y, rigidBody.collider(0), 160 / texture.width, 160 / texture.height);
+        const graphic = game.graphics.addGraphics(texture, x, -y, rigidBody.collider(0), 160 / texture.width, 160 / texture.height);
         this._graphics.push(graphic);
     }
 
