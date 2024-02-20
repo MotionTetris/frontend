@@ -26,6 +26,7 @@ import { useLocation } from "react-router-dom";
 import { RoomSocketEvent, roomSocket } from "@src/context/roomSocket.ts";
 import { eraseThreshold } from "../Rapier/TetrisContants.ts";
 import { changeIngameSoundSpeed } from "@src/components/sound.ts";
+import { getToken, getUserNickname } from "@src/data-store/token.ts";
 
 interface TetrisProps {
   isSinglePlay?: boolean;
@@ -43,7 +44,10 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
   const socket = useRef<io.Socket>()
   const otherNicknames = useSelector((state: RootState) => state.game.playersNickname);
   const location = useLocation();
-  const isSinglePlay = location.state?.isSinglePlay;
+  const queryParams = new URLSearchParams(location.search);
+  const roomId = queryParams.get('roomId');
+  const max = queryParams.get('max');
+  const isSinglePlay = max === '1';
   const [message, setMessage] = useState("");
   const [count, setCount] = useState("곧 게임이 시작합니다.");
   const [playerScore, setPlayerScore] = useState(0);
@@ -51,16 +55,8 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [nickname, setNickname] = useState("");
   const [timeLeft, setTimeLeft] = useState("");
-  const myLineGrids = Array.from({ length: 21 }, () => {
-    const graphics = new PIXI.Graphics();
-    graphics.zIndex = 3;
-    return graphics;
-  });
-  const otherLineGrids = Array.from({ length: 21 }, () => {
-    const graphics = new PIXI.Graphics();
-    graphics.zIndex = 3;
-    return graphics;
-  });
+  const myLineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
+  const otherLineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
   const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
   const [user, setUser] = useState<string>('')
   const [other, setOther] = useState<string>('')
@@ -69,25 +65,16 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
   const warpControllerRef = useRef<{ setWarpSpeed: (newSpeed: number) => void; } | null>(null);
   const [isCountingDown, setIsCountingDown] = useState(false);
   const [isCombine, setIsCombine] = useState(false);
+
   
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const decoded = jwtDecode(token);
-      const nickname = decoded.sub || "";
-      setNickname(nickname);
-    }
+    setNickname(getUserNickname());
   },);
   let bomb: any = undefined;
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const roomId = queryParams.get('roomId')
-    const max = queryParams.get('max')
-    const token = localStorage.getItem('token')
-
     socket.current = io.connect(`${GAME_SOCKET_URL}?roomId=${roomId}&max=${max}`, {
       auth: {
-        token: `Bearer ${token}`
+        token: `Bearer ${getToken()}`
       }
     });
 
@@ -170,7 +157,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       if (timeLeft == "00:30") {
         changeIngameSoundSpeed(1.25);
         if (warpControllerRef.current) {
-          warpControllerRef.current.setWarpSpeed(3);
+          warpControllerRef.current.setWarpSpeed(1);
         }
       }
       setTimeLeft(timeLeft);
@@ -193,8 +180,10 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       return;
     }
 
-    if (!!!otherSceneRef.current) {
-      return;
+    if (!isSinglePlay) {
+      if (!!!otherSceneRef.current) {
+        return;
+      }
     }
 
     if (!nextBlockRef.current) {
@@ -203,8 +192,11 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
 
     sceneRef.current.width = 500;
     sceneRef.current.height = 800;
-    otherSceneRef.current.width = 500;
-    otherSceneRef.current.height = 800;
+    if (!isSinglePlay) {
+      otherSceneRef.current.width = 500;
+      otherSceneRef.current.height = 800;
+    }
+
     const CollisionEvent = ({ game, bodyA, bodyB }: any) => {
       let collisionX = bodyA.parent()?.userData.type;
       let collisionY = bodyB.parent()?.userData.type;
@@ -248,9 +240,11 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     const StepCallback = ({ game, currentStep }: StepEvent) => {
       if (currentStep % 15 === 0) {
         const checkResult = game.checkLine(eraseThreshold);
-        const checkOtherResult = otherGame.checkLine(eraseThreshold);
         createScoreBasedGrid(myLineGrids, checkResult.scoreList, eraseThreshold);
-        createScoreBasedGrid(otherLineGrids, checkOtherResult.scoreList, eraseThreshold);
+        if (!isSinglePlay) {
+          const checkOtherResult = otherGame.checkLine(eraseThreshold);
+          createScoreBasedGrid(otherLineGrids, checkOtherResult.scoreList, eraseThreshold);
+        }
       }
 
       if (bomb && bomb.lifetime === currentStep) {
@@ -296,13 +290,15 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
 
-    const userId = other;
-    const otherGame = new TetrisMultiplayView(OtherTetrisOption, userId);
-    otherGame.on("collision", CollisionEvent1);
-    otherGame.on("landing", LandingEvent1);
-    otherGame.on("prelanding", preLandingEvent1);
-    otherGame.setWorld(initWorld(RAPIER, OtherTetrisOption));
-    otherGameRef.current = otherGame;
+    if (!isSinglePlay) {
+      const userId = other;
+      const otherGame = new TetrisMultiplayView(OtherTetrisOption, userId);
+      otherGame.on("collision", CollisionEvent1);
+      otherGame.on("landing", LandingEvent1);
+      otherGame.on("prelanding", preLandingEvent1);
+      otherGame.setWorld(initWorld(RAPIER, OtherTetrisOption));
+      otherGameRef.current = otherGame;
+    }
 
     let poseNetResult: { poseNet: PoseNet; renderingContext: CanvasRenderingContext2D; } | undefined = undefined;
     let prevResult: KeyPointResult = {
@@ -354,10 +350,11 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
         game.graphics.viewport.addChild(line);
       });
 
-      otherLineGrids.forEach((line) => {
-        otherGame.graphics.viewport.addChild(line);
-      });
-
+      if (!isSinglePlay) {
+        otherLineGrids.forEach((line) => {
+          otherGame.graphics.viewport.addChild(line);
+        });
+      }
 
       await new Promise(resolve => setTimeout(resolve, 3000)); // 3초 대기
 

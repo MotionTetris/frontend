@@ -39,7 +39,6 @@ const GameRoom: React.FC = () => {
   const [isGameALLReady, setIsGameALLReady] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(true);
   const dispatch = useDispatch();
-  const isSinglePlay = useSelector((state: RootState) => state.game.isSinglePlay);
 
   const shootingStars = Array(20).fill(null).map((_, index) =>
     <ShootingStar
@@ -168,7 +167,7 @@ const GameRoom: React.FC = () => {
           onClick={() => {
             if (players.length === 1) {
               if (window.confirm('싱글 게임으로 시작하시겠습니까?')) {
-                navigate(`/gameplay?roomId=${roomInfo?.roomInfo.roomId}&max=${roomInfo?.roomInfo.maxCount}`, state);
+                navigate(`/gameplay?roomId=${roomInfo?.roomInfo.roomId}&max=${roomInfo?.roomInfo.maxCount}`);
               }
             } else {
               roomSocket?.emit(RoomSocketEvent.EMIT_GAME_START);
