@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ButtonContainer, TetrisNextBlockContainer, TextContainer, NextBlockText, NextBlockImage, ModalOverlay, StyledTutorial, } from "./style.tsx";
-import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, explodeBomb } from "../Rapier/Effect.ts";
+import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, explodeRock } from "../Rapier/Effect.ts";
 import { rotateViewport, flipViewport, addFog } from "../Rapier/Item.ts";
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
@@ -71,7 +71,7 @@ const TetrisSingle: React.FC = () => {
           collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
           collisionX !== 'right_wall' && collisionY !== 'right_wall') {
           const ver = (collisionX === 'rock') ? 0 : 1;
-          explodeBomb(game, bodyA, bodyB, ver);
+          explodeRock(game, bodyA, bodyB, ver);
         }
 
         if ((collisionX === 'rock' || collisionY === 'rock') && (collisionX === 'ground') || (collisionY === 'ground')) {

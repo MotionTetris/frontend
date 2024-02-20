@@ -5,7 +5,7 @@ import { TetrisOption } from "../TetrisOption";
 import { Rock } from "./Rock";
 import { Tetromino } from "./Tetromino";
 import { Bomb } from "./Bomb";
-import { playBombSpawnSound } from "../Sound/Sound";
+import { playBombSpawnSound, playRockSpawnSound } from "../Sound/Sound";
 
 export type Fallable = Tetromino | FallableItemType
 export type FallableItemType = "rock" | "bomb";
@@ -15,7 +15,7 @@ export const FallableItemMap =  {
 }
 
 export const ItemSpawnSoundMap = {
-    rock: () => {},
+    rock: () => playRockSpawnSound(),
     bomb: () => playBombSpawnSound()
 }
 

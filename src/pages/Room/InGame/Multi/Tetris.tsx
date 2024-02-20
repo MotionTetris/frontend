@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, CountDown, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, OtherScore, ItemImage, DarkBackground, Concentration, GoGameMainButton } from "./style.tsx"
-import { createScoreBasedGrid, fallingBlockGlow, removeGlow, explodeBomb, starWarp } from "../Rapier/Effect.ts";
+import { createScoreBasedGrid, fallingBlockGlow, removeGlow, explodeRock, starWarp } from "../Rapier/Effect.ts";
 import * as io from 'socket.io-client';
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
@@ -215,7 +215,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
         collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
         collisionX !== 'right_wall' && collisionY !== 'right_wall') {
         const ver = (collisionX === 'rock') ? 0 : 1;
-        explodeBomb(game, bodyA, bodyB, ver);
+        explodeRock(game, bodyA, bodyB, ver);
         setPlayerScore((prevScore: number) => prevScore + 10000);
       }
 
@@ -235,7 +235,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
         collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
         collisionX !== 'right_wall' && collisionY !== 'right_wall') {
         const ver = (collisionX === 'rock') ? 0 : 1;
-        explodeBomb(game, bodyA, bodyB, ver);
+        explodeRock(game, bodyA, bodyB, ver);
         setOtherScore((prevScore: number) => prevScore + 10000);
       }
 

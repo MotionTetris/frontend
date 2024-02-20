@@ -4,10 +4,11 @@ import { GlowFilter } from '@pixi/filter-glow';
 import { Tetromino } from "./Object/Tetromino";
 import { gsap } from 'gsap';
 import { Graphics } from "./Graphics";
-import { playBombExplodeSound, playDoubleComboSound, playSingleComboSound, playTripleComboSound } from "./Sound/Sound";
+import { playBombExplodeSound, playDoubleComboSound, playRockCrashedSound, playSingleComboSound, playTripleComboSound } from "./Sound/Sound";
 import { TetrisGame } from "./TetrisGame";
 import * as RAPIER from "@dimforge/rapier2d";
 import EXPLOSION_IMAGE from '@assets/explosion.png';
+import * as particles from '@pixi/particle-emitter'
 
 export const explodeParticleEffect = (x: number, y: number, graphics: Graphics) => {
     const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
@@ -342,22 +343,18 @@ export function lineGlowEffect(graphics: PIXI.Graphics) {
 
 
 
-export function explodeBomb(game: TetrisGame, bodyA: RAPIER.Collider, bodyB: RAPIER.Collider, ver: number) {
+export function explodeRock(game: TetrisGame, bodyA: RAPIER.Collider, bodyB: RAPIER.Collider, ver: number) {
     const explosionPoint = ver ? bodyA.translation() : bodyB.translation();
     const rigidBodyHandle = (ver ? bodyA : bodyB).parent()?.handle;
     const rigidBody = game.world!.getRigidBody(rigidBodyHandle!);
     rigidBody.setTranslation({ x: 10000, y: 0 }, false);
-    playBombExplodeSound();
-    loadExplosionImage().then((explodeTexture: PIXI.Texture) => {
-        createExplosion(game.graphics.viewport, explodeTexture, explosionPoint.x, explosionPoint.y);
-        const graphics = game.graphics.coll2gfx.get((ver ? bodyA : bodyB).handle);
+    playRockCrashedSound();
+    rockParticleEffect(explosionPoint.x, -explosionPoint.y, game);
+    const graphics = game.graphics.coll2gfx.get((ver ? bodyA : bodyB).handle);
         if (graphics) {
             game.graphics.viewport.removeChild(graphics);
             game.graphics.coll2gfx.delete((ver ? bodyA : bodyB).handle);
-        }
-    }).catch((error: any) => {
-        console.error(error);
-    });
+    }
 }
 
 export async function loadExplosionImage(): Promise<PIXI.Texture> {
@@ -476,3 +473,111 @@ export function starWarp(concentrationLineRef: React.RefObject<HTMLCanvasElement
         setWarpSpeed,
     };
 }
+
+export function rockParticleEffect(x: number, y: number, game: TetrisGame ) {
+  var emitter = new particles.Emitter(
+    game.graphics.viewport,
+
+    {
+        lifetime: {
+            min: 1,
+            max: 2
+        },
+        frequency: 0.008,
+        spawnChance: 1,
+        particlesPerWave: 1,
+        emitterLifetime: 0.31,
+        maxParticles: 5,
+        pos: {
+            x: x,
+            y: y
+        },
+        addAtBack: false,
+        behaviors: [
+            {
+                type: 'alpha',
+                config: {
+                    alpha: {
+                        list: [
+                            {
+                                value: 0.8,
+                                time: 0
+                            },
+                            {
+                                value: 0.1,
+                                time: 1
+                            }
+                        ],
+                    },
+                }
+            },
+            {
+                type: 'scale',
+                config: {
+                    scale: {
+                        list: [
+                            {
+                                value: 0.2,
+                                time: 0
+                            },
+                            {
+                                value: 0.1,
+                                time: 1
+                            }
+                        ],
+                    },
+                }
+            },
+            {
+                type: 'moveSpeed',
+                config: {
+                    speed: {
+                        list: [
+                            {
+                                value: 100,
+                                time: 0
+                            },
+                            {
+                                value: 50,
+                                time: 1
+                            }
+                        ],
+                        isStepped: false
+                    },
+                }
+            },
+            {
+                type: 'rotationStatic',
+                config: {
+                    min: 0,
+                    max: 360
+                }
+            },
+            {
+                type: 'spawnShape',
+                config: {
+                    type: 'torus',
+                    data: {
+                        x: 0,
+                        y: 0,
+                        radius: 10
+                    }
+                }
+            },
+            {
+                type: 'textureSingle',
+                config: {
+                    texture: PIXI.Texture.from('src/assets/Stone.png')
+                }
+            }
+        ],
+    }
+);
+  game.graphics.ticker.add((delta) => {
+    emitter.update(delta * 0.01);
+  });
+
+  emitter.emit = true;
+  game.graphics.ticker.start();
+};
+
