@@ -27,8 +27,8 @@ export const HeaderLogoContainer = styled.div`
 `;
 
 export const HeaderLogo = styled.img`
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   border: 3px solid white;
   transition: box-shadow 0.3s ease;
@@ -43,6 +43,7 @@ export const HeaderLogoTitle = styled.p`
   color: white;
   display: inline-block;
   vertical-align: middle;
+  font-size : 25px;
 `;
 
 export const HeaderProfileContainer = styled.div`
@@ -84,8 +85,9 @@ export const HeaderStyledLink = styled(Link)<StyledLinkProps>`
   width: 200px;
   height: 55px;
   left: 25vw;
-  scale: 0.8;
-  margin: 60px 0;
+  scale: 1.4;
+  font-size:20px;
+  margin: 60px 40px;
   color: white;
   text-decoration: none;
   display: flex;

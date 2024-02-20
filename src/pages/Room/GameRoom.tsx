@@ -154,7 +154,7 @@ const GameRoom: React.FC = () => {
 
   return (
     <RoomContainer>
-            <ModalOverlay isOpen={isModalOpen} />
+      <ModalOverlay isOpen={isModalOpen} />
       <StyledTutorial isOpen={isModalOpen} closeModal={() => setIsModalOpen(false)} />
       <RoomInfoContainer>
       <GameRoomId>{inGameCard?.roomId}</GameRoomId>
@@ -174,10 +174,10 @@ const GameRoom: React.FC = () => {
             }
           }}
         >
-          Start Game
+          게임 시작
         </StartButton>
       ) : (
-        <ReadyButton onClick={handleReadyClick} isReady={isReady}>{isReady ? '준비 취소' : '준비 중'}</ReadyButton>
+        <ReadyButton onClick={handleReadyClick} isReady={isReady}>{isReady ? '준비 취소' : '준비 하기'}</ReadyButton>
       )}
     <PlayerContainer>
   {players.map((player, index) => {

@@ -75,17 +75,17 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
       <CreateRoomContainer>
         <CreateRoomMain>방 생성</CreateRoomMain>
         <OutlinedInputWrapper>
-        <RoomInput value={roomName} onChange={handleInputChange} />
-        <RoomLabel>방 제목</RoomLabel>
-        {warningMessage && <WarningMessage>{warningMessage}</WarningMessage>}
-      </OutlinedInputWrapper>
-      <OutlinedSelectWrapper>
-        <RoomLabel htmlFor="roomSelect">방 인원</RoomLabel>
-        <RoomSelect id="roomSelect" value={selectedOption} onChange={handleSelectChange}>
-          <option value="1">1</option>
-          <option value="2">2</option>
-        </RoomSelect>
-      </OutlinedSelectWrapper>
+          <RoomLabel>방 제목</RoomLabel>
+          <RoomInput value={roomName} onChange={handleInputChange} />
+          {warningMessage && <WarningMessage>{warningMessage}</WarningMessage>}
+        </OutlinedInputWrapper>
+        <OutlinedSelectWrapper>
+          <RoomLabel htmlFor="roomSelect">방 인원</RoomLabel>
+          <RoomSelect id="roomSelect" value={selectedOption} onChange={handleSelectChange}>
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </RoomSelect>
+         </OutlinedSelectWrapper>
 
         <CreateRoomActions>
           <CreateRoomNoButton onClick={onClose}>아니오</CreateRoomNoButton>
