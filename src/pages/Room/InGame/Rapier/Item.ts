@@ -63,6 +63,9 @@ export function getItemUrl(item: string): string {
         case "BOMB":
             itemUrl = BOMB_URL;
             break;
+        case "ROCK":
+            itemUrl = ROCK_URL;
+            break;
         case "FOG":
             itemUrl = FOG_URL;
             break;
