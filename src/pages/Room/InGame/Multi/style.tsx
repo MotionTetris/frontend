@@ -146,27 +146,29 @@ export const MultiplayContainer = styled.div`
   height: 800px;
   position: absolute;
 `
+
 interface CombineLineProps {
   Combine: boolean;
 }
 
 const glow = keyframes`
   0% {
-    box-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff, 0 0 30px #ffffff;
+    box-shadow: inset 0 0 10px #ffffff, inset 0 0 20px #ffffff, inset 0 0 30px #ffffff;
   }
   100% {
-    box-shadow:  0 0 10px #00ff00,0 0 20px #00ff00,0 0 30px #00ff00,
+    box-shadow: inset 0 0 10px #00ff00, inset 0 0 20px #00ff00, inset 0 0 30px #00ff00;
   }
-`
+`;
+
 export const SceneCanvas = styled.canvas<CombineLineProps>`
   position: absolute;
   top: ${({ id }) => (id === 'otherGame' ? '100px' : '100px')};
-
   left: ${({ id }) => (id === 'otherGame' ? '-30px' : '110px')};
   border: 2px solid white;
   border-top-right-radius: 20px;
   border-top-left-radius: 20px;
-  box-shadow:  0 0 10px #ffffff, 0 0 20px #ffffff, 0 0 30px #ffffff,
+  box-shadow: inset 0 0 10px #ffffff, inset 0 0 20px #ffffff, inset 0 0 30px #ffffff;
+
   ${({ Combine }) =>
     Combine &&
     css`
