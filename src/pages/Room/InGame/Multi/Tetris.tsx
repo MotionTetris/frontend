@@ -211,13 +211,19 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     const CollisionEvent = ({ game, bodyA, bodyB }: any) => {
       let collisionX = bodyA.parent()?.userData.type;
       let collisionY = bodyB.parent()?.userData.type;
-      if ((collisionX === 'bomb' || collisionY === 'bomb') &&
+
+      if ((collisionX === 'rock' || collisionY === 'rock') &&
         collisionX !== 'ground' && collisionY !== 'ground' &&
         collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
         collisionX !== 'right_wall' && collisionY !== 'right_wall') {
-        let ver = (collisionX === 'bomb') ? 0 : 1;
+        let ver = (collisionX === 'rock') ? 0 : 1;
         explodeBomb(game, bodyA, bodyB, ver);
         setPlayerScore((prevScore: number) => prevScore + 10000);
+      }
+
+      if ((collisionX === 'rock' || collisionY === 'rock') && (collisionX === 'ground') || (collisionY === 'ground')) {
+        let ver = (collisionX === 'rock') ? bodyA.parent()?.handle : bodyB.parent()?.handle;
+        game.findById(ver).remove();
       }
     }
 
@@ -225,13 +231,19 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     const CollisionEvent1 = ({ game, bodyA, bodyB }: any) => {
       let collisionX = bodyA.parent()?.userData.type;
       let collisionY = bodyB.parent()?.userData.type;
-      if ((collisionX === 'bomb' || collisionY === 'bomb') &&
+
+      if ((collisionX === 'rock' || collisionY === 'rock') &&
         collisionX !== 'ground' && collisionY !== 'ground' &&
         collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
         collisionX !== 'right_wall' && collisionY !== 'right_wall') {
-        let ver = (collisionX === 'bomb') ? 0 : 1;
+        let ver = (collisionX === 'rock') ? 0 : 1;
         explodeBomb(game, bodyA, bodyB, ver);
         setOtherScore((prevScore: number) => prevScore + 10000);
+      }
+
+      if ((collisionX === 'rock' || collisionY === 'rock') && (collisionX === 'ground') || (collisionY === 'ground')) {
+        let ver = (collisionX === 'rock') ? bodyA.parent()?.handle : bodyB.parent()?.handle;
+        game.findById(ver).remove();
       }
     }
 
