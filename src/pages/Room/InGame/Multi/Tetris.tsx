@@ -16,7 +16,7 @@ import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
 import { jwtDecode } from "jwt-decode";
 import { useSelector } from 'react-redux';
 import { RootState } from "@app/store";
-import { applyItem, getItemUrl, spawnBomb } from "../Rapier/Item.ts";
+import { applyItem, getItemUrl } from "../Rapier/Item.ts";
 import { MultiplayEvent, PlayerEventType } from "../Rapier/Multiplay.ts";
 import { Timer } from "@src/components/Ingame/Timer.tsx";
 import Volume from "@src/components/volume.tsx";

@@ -3,7 +3,7 @@ import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, UserBackGround, GameResult, GoLobbyButton, RotateRightButton, RotateLeftButton, BombButton, FlipButton, FogButton, ButtonContainer, TetrisNextBlockContainer, TextContainer, NextBlockText, NextBlockImage, ModalOverlay, StyledTutorial, } from "./style.tsx";
 import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage } from "../Rapier/Effect.ts";
-import { rotateViewport, spawnBomb, flipViewport, addFog, getRandomItem, } from "../Rapier/Item.ts";
+import { rotateViewport, flipViewport, addFog } from "../Rapier/Item.ts";
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "../Rapier/TetrisOption";
@@ -64,7 +64,6 @@ const TetrisSingle: React.FC = () => {
       sceneRef.current.width = 500;
       sceneRef.current.height = 800;
       const CollisionEvent = ({ game, bodyA, bodyB }: any) => {
-
         let collisionX = bodyA.parent()?.userData.type;
         let collisionY = bodyB.parent()?.userData.type;
 
