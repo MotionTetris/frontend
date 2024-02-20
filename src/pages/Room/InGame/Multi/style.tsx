@@ -68,6 +68,7 @@ export const FogButton = styled(IconButtonBase)`
 export const BombButton = styled(IconButtonBase)`
   background-image: url(${BOMB_URL});
 `;
+
 export const Container = styled.div`
     display: flex;
     justify-content: center;
@@ -123,7 +124,7 @@ export const Score = styled.div`
 
 export const SceneContainer = styled.div`
   top: 0px;
-  left: -2%;
+  left: -2.7%;
   width: 600px;
   height: 900px;
   position: absolute;
@@ -401,6 +402,20 @@ export const GoLobbyButton = styled.button<GameOverModalProps>`
   &:hover {
     background-color: ${props => props.visible ? '#45a049' : 'transparent'};
   }
+`;
+
+export const GoGameMainButton = styled(GoLobbyButton).attrs({
+  visible: true,
+})`
+top: 0%; // 위치를 변경
+left: 0%; // 위치를 변경
+background-color: #000064;
+color: white;
+cursor: pointer;
+pointer-events: auto;
+&:hover {
+  background-color: #000288;
+}
 `;
 
 export const TetrisNextBlockContainer = styled.div`

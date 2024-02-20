@@ -19,7 +19,7 @@ const blink = keyframes`
 const ProgressBarContainer = styled.div<ProgressBarProps>`
   position: absolute;
   top: 50px;
-  right: 850px;
+  right: 705px;
   width: 500px;
   height: 30px;
   background: ${(props) => props.progress >= (150/180) * 100 ? 'red' : '#3A4CA8'};

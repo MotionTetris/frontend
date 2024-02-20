@@ -23,6 +23,8 @@ import { getUserNickname } from "@src/data-store/token";
 import { ModalOverlay, StyledTutorial } from "./InGame/Single/style";
 import Chat from "@src/components/Ingame/Chat";
 import { RootState } from "@src/app/store";
+import { playReadySound, playStartSound } from "@src/components/sound";
+import Volume from "@src/components/volume";
 
 
 const GameRoom: React.FC = () => {
@@ -123,6 +125,7 @@ const GameRoom: React.FC = () => {
 
   const isCreator = inGameCard?.creatorNickname === currentPlayerNickname;
   const handleReadyClick = () => {
+    playReadySound();
     setIsReady(!isReady);
     roomSocket?.emit(RoomSocketEvent.EMIT_GAME_READY, { roomId });
   };
@@ -153,7 +156,9 @@ const GameRoom: React.FC = () => {
   }, []);
 
   return (
+    
     <RoomContainer>
+      <Volume page="room"></Volume>
             <ModalOverlay isOpen={isModalOpen} />
       <StyledTutorial isOpen={isModalOpen} closeModal={() => setIsModalOpen(false)} />
       <RoomInfoContainer>
@@ -167,10 +172,12 @@ const GameRoom: React.FC = () => {
           onClick={() => {
             if (players.length === 1) {
               if (window.confirm('싱글 게임으로 시작하시겠습니까?')) {
+                playStartSound();
                 navigate(`/gameplay?roomId=${roomInfo?.roomInfo.roomId}&max=${roomInfo?.roomInfo.maxCount}`);
               }
             } else {
               roomSocket?.emit(RoomSocketEvent.EMIT_GAME_START);
+              playStartSound();
             }
           }}
         >

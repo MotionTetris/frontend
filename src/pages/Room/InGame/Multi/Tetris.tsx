@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, CountDown, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, OtherScore, ItemImage, DarkBackground, Concentration } from "./style.tsx"
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, CountDown, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, OtherScore, ItemImage, DarkBackground, Concentration, GoGameMainButton } from "./style.tsx"
 import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage, excitingBG, starWarp } from "../Rapier/Effect.ts";
 import * as io from 'socket.io-client';
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "../Rapier/TetrisOption.ts";
 import { TetrisMultiplayView } from "../Rapier/TetrisMultiplayView.ts";
-import { playGameEndSound } from "../Rapier/Sound/Sound.ts";
+import { playCountDownSound, playGameEndSound, playGameStartSound } from "../Rapier/Sound/Sound.ts";
 import { PoseNet } from "@tensorflow-models/posenet";
 import { KeyPointResult, loadPoseNet, processPose } from "../Rapier/PoseNet.ts";
 import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "../Rapier/TetrisCallback.ts";
@@ -57,13 +57,13 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
   const [timeLeft, setTimeLeft] = useState("");
   const myLineGrids = Array.from({ length: 21 }, () => {
     const graphics = new PIXI.Graphics();
-    graphics.zIndex = 3;  
+    graphics.zIndex = 3;
     return graphics;
   });
-  
+
   const otherLineGrids = Array.from({ length: 21 }, () => {
     const graphics = new PIXI.Graphics();
-    graphics.zIndex = 3; 
+    graphics.zIndex = 3;
     return graphics;
   });
   const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
@@ -199,10 +199,10 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       return;
     }
 
-    sceneRef.current.width = 500;
+    sceneRef.current.width = 510;
     sceneRef.current.height = 800;
     if (!isSinglePlay) {
-      otherSceneRef.current.width = 500;
+      otherSceneRef.current.width = 510;
       otherSceneRef.current.height = 800;
     }
 
@@ -338,12 +338,15 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       if (!poseNetResult) {
         poseNetResult = await loadPoseNet(videoRef, canvasRef, 776, 668);
       }
+      id = setInterval(poseNetLoop, 250);
       game.resume();
       for (let i = 0; i < countDown.length; i++) {
+        playCountDownSound();
         setCount(String(countDown[i]));
         await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
       }
       setCount("게임 시작!");
+      playGameStartSound();
       await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
       setCount("");
 
@@ -367,7 +370,6 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
 
       await new Promise(resolve => setTimeout(resolve, 3000)); // 3초 대기
 
-      id = setInterval(poseNetLoop, 250);
       game.spawnBlock("T", "red");
       fallingBlockGlow(game.fallingTetromino!, 0xFF0000);
     }
@@ -391,6 +393,9 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     <Volume page="ingame"></Volume>
     <Concentration ref={concentrationLineRef} />
     <Container>
+    <GoGameMainButton visible={true} id="go-home" onClick={() => { window.location.href = '/gamemain'; }}>
+      뒤로가기
+    </GoGameMainButton>
       <CountDown message={count} isCountingDown={isCountingDown}> {count} </CountDown>
       <SceneContainer>
         <SceneCanvas Combine={isCombine} id="game" ref={sceneRef}></SceneCanvas>
