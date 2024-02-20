@@ -1,5 +1,5 @@
 import { Socket } from "socket.io-client";
-import { changeBlockGlow, explodeBomb, fallingBlockGlow, handleComboEffect, lightEffectToLine, performPushEffect } from "./Effect";
+import { changeBlockGlow, explodeRock, fallingBlockGlow, handleComboEffect, lightEffectToLine, performPushEffect } from "./Effect";
 import { KeyPointCallback, KeyPoint } from "./PoseNet";
 import { TetrisGame } from "./TetrisGame";
 import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playBombExplodeSound } from "./Sound/Sound";
@@ -122,7 +122,7 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
             typeA !== 'left_wall' && typeB !== 'left_wall' &&
             typeA !== 'right_wall' && typeB !== 'right_wall') {
             const ver = (typeA === 'rock') ? 0 : 1;
-            explodeBomb(game, bodyA, bodyB, ver);
+            explodeRock(game, bodyA, bodyB, ver);
         }
 
         if ((typeA === 'bomb' || typeB === 'bomb') &&
