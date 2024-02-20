@@ -11,7 +11,7 @@ import { TetrisMultiplayView } from "../Rapier/TetrisMultiplayView.ts";
 import { playGameEndSound } from "../Rapier/Sound/Sound.ts";
 import { PoseNet } from "@tensorflow-models/posenet";
 import { KeyPointResult, loadPoseNet, processPose } from "../Rapier/PoseNet.ts";
-import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "../Rapier/TetrisCallback.ts";
+import { createBlockSpawnEvent, createItemSpawnEvent, createLandingEvent, createUserEventCallback } from "../Rapier/TetrisCallback.ts";
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
 import { jwtDecode } from "jwt-decode";
 import { useSelector } from 'react-redux';
@@ -79,7 +79,6 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
   useEffect(() => {
     setNickname(getUserNickname());
   },);
-  let bomb: any = undefined;
   useEffect(() => {
     socket.current = io.connect(`${GAME_SOCKET_URL}?roomId=${roomId}&max=${max}`, {
       auth: {
@@ -136,11 +135,14 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
         //폭탄은 eventOn 으로 주고
         // 그외는 'item'으로 준다. 
         if (selectedItem == "BOMB") {
-          let event = MultiplayEvent.fromGame(gameRef.current!, user, PlayerEventType.ITEM_USED);
-          socket.current!.emit('eventOn', event);
-          bomb = await spawnBomb(gameRef.current!, 300, -200);
-        }
-        else {
+          if (gameRef.current) {
+            gameRef.current.nextItem = 'bomb';
+          }
+        } else if (selectedItem == "ROCK") {
+          if (gameRef.current) {
+            gameRef.current.nextItem = 'rock';
+          }
+        } else {
           socket.current!.emit('item', selectedItem);
           applyItem(otherGameRef.current!, selectedItem!);
         }
@@ -255,11 +257,6 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
           createScoreBasedGrid(otherLineGrids, checkOtherResult.scoreList, eraseThreshold);
         }
       }
-
-      if (bomb && bomb.lifetime === currentStep) {
-        bomb.destroy();
-        bomb = undefined;
-      }
     }
 
     const TetrisOption: TetrisOption = {
@@ -296,6 +293,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     game.on("prelanding", preLandingEvent);
     game.on("step", StepCallback);
     game.on("blockSpawn", createBlockSpawnEvent(socket.current, app, 48, 150, 40));
+    game.on("itemSpawn", createItemSpawnEvent(socket.current));
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
     let otherGame;

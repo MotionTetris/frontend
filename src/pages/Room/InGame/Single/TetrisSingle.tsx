@@ -68,16 +68,16 @@ const TetrisSingle: React.FC = () => {
         let collisionX = bodyA.parent()?.userData.type;
         let collisionY = bodyB.parent()?.userData.type;
 
-        if ((collisionX === 'weight' || collisionY === 'weight') &&
+        if ((collisionX === 'rock' || collisionY === 'rock') &&
           collisionX !== 'ground' && collisionY !== 'ground' &&
           collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
           collisionX !== 'right_wall' && collisionY !== 'right_wall') {
-          let ver = (collisionX === 'weight') ? 0 : 1;
+          let ver = (collisionX === 'rock') ? 0 : 1;
           explodeBomb(game, bodyA, bodyB, ver);
         }
 
-        if ((collisionX === 'weight' || collisionY === 'weight') && (collisionX === 'ground') || (collisionY === 'ground')) {
-          let ver = (collisionX === 'weight') ? bodyA.parent()?.handle : bodyB.parent()?.handle;
+        if ((collisionX === 'rock' || collisionY === 'rock') && (collisionX === 'ground') || (collisionY === 'ground')) {
+          let ver = (collisionX === 'rock') ? bodyA.parent()?.handle : bodyB.parent()?.handle;
           game.findById(ver).remove();
         }
       }
@@ -200,7 +200,7 @@ const TetrisSingle: React.FC = () => {
         </TetrisNextBlockContainer>
         <VideoContainer>
           <ButtonContainer>
-            <RotateRightButton onClick={() => gameRef.current && (gameRef.current.nextItem = 'weight')}>
+            <RotateRightButton onClick={() => gameRef.current && (gameRef.current.nextItem = 'rock')}>
             </RotateRightButton>
             <RotateLeftButton onClick={() => gameRef.current && rotateViewport(gameRef.current.graphics.viewport, -15)}>
             </RotateLeftButton>
@@ -208,7 +208,7 @@ const TetrisSingle: React.FC = () => {
             </FlipButton>
             <FogButton onClick={() => gameRef.current && addFog(gameRef.current)}>
             </FogButton>
-            <BombButton onClick={() => gameRef.current && spawnBomb(gameRef.current, 150, 100)}>
+            <BombButton onClick={() => gameRef.current && (gameRef.current.nextItem = 'bomb')}>
             </BombButton>
           </ButtonContainer>
           <UserNickName>{nickname}</UserNickName>
