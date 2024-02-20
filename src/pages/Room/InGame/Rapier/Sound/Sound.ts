@@ -4,6 +4,8 @@ const tripleComboSound = new Audio('src/assets/sound/Tetris_Combo3.wav');
 const explodeSound = new Audio('src/assets/sound/Tetris_Bomb1.wav');
 const defeatSound = new Audio('src/assets/sound/Tetris_Defeat2.wav');
 const landingSound = new Audio('src/assets/sound/Tetris_Dusted.wav');
+const landingSound1 = new Audio('src/assets/sound/Tetris_Landing.wav');
+const landingSound2 = new Audio('src/assets/sound/Tetris_Landing2.wav');
 const bombSpawnSound = new Audio('src/assets/sound/Tetris_SpawnBomb.wav');
 const gameEndSound = new Audio('src/assets/sound/Tetris_GameEnd.wav');
 const flipSound = new Audio('src/assets/sound/Tetris_Flip.wav');
@@ -11,6 +13,10 @@ const rotateItemSound = new Audio('src/assets/sound/Tetris_Rotate.wav');
 const fogSound = new Audio('src/assets/sound/Tetris_Fog.wav');
 const blockRotateSound = new Audio('src/assets/sound/Block_Rotate.wav');
 const bombExplodeSound = new Audio('src/assets/sound/Tetris_ExplodeBomb.wav');
+const countDownSound = new Audio('src/assets/sound/Tetris_Countdown.wav');
+const gameStartSound = new Audio('src/assets/sound/Tetris_GameStart.wav');
+const rockSpawnSound = new Audio('src/assets/sound/Tetris_SpawnRock.wav');
+const rockCrashedSound = new Audio('src/assets/sound/Tetris_CrashRock.wav');
 
 export function playSingleComboSound() {
     if (singleComboSound) {
@@ -31,8 +37,8 @@ export function playTripleComboSound() {
 }
 
 export function playLandingSound() {
-    if (landingSound) {
-        landingSound.play();
+    if (landingSound2) {
+        landingSound2.play();
     }
 }
 
@@ -87,5 +93,30 @@ export function playFogSound() {
 export function playBlockRotateSound() {
     if (blockRotateSound) {
         blockRotateSound.play();
+    }
+}
+
+export function playCountDownSound() {
+    if (countDownSound) {
+        countDownSound.play();
+    }
+}
+
+
+export function playGameStartSound() {
+    if (gameStartSound) {
+        gameStartSound.play();
+    }
+}
+
+export function playRockSpawnSound() {
+    if (rockSpawnSound) {
+        rockSpawnSound.play();
+    }
+}
+
+export function playRockCrashedSound() {
+    if (rockCrashedSound) {
+        rockCrashedSound.play();
     }
 }

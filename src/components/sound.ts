@@ -1,7 +1,11 @@
 const BGSOUND1 = new Audio('src/assets/Game_Tetris_Loading1.wav');
 const BGSOUND2 = new Audio('src/assets/Game_Tetris_Loading2.wav');
 const INGAME_SOUND = new Audio('src/assets/sound/Tetris_Ingame2.wav');
-export type PageBGM = "page1" | "page2" | "ingame";
+const ROOMSOUND = new Audio('src/assets/sound/Tetris_Ingame1.wav');
+const LOGINSOUND = new Audio('src/assets/sound/Home_Login.wav');
+const READYSOUND = new Audio('src/assets/sound/Room_Ready.wav');
+const STARTSOUND = new Audio('src/assets/sound/Room_Start.wav')
+export type PageBGM = "page1" | "page2" | "ingame" | "room";
 
 export function playSound(page: PageBGM, volume: number, play = true) {
   switch (page) {
@@ -14,6 +18,9 @@ export function playSound(page: PageBGM, volume: number, play = true) {
     case "ingame":
       playIngameSound(volume, play);
       break;
+    case "room": 
+      playRoomSound(volume, play);
+      break;
   }
 }
 
@@ -22,6 +29,10 @@ export function stopSound() {
   BGSOUND1.currentTime = 0;
   BGSOUND2.pause();
   BGSOUND2.currentTime = 0;
+  INGAME_SOUND.pause();
+  INGAME_SOUND.currentTime = 0;
+  ROOMSOUND.pause();
+  ROOMSOUND.currentTime = 0;
 }
 
 function playLodingSound1(volume: number, play = true) {
@@ -64,5 +75,36 @@ function playIngameSound(volume: number, play = true) {
 export function changeIngameSoundSpeed(speed: number) {
   if (INGAME_SOUND) {
     INGAME_SOUND.playbackRate = speed;
+  }
+}
+
+export function playRoomSound(volume: number, play = true) {
+  if (ROOMSOUND) {
+      ROOMSOUND.loop = true;
+      ROOMSOUND.volume = volume;
+      if (play) {
+        ROOMSOUND.play();
+      }
+      else {
+        ROOMSOUND.pause();
+      }
+  }
+}
+
+export function playLoginSound() {
+  if (LOGINSOUND) {
+    LOGINSOUND.play();
+  }
+}
+
+export function playReadySound() {
+  if (READYSOUND) {
+    READYSOUND.play();
+  }
+}
+
+export function playStartSound() {
+  if (STARTSOUND) {
+    STARTSOUND.play();
   }
 }

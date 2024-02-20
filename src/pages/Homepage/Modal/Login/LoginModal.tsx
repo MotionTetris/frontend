@@ -27,6 +27,7 @@ import { useNavigate } from "react-router-dom";
 import { useRoomSocket } from "@context/roomSocket"
 import { RootState } from "@app/store";
 import { setToken } from "@src/data-store/token";
+import { playLoginSound } from "@src/components/sound";
 const LoginModal: React.FC = () => {
   
   const [email, setEmail] = useState("");
@@ -47,7 +48,7 @@ const LoginModal: React.FC = () => {
     event.preventDefault();
     try {
       const response = await loginAPI(email, password);
-
+      
       console.log(response.access_token);
       dispatch(
         setUser({
@@ -56,6 +57,7 @@ const LoginModal: React.FC = () => {
         }),
       );
       setToken(response.access_token);
+      playLoginSound();
       navigate("/gamelobby");
     } catch (error) {
       console.log(error);
