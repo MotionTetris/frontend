@@ -12,7 +12,8 @@ export const VolumeButton = styled.button`
   border-radius: 5px;
   background-color: #ff0000;
   color: #ffffff;
-
+  width: 100px;
+  height:100px;
   &:active {
     transform: scale(0.95);
     background-color: #cc0000;

@@ -19,6 +19,7 @@ const Chat: React.FC<ChatProps> = ({ isCreator, players }) => {
     const [currentMessage, setCurrentMessage] = useState('');
     const currentPlayerNickname = getUserNickname();
     const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+    const [isComposing, setIsComposing] = useState(false);
 
     const scrollToBottom = () => {
         if (messagesContainerRef.current) {
@@ -75,6 +76,15 @@ const Chat: React.FC<ChatProps> = ({ isCreator, players }) => {
             setCurrentMessage('');
         }
     };
+
+    const handleCompositionStart = () => {
+      setIsComposing(true); // IME 입력이 시작되었음을 표시
+    };
+    
+    const handleCompositionEnd = () => {
+      setIsComposing(false); // IME 입력이 완료되었음을 표시
+    };
+    
     
     return (
   
@@ -101,11 +111,21 @@ const Chat: React.FC<ChatProps> = ({ isCreator, players }) => {
           <Input
             type="text"
             value={currentMessage}
-            onChange={(e) => setCurrentMessage(e.target.value)}
+            onChange={(e) =>{
+              e.preventDefault();
+              setCurrentMessage(e.target.value);
+            }}
             placeholder="채팅을 입력하세요"
-            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+            onKeyDown={(e) => {
+              if(e.key === 'Enter' && !isComposing) {
+                e.preventDefault();
+                sendMessage()
+              }
+            }}
+            onCompositionStart={handleCompositionStart}
+            onCompositionEnd={handleCompositionEnd}
           />
-          <Button onClick={sendMessage}>Send</Button>
+          <Button onClick={sendMessage}>보내기</Button>
         </MessageInput>
       </ChatContainer>
     );

@@ -14,6 +14,9 @@ export const CreateRoomBackground = styled.div`
 `;
 
 export const CreateRoomContainer = styled.div`
+  display: flex;
+  align-items: center; /* 수직 중앙 정렬 */
+  justify-content: center;
   position: relative;
   top: 0vh;
   right: 0;
@@ -118,38 +121,40 @@ export const CreateRoomSelect = styled.select`
 
 export const CreateRoomMain = styled.span`
   position: absolute;
-  top: 4vh;
-  right:10vw;
+  top: 9vh;
+  left: 50%;
+  transform: translate(-50%, -50%);
   font-size: 40px;
+  text-align: center;
 `;
 
 export const OutlinedInputWrapper = styled.div`
   display: inline-block;
   margin-bottom: 10px;
-  width: 90.4%;
+  width: 90%;
   position: absolute;
   top: 18vh;
-  right: 1.1vw;
 
   &:hover,
     &:focus {
       border-color: red;
     }
   & input {
-    border: none;
-    padding: 10px;
-    width: 90%;
+    box-sizing: border-box;
+    padding: 15px;
+    width: 100%;
     border: 1px solid #000;
     border-radius: 10px;
+    font-size: 1.3em;
   }
   
   & label {
     position: absolute;
     left: 10px;
-    top: -5px;
+    top: -10px;
     background: #fff;
     padding: 0 5px;
-    font-size: 0.75em;
+    font-size: 1em;
     pointer-events: none;
     transition: 0.2s;
     color: #000;
@@ -159,21 +164,22 @@ export const OutlinedInputWrapper = styled.div`
 export const OutlinedSelectWrapper = styled.div`
   display: inline-block;
   margin-bottom: 10px;
-  width: 94%;
+  width: 90%;
   position: absolute;
   top:27vh;
-  right: 0vw;
 
   & select {
+    box-sizing: border-box;
     border: 1px solid #000;
-    padding: 10px;
-    width: calc(100% - 22px); /* padding과 border를 고려하여 너비 조정 */
+    padding: 15px;
+    width: 100%;
     border-radius: 10px;
-    -webkit-appearance: none; /* 브라우저 기본 스타일 제거 */
-    -moz-appearance: none; /* 브라우저 기본 스타일 제거 */
-    appearance: none; /* 브라우저 기본 스타일 제거 */
+    -webkit-appearance: none; 
+    -moz-appearance: none;
+    appearance: none;
     position: relative;
     background-color: white;
+    font-size: 1.3em;
   }
 
   &:hover,
@@ -188,7 +194,7 @@ export const OutlinedSelectWrapper = styled.div`
     z-index: 10;
     background: #fff;
     padding: 0 5px;
-    font-size: 0.75em;
+    font-size: 1em;
     pointer-events: none;
     transition: 0.2s;
     color: #000;
