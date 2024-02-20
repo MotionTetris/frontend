@@ -7,6 +7,9 @@ import { BlockCollisionEvent } from "../TetrisEvent";
 import { Tetromino } from "./Tetromino";
 import { playBombExplodeSound } from "../Sound/Sound";
 import { createExplosion, loadExplosionImage } from "../Effect";
+import BombImage from '@assets/items/Bomb.png';
+import { EffectLoader } from "../Effect/EffectLoader";
+import { text } from "stream/consumers";
 
 export class Bomb implements ITetrisObject {
     private _rigidBody: RAPIER.RigidBody;
@@ -26,9 +29,14 @@ export class Bomb implements ITetrisObject {
 
         const rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
         const rigidBody = this._world.createRigidBody(rigidBodyDesc);
-        const colliderDesc = RAPIER.ColliderDesc.ball((width + height) / 2).setMass(1000000);
+        const colliderDesc = RAPIER.ColliderDesc.ball(40).setMass(1000000);
         this._world.createCollider(colliderDesc, rigidBody);
         this._rigidBody = rigidBody;
+
+        let texture = EffectLoader.getTexture(BombImage)!;
+        console.log(texture.width, texture.height);
+        let graphic = game.graphics.addGraphics(texture, x, -y, rigidBody.collider(0), 160 / texture.width, 160 / texture.height);
+        this._graphics.push(graphic);
     }
 
     public onCollision(event: BlockCollisionEvent): void {

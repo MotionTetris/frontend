@@ -1,7 +1,6 @@
 import { TetrisOption } from "./TetrisOption";
 import { MultiplayEvent, MultiPlayerContext, PlayerEventType } from "./Multiplay";
 import { TetrisGame } from "./TetrisGame";
-import { spawnBomb } from "./Item";
 import RAPIER from "@dimforge/rapier2d";
 
 export class TetrisMultiplayView extends TetrisGame {
@@ -9,7 +8,6 @@ export class TetrisMultiplayView extends TetrisGame {
     private eventBuffer: Array<MultiplayEvent>;
     private isProcessingEvent: boolean;
     private bufferSizeForRenderStart: number;
-    private bomb: any;
 
     public constructor(option: TetrisOption, userId: string, bufferSizeForRenderStart?: number) {
         super(option, userId);
@@ -86,12 +84,6 @@ export class TetrisMultiplayView extends TetrisGame {
 
     private step(world: RAPIER.World) {
         this.emit("step", {game: this, currentStep: this.stepId});
-
-        if (this.bomb && this.bomb.lifetime === this.stepId) {
-            this.bomb.destroy();
-            this.bomb = undefined;
-        }
-
         world.step(this.events);
         this.stepId++;
         this.graphics.render(world);
@@ -125,10 +117,9 @@ export class TetrisMultiplayView extends TetrisGame {
             case PlayerEventType.BLOCK_SPAWNED:
                 this.spawnBlock(event.userData.type, event.userData.blockColor);
                 break;
-            case PlayerEventType.ITEM_USED:
-                this.bomb = spawnBomb(this, 300, -200);
+            case PlayerEventType.SPAWN_ITEM:
+                this.spawnItem(event?.userData.item);
                 break;
-                //폭탄떨구기.
             default:
                 console.debug(`undefined evnet at ${this.stepId}, desired keyframe: ${event.stepId}`);
         }

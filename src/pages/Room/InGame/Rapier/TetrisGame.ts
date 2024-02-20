@@ -10,9 +10,9 @@ import { Wall } from "./Object/Wall";
 import { EventEmitter } from 'events'
 import { getRandomInt } from "@src/util/random";
 import { MAX_FRAMERATE, MAX_HEIGHT, WallType } from "./TetrisContants";
-import { TetrisEventMap } from "./TetrisEvent";
+import { ItemSpawnEvent, TetrisEventMap } from "./TetrisEvent";
 import { FallableItemType, FallableItemMap, createItem } from "./Object/ItemFactory";
-import { Weight } from "./Object/Weight";
+import { Rock } from "./Object/Rock";
 import { ITetrisObject } from "./Object/TetrisObject";
 
 export class TetrisGame {
@@ -368,29 +368,18 @@ export class TetrisGame {
     }
 
     public spawnItem(item: FallableItemType) {
-        let color = 'red';
         if (!this.world) {
             throw new Error("Failed to spawn block. world is not set");
         }
 
-        const newBody = createItem(item)(this, this.option, this.world, this.graphics.viewport, 100, 200);
-        for (let i = 0; i < newBody.rigidBody.numColliders(); i++) {
-            const graphics = this.graphics.addCollider(newBody.rigidBody.collider(i), 'red', 1);
-            if (graphics) {
-                newBody.addGraphics(graphics);
-            }
-
-            newBody.rigidBody.collider(i).setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-            newBody.rigidBody.collider(i).setRestitution(0);
-        }
-
+        const newBody = createItem(item)(this, this.option, this.world, this.graphics.viewport, 75, 75);
         newBody.userData = {
-            color: color,
+            color: 'none',
             type: item
         };
 
         newBody.rigidBody.userData = {
-            color: color,
+            color: 'none',
             type: item
         }
 
@@ -505,6 +494,13 @@ export class TetrisGame {
     public onBlockSpawned(type: BlockType, blockColor: BlockColor, nextBlockType: BlockType, nextBlockColor: BlockColor) {
         const event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.BLOCK_SPAWNED);
         event.userData = { type, blockColor, nextBlockType, nextBlockColor };
+        this._sequence += 1;
+        return event;
+    }
+
+    public onItemSpawned(type: FallableItemType) {
+        let event = MultiplayEvent.fromGame(this, this.userId, PlayerEventType.SPAWN_ITEM);
+        event.userData = { item: type };
         this._sequence += 1;
         return event;
     }

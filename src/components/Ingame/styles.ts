@@ -3,8 +3,8 @@ import styled from 'styled-components';
 
 export const LeftTime = styled.div`
   position: absolute;
-  top: 70px;
-  left: 500px;
+  top: 60px;
+  left: 325px;
   transform: translate(-50%, -50%);
   width: 259px;
   height: 59px;

@@ -4,8 +4,10 @@ import { TetrisOption } from "../TetrisOption";
 import * as PIXI from 'pixi.js';
 import { ITetrisObject } from "./TetrisObject";
 import { BlockCollisionEvent } from "../TetrisEvent";
+import { EffectLoader } from "../Effect/EffectLoader";
+import RockImage from '@assets/items/Stone.png';
 
-export class Weight implements ITetrisObject {
+export class Rock implements ITetrisObject {
     private _rigidBody: RAPIER.RigidBody;
     private _graphics: (PIXI.Graphics | PIXI.Sprite)[];
     private _context: PIXI.Container;
@@ -20,20 +22,15 @@ export class Weight implements ITetrisObject {
         this._graphics = [];
         let x = option.spawnX ?? 0;
         let y = option.spawnY ?? 0;
-        let x1 = width / 2 * 0.7;
-        let y1 = height / 2;
-        let x2 = -width / 2 * 0.7;
-        let y2 = height / 2;
-        let x3 = (-width / 2);
-        let y3 = -height / 2;
-        let x4 = (width / 2);
-        let y4 = -height / 2;
 
         const rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
         const rigidBody = this._world.createRigidBody(rigidBodyDesc);
-        const colliderDesc = RAPIER.ColliderDesc.convexHull(new Float32Array([x1, y1, x2, y2, x3, y3, x4, y4]))!.setMass(1000000);
+        const colliderDesc = RAPIER.ColliderDesc.cuboid(50, 50);
         this._world.createCollider(colliderDesc, rigidBody);
         this._rigidBody = rigidBody;
+        let texture = EffectLoader.getTexture(RockImage)!;
+        let graphic = game.graphics.addGraphics(texture, x, -y, rigidBody.collider(0), 160 / texture.width, 160 / texture.height);
+        this._graphics.push(graphic);
     }
 
     public onCollision(event: BlockCollisionEvent): void {

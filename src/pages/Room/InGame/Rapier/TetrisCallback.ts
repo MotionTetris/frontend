@@ -1,13 +1,18 @@
 import { Socket } from "socket.io-client";
-import { changeBlockGlow, collisionParticleEffect, fallingBlockGlow, handleComboEffect, lightEffectToLine, performPushEffect } from "./Effect";
+import { changeBlockGlow, collisionParticleEffect, explodeBomb, fallingBlockGlow, handleComboEffect, lightEffectToLine, performPushEffect } from "./Effect";
 import { KeyPointCallback, KeyPoint } from "./PoseNet";
 import { TetrisGame } from "./TetrisGame";
-import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playGameEndSound } from "./Sound/Sound";
+import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playGameEndSound, playBombExplodeSound } from "./Sound/Sound";
 import * as PIXI from "pixi.js";
-import { BlockSpawnEvent } from "./TetrisEvent";
+import { BlockSpawnEvent, ItemSpawnEvent } from "./TetrisEvent";
 import { BlockColor, BlockType, Palette } from "./Object/Tetromino";
 import { clearBlock, drawBlock } from "../NextBlockViewer/NextBlock";
 import { NumberTuple } from "@tensorflow-models/posenet/dist/keypoints";
+import { createBombBoundary } from "./Line";
+import { Explosion } from "./Effect/Explosion";
+import { Rock } from "./Object/Rock";
+import { Bomb } from "./Object/Bomb";
+import { ItemSpawnSoundMap, playItemSpawnSound } from "./Object/ItemFactory";
 
 export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
     let nextColorIndex = 0;
@@ -82,21 +87,29 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
 
 export function createBlockSpawnEvent(socket?: Socket, app?: PIXI.Application, blockSize?: number, x?: number, y?: number) {
     let blocks = drawBlock(blockSize);
-    return ({game, blockType, blockColor, nextBlockType, nextBlockColor}: BlockSpawnEvent) => {
+    return ({ game, blockType, blockColor, nextBlockType, nextBlockColor }: BlockSpawnEvent) => {
         let event = game.onBlockSpawned(blockType, blockColor, nextBlockType, nextBlockColor);
         if (app) {
             clearBlock(app);
             blocks(app, x, y, nextBlockType, nextBlockColor);
         }
-        socket?.emit('eventOn', event);   
+        socket?.emit('eventOn', event);
     }
 }
 
-export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsCombine: (isCombine: boolean)=>void, needSpawn: boolean, isMyGame: boolean,socket?: Socket ) {
+export function createItemSpawnEvent(socket?: Socket) {
+    return ({game, item}: ItemSpawnEvent) => {
+        let event = game.onItemSpawned(item);
+        socket?.emit('eventOn', event);
+    }
+}
+
+export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsCombine: (isCombine: boolean)=>void, needSpawn: boolean, isMyGame: boolean, socket?: Socket) {
     return ({ game, bodyA, bodyB }: any) => {
         playLandingSound();
-
-        if (bodyA.parent()?.userData.type == 'block' && bodyB.parent()?.userData.type == 'block' && bodyA.translation().y > 0 && bodyB.translation().y > 0) {
+        let typeA = bodyA.parent()?.userData.type;
+        let typeB = bodyB.parent()?.userData.type;
+        if (typeA == 'block' && typeB == 'block' && bodyA.translation().y > 0 && bodyB.translation().y > 0) {
             //내 게임 오버
             if (isMyGame) {
                 playDefeatSound();
@@ -104,9 +117,33 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
                 socket?.emit('gameOver', true); //게임종료
                 game.pause();
                 return;
-            }   
+            }
         }
-        
+
+        if ((typeA === 'rock' || typeB === 'rock') &&
+            typeA !== 'ground' && typeB !== 'ground' &&
+            typeA !== 'left_wall' && typeB !== 'left_wall' &&
+            typeA !== 'right_wall' && typeB !== 'right_wall') {
+            let ver = (typeA === 'rock') ? 0 : 1;
+            explodeBomb(game, bodyA, bodyB, ver);
+        }
+
+        if ((typeA === 'bomb' || typeB === 'bomb') &&
+            typeA !== 'left_wall' && typeB !== 'left_wall' &&
+            typeA !== 'right_wall' && typeB !== 'right_wall') {
+            let find = (typeA === 'bomb') ? bodyA : bodyB;
+            let translation = find.parent()?.translation();
+            let boundary = createBombBoundary(translation.x, translation.y, 400, 400);
+            game.removeLines([boundary]);
+            console.log(boundary);
+            game.findById(find.parent()?.handle)?.remove();
+            let explode = new Explosion(translation.x, translation.y, 4);
+            explode.addTo(game.graphics.effectScene);
+            explode.animate(0);
+            playBombExplodeSound();
+            console.log(translation);
+        }
+
         const checkResult = game.checkLine(eraseThreshold);
         const scoreList = checkResult.scoreList;
 
@@ -143,6 +180,7 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
         let blockColor: BlockColor = game.nextBlockColor;
         if (needSpawn) {
             if (game.nextItem) {
+                playItemSpawnSound(game.nextItem)();
                 game.spawnItem(game.nextItem);
                 return;
             }

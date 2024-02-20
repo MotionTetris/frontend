@@ -1,22 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, CountDown, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, OtherScore, ItemImage, DarkBackground, Concentration } from "./style.tsx"
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, CountDown, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, OtherScore, ItemImage, DarkBackground, Concentration, GoGameMainButton } from "./style.tsx"
 import { createScoreBasedGrid, fallingBlockGlow, removeGlow, showScore, removeGlowWithDelay, fallingBlockGlowWithDelay, explodeBomb, getNextBlockImage, excitingBG, starWarp } from "../Rapier/Effect.ts";
 import * as io from 'socket.io-client';
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
 import { TetrisOption } from "../Rapier/TetrisOption.ts";
 import { TetrisMultiplayView } from "../Rapier/TetrisMultiplayView.ts";
-import { playGameEndSound } from "../Rapier/Sound/Sound.ts";
+import { playCountDownSound, playGameEndSound, playGameStartSound } from "../Rapier/Sound/Sound.ts";
 import { PoseNet } from "@tensorflow-models/posenet";
 import { KeyPointResult, loadPoseNet, processPose } from "../Rapier/PoseNet.ts";
-import { createBlockSpawnEvent, createLandingEvent, createUserEventCallback } from "../Rapier/TetrisCallback.ts";
+import { createBlockSpawnEvent, createItemSpawnEvent, createLandingEvent, createUserEventCallback } from "../Rapier/TetrisCallback.ts";
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
 import { jwtDecode } from "jwt-decode";
 import { useSelector } from 'react-redux';
 import { RootState } from "@app/store";
-import { applyItem, getItemUrl, spawnBomb } from "../Rapier/Item.ts";
+import { applyItem, getItemUrl } from "../Rapier/Item.ts";
 import { MultiplayEvent, PlayerEventType } from "../Rapier/Multiplay.ts";
 import { Timer } from "@src/components/Ingame/Timer.tsx";
 import Volume from "@src/components/volume.tsx";
@@ -57,13 +57,13 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
   const [timeLeft, setTimeLeft] = useState("");
   const myLineGrids = Array.from({ length: 21 }, () => {
     const graphics = new PIXI.Graphics();
-    graphics.zIndex = 3;  
+    graphics.zIndex = 3;
     return graphics;
   });
-  
+
   const otherLineGrids = Array.from({ length: 21 }, () => {
     const graphics = new PIXI.Graphics();
-    graphics.zIndex = 3; 
+    graphics.zIndex = 3;
     return graphics;
   });
   const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
@@ -79,7 +79,6 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
   useEffect(() => {
     setNickname(getUserNickname());
   },);
-  let bomb: any = undefined;
   useEffect(() => {
     socket.current = io.connect(`${GAME_SOCKET_URL}?roomId=${roomId}&max=${max}`, {
       auth: {
@@ -136,11 +135,14 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
         //폭탄은 eventOn 으로 주고
         // 그외는 'item'으로 준다. 
         if (selectedItem == "BOMB") {
-          let event = MultiplayEvent.fromGame(gameRef.current!, user, PlayerEventType.ITEM_USED);
-          socket.current!.emit('eventOn', event);
-          bomb = await spawnBomb(gameRef.current!, 300, -200);
-        }
-        else {
+          if (gameRef.current) {
+            gameRef.current.nextItem = 'bomb';
+          }
+        } else if (selectedItem == "ROCK") {
+          if (gameRef.current) {
+            gameRef.current.nextItem = 'rock';
+          }
+        } else {
           socket.current!.emit('item', selectedItem);
           applyItem(otherGameRef.current!, selectedItem!);
         }
@@ -199,23 +201,29 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       return;
     }
 
-    sceneRef.current.width = 500;
+    sceneRef.current.width = 510;
     sceneRef.current.height = 800;
     if (!isSinglePlay) {
-      otherSceneRef.current.width = 500;
+      otherSceneRef.current.width = 510;
       otherSceneRef.current.height = 800;
     }
 
     const CollisionEvent = ({ game, bodyA, bodyB }: any) => {
       let collisionX = bodyA.parent()?.userData.type;
       let collisionY = bodyB.parent()?.userData.type;
-      if ((collisionX === 'bomb' || collisionY === 'bomb') &&
+
+      if ((collisionX === 'rock' || collisionY === 'rock') &&
         collisionX !== 'ground' && collisionY !== 'ground' &&
         collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
         collisionX !== 'right_wall' && collisionY !== 'right_wall') {
-        let ver = (collisionX === 'bomb') ? 0 : 1;
+        let ver = (collisionX === 'rock') ? 0 : 1;
         explodeBomb(game, bodyA, bodyB, ver);
         setPlayerScore((prevScore: number) => prevScore + 10000);
+      }
+
+      if ((collisionX === 'rock' || collisionY === 'rock') && (collisionX === 'ground') || (collisionY === 'ground')) {
+        let ver = (collisionX === 'rock') ? bodyA.parent()?.handle : bodyB.parent()?.handle;
+        game.findById(ver).remove();
       }
     }
 
@@ -223,13 +231,19 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     const CollisionEvent1 = ({ game, bodyA, bodyB }: any) => {
       let collisionX = bodyA.parent()?.userData.type;
       let collisionY = bodyB.parent()?.userData.type;
-      if ((collisionX === 'bomb' || collisionY === 'bomb') &&
+
+      if ((collisionX === 'rock' || collisionY === 'rock') &&
         collisionX !== 'ground' && collisionY !== 'ground' &&
         collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
         collisionX !== 'right_wall' && collisionY !== 'right_wall') {
-        let ver = (collisionX === 'bomb') ? 0 : 1;
+        let ver = (collisionX === 'rock') ? 0 : 1;
         explodeBomb(game, bodyA, bodyB, ver);
         setOtherScore((prevScore: number) => prevScore + 10000);
+      }
+
+      if ((collisionX === 'rock' || collisionY === 'rock') && (collisionX === 'ground') || (collisionY === 'ground')) {
+        let ver = (collisionX === 'rock') ? bodyA.parent()?.handle : bodyB.parent()?.handle;
+        game.findById(ver).remove();
       }
     }
 
@@ -254,11 +268,6 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
           const checkOtherResult = otherGame.checkLine(eraseThreshold);
           createScoreBasedGrid(otherLineGrids, checkOtherResult.scoreList, eraseThreshold);
         }
-      }
-
-      if (bomb && bomb.lifetime === currentStep) {
-        bomb.destroy();
-        bomb = undefined;
       }
     }
 
@@ -296,6 +305,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     game.on("prelanding", preLandingEvent);
     game.on("step", StepCallback);
     game.on("blockSpawn", createBlockSpawnEvent(socket.current, app, 48, 150, 40));
+    game.on("itemSpawn", createItemSpawnEvent(socket.current));
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
     let otherGame;
@@ -338,12 +348,15 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       if (!poseNetResult) {
         poseNetResult = await loadPoseNet(videoRef, canvasRef, 776, 668);
       }
+      id = setInterval(poseNetLoop, 250);
       game.resume();
       for (let i = 0; i < countDown.length; i++) {
+        playCountDownSound();
         setCount(String(countDown[i]));
         await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
       }
       setCount("게임 시작!");
+      playGameStartSound();
       await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
       setCount("");
 
@@ -367,7 +380,6 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
 
       await new Promise(resolve => setTimeout(resolve, 3000)); // 3초 대기
 
-      id = setInterval(poseNetLoop, 250);
       game.spawnBlock("T", "red");
       fallingBlockGlow(game.fallingTetromino!, 0xFF0000);
     }
@@ -391,6 +403,9 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     <Volume page="ingame"></Volume>
     <Concentration ref={concentrationLineRef} />
     <Container>
+    <GoGameMainButton visible={true} id="go-home" onClick={() => { window.location.href = '/gamemain'; }}>
+      뒤로가기
+    </GoGameMainButton>
       <CountDown message={count} isCountingDown={isCountingDown}> {count} </CountDown>
       <SceneContainer>
         <SceneCanvas Combine={isCombine} id="game" ref={sceneRef}></SceneCanvas>
