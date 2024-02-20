@@ -150,7 +150,9 @@ export const MultiplayContainer = styled.div`
 export const SceneCanvas = styled.canvas`
   position: absolute;
   top: ${({ id }) => (id === 'otherGame' ? '100px' : '100px')};
-  left: ${({ id }) => (id === 'otherGame' ? '-30px' : '110px')};
+  left: ${({ id }) => (id === 'otherGame' ? '-20px' : '108px')};
+  border: 2px solid black;
+  border-radius: 20px;
 `;
 
 export const VideoContainer = styled.div`
@@ -435,9 +437,9 @@ export const NextBlockImage = styled.div`
 
 export const OtherNickName = styled.div`
   position: absolute;
-  top:56px;
-  right:370px;
-  width: 220px;
+  top:58px;
+  right:380px;
+  width: 180px;
   height: 20px;
   color: #FFF;
   background: #323232;
@@ -498,8 +500,8 @@ export const ItemImage = styled.img`
 
 export const OtherScore = styled.div`
   position: absolute;
-  top: 78px;
-  left: 350px;
+  top: 80px;
+  left: 340px;
   transform: translate(-50%, -50%);
   width: 200px;
   height: 20px;
