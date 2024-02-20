@@ -149,7 +149,7 @@ export function flipViewport(viewport: Viewport) {
 
 export function resetFlipViewport(viewport: Viewport) {
     viewport.scale.x = 1;
-    viewport.x -= 500;
+    viewport.x = 0;
 }
 
 

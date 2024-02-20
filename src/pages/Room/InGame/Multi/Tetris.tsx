@@ -55,8 +55,17 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [nickname, setNickname] = useState("");
   const [timeLeft, setTimeLeft] = useState("");
-  const myLineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
-  const otherLineGrids = Array.from({ length: 21 }, () => new PIXI.Graphics());
+  const myLineGrids = Array.from({ length: 21 }, () => {
+    const graphics = new PIXI.Graphics();
+    graphics.zIndex = 3;  
+    return graphics;
+  });
+  
+  const otherLineGrids = Array.from({ length: 21 }, () => {
+    const graphics = new PIXI.Graphics();
+    graphics.zIndex = 3; 
+    return graphics;
+  });
   const [shootingStars, setShootingStars] = useState<JSX.Element[]>([]);
   const [user, setUser] = useState<string>('')
   const [other, setOther] = useState<string>('')
@@ -66,7 +75,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
   const [isCountingDown, setIsCountingDown] = useState(false);
   const [isCombine, setIsCombine] = useState(false);
 
-  
+
   useEffect(() => {
     setNickname(getUserNickname());
   },);
@@ -289,10 +298,10 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     game.on("blockSpawn", createBlockSpawnEvent(socket.current, app, 48, 150, 40));
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
-
+    let otherGame;
     if (!isSinglePlay) {
       const userId = other;
-      const otherGame = new TetrisMultiplayView(OtherTetrisOption, userId);
+      otherGame = new TetrisMultiplayView(OtherTetrisOption, userId);
       otherGame.on("collision", CollisionEvent1);
       otherGame.on("landing", LandingEvent1);
       otherGame.on("prelanding", preLandingEvent1);
