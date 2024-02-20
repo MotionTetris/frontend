@@ -11,14 +11,13 @@ import { TetrisMultiplayView } from "../Rapier/TetrisMultiplayView.ts";
 import { playCountDownSound, playGameEndSound, playGameStartSound } from "../Rapier/Sound/Sound.ts";
 import { PoseNet } from "@tensorflow-models/posenet";
 import { KeyPointResult, loadPoseNet, processPose } from "../Rapier/PoseNet.ts";
-import { createBlockSpawnEvent, createItemSpawnEvent, createLandingEvent, createUserEventCallback } from "../Rapier/TetrisCallback.ts";
+import { createBlockSpawnEvent, createCollisionEvent, createItemSpawnEvent, createLandingEvent, createStepEvent, createUserEventCallback } from "../Rapier/TetrisCallback.ts";
 import { BackgroundColor1, Night, ShootingStar } from "@src/BGstyles.ts";
 import { useSelector } from 'react-redux';
 import { RootState } from "@app/store";
 import { applyItem, getItemUrl } from "../Rapier/Item.ts";
 import { Timer } from "@src/components/Ingame/Timer.tsx";
 import Volume from "@src/components/volume.tsx";
-import { StepEvent } from "../Rapier/TetrisEvent.ts";
 import { GAME_SOCKET_URL } from "@src/config.ts";
 import { useLocation } from "react-router-dom";
 import { RoomSocketEvent } from "@src/context/roomSocket.ts";
@@ -38,7 +37,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
   const nextBlockRef = useRef<HTMLCanvasElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<TetrisGame | null>(null);
-  const otherGameRef = useRef<TetrisGame | null>(null);
+  const otherGameRef = useRef<TetrisMultiplayView | null>(null);
   const socket = useRef<io.Socket>()
   const otherNicknames = useSelector((state: RootState) => state.game.playersNickname);
   const location = useLocation();
@@ -76,7 +75,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
 
   useEffect(() => {
     setNickname(getUserNickname());
-  },);
+  });
   useEffect(() => {
     socket.current = io.connect(`${GAME_SOCKET_URL}?roomId=${roomId}&max=${max}`, {
       auth: {
@@ -86,7 +85,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
 
     socket.current.on('myName', (nickname: string) => {
       setUser(nickname)
-    })
+    });
 
     socket.current.on('userJoined', (nickname: string) => {
       console.log(`${nickname} 님이 입장하셨습니다.`)
@@ -95,12 +94,10 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     socket.current.on('userLeaved', (nickname: string) => {
       console.log(`${nickname} 님이 입장하셨습니다.`)
       setOther(nickname)
-    })
+    });
 
-    //30초간격의 아이템고르는 이벤트
     socket.current.on('itemSelectTime', (items: string[]) => {
       gameRef.current!.pause();
-      // 형식: "BOMB", "FOG",  "FLIP", "ROTATE_RIGHT", "ROTATE_LEFT",
       const itemImages = items.map(item => {
         const itemUrl = getItemUrl(item);
         return <ItemImage src={itemUrl} />;
@@ -185,14 +182,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
 
 
     if (!sceneRef.current) {
-      console.log("sceneRef is null");
       return;
-    }
-
-    if (!isSinglePlay) {
-      if (!otherSceneRef.current) {
-        return;
-      }
     }
 
     if (!nextBlockRef.current) {
@@ -201,72 +191,9 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
 
     sceneRef.current.width = 510;
     sceneRef.current.height = 800;
-    if (!isSinglePlay) {
-      otherSceneRef.current.width = 510;
-      otherSceneRef.current.height = 800;
-    }
-
-    const CollisionEvent = ({ game, bodyA, bodyB }: any) => {
-      const collisionX = bodyA.parent()?.userData.type;
-      const collisionY = bodyB.parent()?.userData.type;
-
-      if ((collisionX === 'rock' || collisionY === 'rock') &&
-        collisionX !== 'ground' && collisionY !== 'ground' &&
-        collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
-        collisionX !== 'right_wall' && collisionY !== 'right_wall') {
-        const ver = (collisionX === 'rock') ? 0 : 1;
-        explodeRock(game, bodyA, bodyB, ver);
-        setPlayerScore((prevScore: number) => prevScore + 10000);
-      }
-
-      if ((collisionX === 'rock' || collisionY === 'rock') && (collisionX === 'ground') || (collisionY === 'ground')) {
-        const ver = (collisionX === 'rock') ? bodyA.parent()?.handle : bodyB.parent()?.handle;
-        game.findById(ver).remove();
-      }
-    }
-
-
-    const CollisionEvent1 = ({ game, bodyA, bodyB }: any) => {
-      const collisionX = bodyA.parent()?.userData.type;
-      const collisionY = bodyB.parent()?.userData.type;
-
-      if ((collisionX === 'rock' || collisionY === 'rock') &&
-        collisionX !== 'ground' && collisionY !== 'ground' &&
-        collisionX !== 'left_wall' && collisionY !== 'left_wall' &&
-        collisionX !== 'right_wall' && collisionY !== 'right_wall') {
-        const ver = (collisionX === 'rock') ? 0 : 1;
-        explodeRock(game, bodyA, bodyB, ver);
-        setOtherScore((prevScore: number) => prevScore + 10000);
-      }
-
-      if ((collisionX === 'rock' || collisionY === 'rock') && (collisionX === 'ground') || (collisionY === 'ground')) {
-        const ver = (collisionX === 'rock') ? bodyA.parent()?.handle : bodyB.parent()?.handle;
-        game.findById(ver).remove();
-      }
-    }
-
     const preLandingEvent = ({ game, bodyA, bodyB }: any) => {
       game.fallingTetromino?.rigidBody.resetForces(true);
       removeGlow(game.fallingTetromino);
-    }
-
-    const preLandingEvent1 = ({ game, bodyA, bodyB }: any) => {
-      game.fallingTetromino?.rigidBody.resetForces(true);
-      removeGlow(game.fallingTetromino);
-    }
-
-    const LandingEvent = createLandingEvent(eraseThreshold, myLineGrids, setMessage, setPlayerScore, setIsCombine, true, true, socket.current);
-    const LandingEvent1 = createLandingEvent(eraseThreshold, otherLineGrids, setMessage, setOtherScore, setIsCombine, false, false);
-
-    const StepCallback = ({ game, currentStep }: StepEvent) => {
-      if (currentStep % 15 === 0) {
-        const checkResult = game.checkLine(eraseThreshold);
-        createScoreBasedGrid(myLineGrids, checkResult.scoreList, eraseThreshold);
-        if (!isSinglePlay) {
-          const checkOtherResult = otherGame.checkLine(eraseThreshold);
-          createScoreBasedGrid(otherLineGrids, checkOtherResult.scoreList, eraseThreshold);
-        }
-      }
     }
 
     const TetrisOption: TetrisOption = {
@@ -285,11 +212,6 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       backgroundAlpha: 0
     };
 
-    const OtherTetrisOption: TetrisOption = {
-      ...TetrisOption,
-      view: otherSceneRef.current,
-    };
-
     const app = new PIXI.Application({
       view: nextBlockRef.current,
       backgroundColor: 0xFFFFFF,
@@ -298,21 +220,28 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     });
     app.start();
     const game = new TetrisGame(TetrisOption, "user");
-    game.on("collision", CollisionEvent);
-    game.on("landing", LandingEvent);
+    game.on("collision", createCollisionEvent(setPlayerScore));
+    game.on("landing", createLandingEvent(eraseThreshold, myLineGrids, setMessage, setPlayerScore, setIsCombine, true, true, socket.current));
     game.on("prelanding", preLandingEvent);
-    game.on("step", StepCallback);
+    game.on("step", createStepEvent(myLineGrids));
     game.on("blockSpawn", createBlockSpawnEvent(socket.current, app, 48, 150, 40));
     game.on("itemSpawn", createItemSpawnEvent(socket.current));
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
-    let otherGame;
-    if (!isSinglePlay) {
+
+    if (!isSinglePlay && otherSceneRef.current) {
+      otherSceneRef.current.width = 510;
+      otherSceneRef.current.height = 800;
+      const OtherTetrisOption: TetrisOption = {
+        ...TetrisOption,
+        view: otherSceneRef.current,
+      };
       const userId = other;
-      otherGame = new TetrisMultiplayView(OtherTetrisOption, userId);
-      otherGame.on("collision", CollisionEvent1);
-      otherGame.on("landing", LandingEvent1);
-      otherGame.on("prelanding", preLandingEvent1);
+      const otherGame = new TetrisMultiplayView(OtherTetrisOption, userId);
+      otherGame.on("collision", createCollisionEvent(setOtherScore));
+      otherGame.on("landing", createLandingEvent(eraseThreshold, otherLineGrids, setMessage, setOtherScore, setIsCombine, false, false));
+      otherGame.on("prelanding", preLandingEvent);
+      otherGame.on("step", createStepEvent(otherLineGrids));
       otherGame.setWorld(initWorld(RAPIER, OtherTetrisOption));
       otherGameRef.current = otherGame;
     }
@@ -332,7 +261,6 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       }
 
       if (!poseNetResult) {
-
         poseNetResult = await loadPoseNet(videoRef, canvasRef, 776, 668);
       }
       prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback);
@@ -342,17 +270,19 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     const run = async () => {
       const countDown = [5, 4, 3, 2, 1];
       setIsCountingDown(true);
-
       if (!poseNetResult) {
         poseNetResult = await loadPoseNet(videoRef, canvasRef, 776, 668);
       }
+
       id = setInterval(poseNetLoop, 250);
       game.resume();
+
       for (let i = 0; i < countDown.length; i++) {
         playCountDownSound();
         setCount(String(countDown[i]));
         await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
       }
+
       setCount("게임 시작!");
       playGameStartSound();
       await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
@@ -361,20 +291,17 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       socket.current?.emit(RoomSocketEvent.EMIT_PLAY_ON, {});
 
       setIsCountingDown(false);
-      if (!isSinglePlay) {
-        otherGame.run();
-      }
+      otherGameRef.current?.run();
+
 
 
       myLineGrids.forEach((line) => {
         game.graphics.viewport.addChild(line);
       });
 
-      if (!isSinglePlay) {
-        otherLineGrids.forEach((line) => {
-          otherGame.graphics.viewport.addChild(line);
-        });
-      }
+      otherLineGrids.forEach((line) => {
+        otherGameRef.current?.graphics.viewport.addChild(line);
+      });
 
       await new Promise(resolve => setTimeout(resolve, 3000)); // 3초 대기
 
@@ -385,7 +312,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     socket.current?.on('go', (data: string) => {
       run();
       socket.current?.on('eventOn', (event: any) => {
-        otherGame.receiveMultiplayEvent(event);
+        otherGameRef.current?.receiveMultiplayEvent(event);
       });
     });
 
@@ -401,9 +328,9 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     <Volume page="ingame"></Volume>
     <Concentration ref={concentrationLineRef} />
     <Container>
-    <GoGameMainButton visible={true} id="go-home" onClick={() => { window.location.href = '/gamemain'; }}>
-      뒤로가기
-    </GoGameMainButton>
+      <GoGameMainButton visible={true} id="go-home" onClick={() => { window.location.href = '/gamemain'; }}>
+        뒤로가기
+      </GoGameMainButton>
       <CountDown message={count} isCountingDown={isCountingDown}> {count} </CountDown>
       <SceneContainer>
         <SceneCanvas Combine={isCombine} id="game" ref={sceneRef}></SceneCanvas>
@@ -426,7 +353,6 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
         <Video ref={videoRef} autoPlay />
         <VideoCanvas ref={canvasRef} />
       </VideoContainer>
-
       <GameOverModal visible={isGameOver}>
         <GameResult score={playerScore} otherScore={otherScore} />
       </GameOverModal>
@@ -434,7 +360,6 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
         로비로 이동하기
       </GoLobbyButton>
       <Timer timeLeft={timeLeft} />
-
       {!isSinglePlay && (
         <MultiplayContainer>
           <OtherScore> 남의 스코어: {otherScore} </OtherScore>
@@ -452,7 +377,6 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
         {shootingStars}
       </Night>
     </BackgroundColor1>
-
   </>
   );
 };

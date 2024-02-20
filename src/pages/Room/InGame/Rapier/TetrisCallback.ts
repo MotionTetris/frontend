@@ -1,15 +1,16 @@
 import { Socket } from "socket.io-client";
-import { changeBlockGlow, explodeRock, fallingBlockGlow, handleComboEffect, lightEffectToLine, performPushEffect } from "./Effect";
+import { changeBlockGlow, createScoreBasedGrid, explodeRock, fallingBlockGlow, handleComboEffect, lightEffectToLine, performPushEffect } from "./Effect";
 import { KeyPointCallback, KeyPoint } from "./PoseNet";
 import { TetrisGame } from "./TetrisGame";
 import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playBombExplodeSound } from "./Sound/Sound";
 import * as PIXI from "pixi.js";
-import { BlockSpawnEvent, ItemSpawnEvent } from "./TetrisEvent";
+import { BlockSpawnEvent, ItemSpawnEvent, StepEvent } from "./TetrisEvent";
 import { BlockColor, BlockType, Palette } from "./Object/Tetromino";
 import { clearBlock, drawBlock } from "../NextBlockViewer/NextBlock";
 import { createBombBoundary } from "./Line";
 import { Explosion } from "./Effect/Explosion";
 import { playItemSpawnSound } from "./Object/ItemFactory";
+import { eraseThreshold } from "./TetrisContants";
 
 export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
     let nextColorIndex = 0;
@@ -95,13 +96,13 @@ export function createBlockSpawnEvent(socket?: Socket, app?: PIXI.Application, b
 }
 
 export function createItemSpawnEvent(socket?: Socket) {
-    return ({game, item}: ItemSpawnEvent) => {
+    return ({ game, item }: ItemSpawnEvent) => {
         const event = game.onItemSpawned(item);
         socket?.emit('eventOn', event);
     }
 }
 
-export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsCombine: (isCombine: boolean)=>void, needSpawn: boolean, isMyGame: boolean, socket?: Socket) {
+export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsCombine: (isCombine: boolean) => void, needSpawn: boolean, isMyGame: boolean, socket?: Socket) {
     return ({ game, bodyA, bodyB }: any) => {
         playLandingSound();
         const typeA = bodyA.parent()?.userData.type;
@@ -155,9 +156,9 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
         }
 
         if (game.removeLines(checkResult.lines)) {
-            if(isMyGame) {
+            if (isMyGame) {
                 setIsCombine(true);
-                setTimeout(()=> {
+                setTimeout(() => {
                     setIsCombine(false);
                 }, 2500)
             }
@@ -184,5 +185,31 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
             game.spawnBlock(blockToSpawn, blockColor);
             fallingBlockGlow(game.fallingTetromino!, Palette[blockColor][2]);
         }
+    }
+}
+
+export const createCollisionEvent = (setPlayerScore: any) => ({ game, bodyA, bodyB }: any) => {
+    const typeA = bodyA.parent()?.userData.type;
+    const typeB = bodyB.parent()?.userData.type;
+
+    if ((typeA === 'rock' || typeB === 'rock') &&
+        typeA !== 'ground' && typeB !== 'ground' &&
+        typeA !== 'left_wall' && typeB !== 'left_wall' &&
+        typeA !== 'right_wall' && typeB !== 'right_wall') {
+        const ver = (typeA === 'rock') ? 0 : 1;
+        explodeRock(game, bodyA, bodyB, ver);
+        setPlayerScore((prevScore: number) => prevScore + 10000);
+    }
+
+    if ((typeA === 'rock' || typeB === 'rock') && (typeA === 'ground') || (typeB === 'ground')) {
+        const ver = (typeA === 'rock') ? bodyA.parent()?.handle : bodyB.parent()?.handle;
+        game.findById(ver).remove();
+    }
+}
+
+export const createStepEvent = (lineGrids: PIXI.Graphics[]) => ({game, currentStep}: StepEvent) => {
+    if (currentStep % 15 === 0) {
+        const checkResult = game.checkLine(eraseThreshold);
+        createScoreBasedGrid(lineGrids, checkResult.scoreList, eraseThreshold);
     }
 }
