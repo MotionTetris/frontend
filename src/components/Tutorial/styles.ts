@@ -19,6 +19,20 @@ export const ModalContent = styled.div`
   position: relative;
 `;
 
+export const Button = styled.button`
+  position: absolute;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007BFF;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  &:hover {
+    background-color: #0056b3;
+  }
+`;
+
 export const CloseButton = styled.button`
   position: absolute;
   top: 10px;

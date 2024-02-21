@@ -1,6 +1,7 @@
 import React from 'react';
 import { CloseButton, LeftButton, ModalBackground, ModalContent, RightButton } from './styles';
 import { TUTORIAL_1_PNG, TUTORIAL_4_PNG,TUTORIAL_2_GIF, TUTORIAL_3_GIF, TUTORIAL_5_GIF } from '@src/config';
+import { FaArrowRight, FaArrowLeft, FaTimes } from 'react-icons/fa';
 
 // Tutorial 컴포넌트의 props 타입을 정의합니다.
 interface TutorialProps {
@@ -46,7 +47,8 @@ const Tutorial: React.FC<TutorialProps> = ({ isOpen, closeModal }) => {
   return (
     <ModalBackground>
       <ModalContent>
-        <CloseButton onClick={closeModal}>모달 닫기</CloseButton>
+        
+        <CloseButton onClick={closeModal}>닫기</CloseButton>
         {renderContent()}
         <LeftButton onClick={prevPage}>이전 페이지</LeftButton>
         {currentPage < 5 && <RightButton onClick={nextPage}>다음 페이지</RightButton>}
