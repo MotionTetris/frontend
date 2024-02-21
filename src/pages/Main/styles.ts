@@ -64,13 +64,14 @@ export const ButtonContainer = styled.div`
 
 export const CreateRoomButton = styled.button`
   position: relative;
-  top: 200px;
-  right: 80px;
-  width: 90px;
-  height: 35px;
+  top: 220px;
+  right: 60px;
+  width: 120px;
+  height: 80px;
   background-color: white; 
   color: #8A2BE2;
-  font-size: 14px;
+  font-size: 24px;
+  font-family: 'MaplestoryOTFBold';
   border: 1px solid #8A2BE2;;
   border-radius: 5px;
   transition:

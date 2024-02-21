@@ -24,6 +24,7 @@ export const RoomContainer = styled.div`
   width: 200px;
   height: 300px;
   top: 200px;
+  left: -48px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);

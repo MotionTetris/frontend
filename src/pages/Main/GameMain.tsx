@@ -94,7 +94,7 @@ const GameMain = () => {
         새로고침
       </CreateRoomButton>
       <CreateRoomButton onClick={handleCreateRoomClick}>
-        + 방 생성
+        방 생성
       </CreateRoomButton>
       </ButtonContainer>
       <GameRoomGrid>
