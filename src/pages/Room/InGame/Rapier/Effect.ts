@@ -9,6 +9,7 @@ import { TetrisGame } from "./TetrisGame";
 import * as RAPIER from "@dimforge/rapier2d";
 import EXPLOSION_IMAGE from '@assets/explosion.png';
 import * as particles from '@pixi/particle-emitter'
+import { ITetrisObject } from "./Object/TetrisObject";
 
 export const explodeParticleEffect = (x: number, y: number, graphics: Graphics) => {
     const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
@@ -243,7 +244,7 @@ export function startShake(options: ShakeOptions) {
     return ticker; // 추후에 ticker를 멈추기 위해 반환합니다.
 }
 
-export function fallingBlockGlow(fallingBlock: Tetromino, rgb: number) {
+export function fallingBlockGlow(fallingBlock: ITetrisObject, rgb: number) {
     const glowFilter = new GlowFilter({
         distance: 45,
         outerStrength: 2,
@@ -255,7 +256,7 @@ export function fallingBlockGlow(fallingBlock: Tetromino, rgb: number) {
     });
 }
 
-export function fallingBlockGlowWithDelay(fallingBlock: Tetromino) {
+export function fallingBlockGlowWithDelay(fallingBlock: ITetrisObject) {
     setTimeout(function () {
         const glowFilter = new GlowFilter({
             distance: 45,
@@ -269,7 +270,7 @@ export function fallingBlockGlowWithDelay(fallingBlock: Tetromino) {
     }, 50); // 100 밀리세컨드 후에 함수를 실행합니다.
 }
 
-export function changeBlockGlow(fallingBlock: Tetromino, colorIndex: number) {
+export function changeBlockGlow(fallingBlock: ITetrisObject, colorIndex: number) {
 
     const colorList = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
 

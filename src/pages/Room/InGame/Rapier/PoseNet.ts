@@ -1,5 +1,7 @@
 import * as PoseNet from "@tensorflow-models/posenet";
 import { RefObject } from "react";
+import * as PIXI from 'pixi.js';
+import { createRectangle } from "./Effect";
 
 export interface KeyPoint {
     name?: string;
@@ -23,29 +25,27 @@ export interface KeyPointCallback {
 
 const Points = ["leftShoulder", "rightShoulder", "leftElbow", "rightElbow", "leftWrist", "rightWrist"];
 const Nose = "nose";
-function drawKeypoint(keypoint?: PoseNet.Keypoint, renderingContext?: CanvasRenderingContext2D) {
-    if (!keypoint || !renderingContext) {
+function drawKeypoint(keypoint?: PoseNet.Keypoint, app?: PIXI.Application, container?: PIXI.Container) {
+    if (!keypoint || !app || !container) {
         return;
     }
 
     if (Points.includes(keypoint.part)) {
-        drawCircle(keypoint.position.x, keypoint.position.y, 5, "red");
+        let graphic = new PIXI.Graphics();
+        graphic.beginFill(0xFF0000);
+        graphic.drawCircle(keypoint.position.x, keypoint.position.y, 10);
+        graphic.endFill();
+        container.addChild(graphic);
         return;
     }
 
     if (keypoint.part === Nose) {
-        drawCircle(keypoint.position.x, keypoint.position.y, 10, "blue");
+        let graphic = new PIXI.Graphics();
+        graphic.beginFill(0x0000FF);
+        graphic.drawCircle(keypoint.position.x, keypoint.position.y, 20);
+        graphic.endFill();
+        container.addChild(graphic);
         return;
-    }
-
-    function drawCircle(x: number, y: number, radius: number, color: "red" | "blue" | "green" | "yellow") {
-        if (!renderingContext) {
-            return;
-        }
-        renderingContext.beginPath();
-        renderingContext.arc(x, y, radius, 0, 2 * Math.PI);
-        renderingContext.fillStyle = color;
-        renderingContext.fill();
     }
 }
 
@@ -57,10 +57,20 @@ export async function loadPoseNet(video: RefObject<HTMLVideoElement>, canvas: Re
         throw new Error("Failed to load web camera");
     }
 
-    const renderingContext = canvas.current?.getContext("2d");
-    if (!renderingContext) {
+    if (!canvas.current) {
         throw new Error("Failed to get rendering context");
     }
+
+    const app = new PIXI.Application({
+        view: canvas.current,
+        backgroundAlpha: 0
+    });
+    const container = new PIXI.Container();
+    app.stage.addChild(container);
+    
+    const arrows = [];
+    arrows.push(createRectangle(app.stage, "src/assets/arrowLeft.png",  50, 150, 60, 280));
+    arrows.push(createRectangle(app.stage, "src/assets/arrowRight.png" , 50, 150, 630, 280));
 
     video.current.width = videoWidth;
     video.current.height = videoHeight;
@@ -69,19 +79,20 @@ export async function loadPoseNet(video: RefObject<HTMLVideoElement>, canvas: Re
 
     return {
         poseNet: poseNet,
-        renderingContext: renderingContext
-    }
+        app: app,
+        container: container,
+        arrows: arrows
+    };
 }
 
-export async function processPose(poseNet: PoseNet.PoseNet, video: HTMLVideoElement, renderingContext: CanvasRenderingContext2D, prevResult: KeyPointResult, eventCallback: KeyPointCallback): Promise<KeyPointResult> {
+export async function processPose(poseNet: PoseNet.PoseNet, video: HTMLVideoElement, app: PIXI.Application, container: PIXI.Container, prevResult: KeyPointResult, eventCallback: KeyPointCallback): Promise<KeyPointResult> {
     const pose = await poseNet.estimateSinglePose(video, {
         flipHorizontal: true
     });
 
-    /* re-draw keypoints */
-    renderingContext.clearRect(0, 0, video.width, video.height);
+    container.removeChildren();
     pose.keypoints.forEach((k) => {
-        drawKeypoint(k, renderingContext);
+        drawKeypoint(k, app, container);
     });
 
     const leftShoulderKeypoint = pose.keypoints.find(

@@ -13,7 +13,6 @@ export class Graphics {
     scene: PIXI.Container;
     effectScene: PIXI.Container;
     viewport: Viewport;
-    rectangles: Array<PIXI.Sprite>;
     ticker: PIXI.Ticker;
     constructor(option: TetrisOption) {
         // High pixel Ratio make the rendering extremely slow, so we cap it.
@@ -49,9 +48,6 @@ export class Graphics {
         this.viewport.addChild(this.effectScene);
         
         this.viewport.drag().pinch().wheel().decelerate();
-        this.rectangles = [];
-        this.rectangles.push(createRectangle(this.scene, "src/assets/arrowLeft.png",  50, 150, 60, 0));
-        this.rectangles.push(createRectangle(this.scene, "src/assets/arrowRight.png" , 50, 150, 390, 0));
         this.ticker = new PIXI.Ticker();
         
         function onContextMenu(event: UIEvent) {

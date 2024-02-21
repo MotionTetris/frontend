@@ -246,15 +246,14 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       otherGameRef.current = otherGame;
     }
 
-    let poseNetResult: { poseNet: PoseNet; renderingContext: CanvasRenderingContext2D; } | undefined = undefined;
+    let poseNetResult: { poseNet: PoseNet, app: PIXI.Application, container: PIXI.Container, arrows: PIXI.Sprite[] } | undefined = undefined;
     let prevResult: KeyPointResult = {
       leftAngle: 0,
       rightAngle: 0,
       rightWristX: 0,
       leftWristX: 0
     }
-
-    const eventCallback = createUserEventCallback(game, socket.current);
+    let eventCallback: any = undefined;
     const poseNetLoop = async () => {
       if (!videoRef.current) {
         return;
@@ -262,8 +261,9 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
 
       if (!poseNetResult) {
         poseNetResult = await loadPoseNet(videoRef, canvasRef, 776, 668);
+        eventCallback = createUserEventCallback(game, poseNetResult?.arrows, socket.current);
       }
-      prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback);
+      prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.app, poseNetResult.container, prevResult, eventCallback);
     }
 
     let id: any;
@@ -272,6 +272,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       setIsCountingDown(true);
       if (!poseNetResult) {
         poseNetResult = await loadPoseNet(videoRef, canvasRef, 776, 668);
+        eventCallback = createUserEventCallback(game, poseNetResult?.arrows, socket.current);
       }
 
       id = setInterval(poseNetLoop, 250);
