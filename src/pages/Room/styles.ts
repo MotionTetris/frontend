@@ -36,7 +36,7 @@ export const FaBackspaced = styled(IoPlayBackSharp)`
 export const RoomInfoContainer = styled.div`
   position: absolute;
   top: 14%;
-  right: 0%;
+  left: 5%;
   width: 100%;
   height: 100%;
   scale: 1.4;
@@ -48,8 +48,8 @@ export const RoomInfoContainer = styled.div`
 export const GameRoomId = styled.span`
   position: absolute;
   top: 12%;
-   right: 60%;
-  width: 5%;
+  right: 60%;
+  width: 10%;
   height: 5%;
   background: lightblue;
   display: flex;
@@ -60,6 +60,7 @@ export const GameRoomId = styled.span`
   border-radius: 5px;
   color: #333;
   font-weight: bold;
+  font-size: 28px;
   z-index: 1;
   &:before {
     content: "방 번호 : ";
@@ -81,6 +82,7 @@ export const GameRoomTitle = styled.span`
   border-radius: 5px; // 둥근 모서리 효과
   color: #333;
   font-weight: bold;
+  font-size: 28px;
   &:before {
     content: "방 제목 : ";
   }
@@ -219,16 +221,17 @@ export const MotionDot = styled.canvas`
 /* Start 버튼은 Role이 'Creator'에게만 보인다' */
 export const StartButton = styled.button`
   position: absolute;
-  bottom: 20vh;
+  bottom: 7.5vh;
   right: 6vw;
-  width: 8%;
-  height: 5%;
+  width: 12%;
+  height: 12%;
   background-color: #ff4d4d; // 찐한 빨간색 대신 조금 더 부드러운 색상 사용
   display: flex;
   align-items: center;
   justify-content: center;
   color: white; // 텍스트 색상 설정
-  font-size: 1em; // 텍스트 크기 설정
+  font-size: 3em; // 텍스트 크기 설정
+  font-weight: bold;
   cursor: pointer; // 마우스 오버시 커서 변경
   border: none; // 테두리 제거
   border-radius: 5px; // 버튼 모서리 둥글게
@@ -288,8 +291,8 @@ export const StyledPlayer = styled(Player)<{ scale: number, position: string, to
 `;
 
 export const playerStyles = [
-  { scale: 0.8, position: 'absolute', top: '30%', left: '17%' },
-  { scale: 0.8, position: 'absolute', top: '50%', left: '17%' },
-  { scale: 0.4, position: 'absolute', top: '10%', left: '40%' },
-  { scale: 0.5, position: 'absolute', top: '40%', left: '40%' },
+  { scale: 0.8, position: 'absolute', top: '30%', left: '19.6%' },
+  { scale: 0.8, position: 'absolute', top: '50%', left: '19.6%' },
+  { scale: 0.4, position: 'absolute', top: '10%', left: '60%' },
+  { scale: 0.5, position: 'absolute', top: '40%', left: '60%' },
 ];

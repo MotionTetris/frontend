@@ -89,7 +89,7 @@ const Chat: React.FC<ChatProps> = ({ isCreator, players }) => {
     return (
   
       <ChatContainer>
-       <Messages ref={messagesContainerRef}>
+        <Messages ref={messagesContainerRef}>
           {messages.map((msg, index) => {
             if (msg.nickname === '') {
               return (
@@ -125,7 +125,7 @@ const Chat: React.FC<ChatProps> = ({ isCreator, players }) => {
             onCompositionStart={handleCompositionStart}
             onCompositionEnd={handleCompositionEnd}
           />
-          <Button onClick={sendMessage}>보내기</Button>
+          <Button onClick={sendMessage}>전송</Button>
         </MessageInput>
       </ChatContainer>
     );

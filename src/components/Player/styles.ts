@@ -3,7 +3,7 @@ import styled from "styled-components";
 export const PlayerContainer = styled.div`
   position: relative;
   bottom: 35.8vh;
-  left: 20vh;
+  left: 40vh;
   width: 1200px;
   height: 10vh;
   border: 2px solid black;
@@ -14,7 +14,7 @@ export const PlayerContainer = styled.div`
 
 export const PlayerNickName = styled.span`
   position: absolute;
-  top: 2.5vh;
+  top: 1.5vh;
   left: 5vw;
   padding: 0.5em 1em;
   border: 2px solid gray;
@@ -24,7 +24,7 @@ export const PlayerNickName = styled.span`
   display: flex;
   align-items: center;
   transform: scale(1.2);
-  font-size: 22px;
+  font-size: 30px;
   &:hover {
     box-shadow: 0 0 3px black;
   }
@@ -49,12 +49,12 @@ export const VideoContainer = styled.video`
 
 export const Badge = styled.span`
   position: absolute;
-  bottom: 1vw;
+  bottom: 0.7vw;
   right: 3vw;
   background-color: red;
   color: white;
   padding: 10px 10px;
   margin-left: 5px;
   border-radius: 5px;
-  font-size: 30px;
+  font-size: 45px;
 `;
