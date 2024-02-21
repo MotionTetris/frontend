@@ -28,6 +28,7 @@ export enum PlayerEventType {
     ENGINE_PAUSE = 5,
     ENGINE_RESUME = 6,
     SPAWN_ITEM = 7,
+    BLOCK_ACC = 8
 }
 
 export class MultiPlayerContext {

@@ -120,6 +120,9 @@ export class TetrisMultiplayView extends TetrisGame {
             case PlayerEventType.SPAWN_ITEM:
                 this.spawnItem(event?.userData.item);
                 break;
+            case PlayerEventType.BLOCK_ACC:
+                this.gravityScale = 2;
+                break;
             default:
                 console.debug(`undefined evnet at ${this.stepId}, desired keyframe: ${event.stepId}`);
         }

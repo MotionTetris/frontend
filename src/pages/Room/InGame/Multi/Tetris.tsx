@@ -24,6 +24,7 @@ import { RoomSocketEvent } from "@src/context/roomSocket.ts";
 import { eraseThreshold } from "../Rapier/TetrisContants.ts";
 import { changeIngameSoundSpeed } from "@src/components/sound.ts";
 import { getToken, getUserNickname } from "@src/data-store/token.ts";
+import { MultiplayEvent, PlayerEventType } from "../Rapier/Multiplay.ts";
 
 interface TetrisProps {
   isSinglePlay?: boolean;
@@ -228,6 +229,14 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     game.on("itemSpawn", createItemSpawnEvent(socket.current));
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
+
+    socket.current?.on('timer', (timeLeft: string) => {
+      if (timeLeft == "00:30") {
+        const event = MultiplayEvent.fromGame(game, user, PlayerEventType.BLOCK_ACC);
+        game.gravityScale = 2;
+        socket.current?.emit('eventOn', event);
+      }
+    });
 
     if (!isSinglePlay && otherSceneRef.current) {
       otherSceneRef.current.width = 510;

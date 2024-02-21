@@ -40,7 +40,7 @@ export class TetrisGame {
     private _walls: Map<number, Wall>
     private _event: EventEmitter;
     private _latestRequestFrameId?: number;
-
+    private _gravityScale = 1;
     public constructor(option: TetrisOption, userId: string) {
         if (!option.view) {
             throw new Error("Canvas is null");
@@ -147,6 +147,14 @@ export class TetrisGame {
 
     public get sequence() {
         return this._sequence;
+    }
+
+    public set gravityScale(scale: number) {
+        this._gravityScale = scale;
+    }
+
+    public get gravityScale() {
+        return this._gravityScale;
     }
 
     public run(time?: number) {
@@ -277,7 +285,8 @@ export class TetrisGame {
 
         newBody.rigidBody.setLinearDamping(0.25);
         newBody.rigidBody.setAngularDamping(10);
-
+        newBody.rigidBody.setGravityScale(this._gravityScale, false);
+        
         if (!spawnedForFalling) {
             this.tetrominos.set(newBody.rigidBody.handle, newBody);
         } else {
