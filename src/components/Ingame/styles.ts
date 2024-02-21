@@ -22,10 +22,13 @@ export const LeftTime = styled.div`
 
 export const ChatContainer = styled.div`
   position: absolute;
-  left: 100px;
+  top: 250px;
+  left: 50px;
   display: flex;
   flex-direction: column;
-  max-width: 400px;
+  width: 400px;
+  height: 600px;
+  max-width: 600px;
   margin: auto;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -34,7 +37,7 @@ export const ChatContainer = styled.div`
 
 export const Messages = styled.div`
   padding: 10px;
-  height: 300px;
+  height: 600px;
   overflow-y: auto;
   background-color: #f9f9f9;
 `;
@@ -42,6 +45,7 @@ export const MessageBox = styled.div<{ isMine: boolean }>`
   display: inline-block;
   max-width: 70%;
   border-radius: 10px;
+  font-size: 30px;
   padding: 10px;
   background-color: ${props => props.isMine ? '#A9E4D7' : '#E4A9BD'};
   margin-bottom: 4px;
@@ -63,6 +67,7 @@ export const JoinMessage = styled.div`
   text-align: center;
   padding: 5px 0;
   font-style: italic;
+  font-size: 20px;
   color: #6c757d;
   background-color: #f8f9fa;
   border-radius: 5px;
@@ -73,6 +78,7 @@ export const MessageInput = styled.div`
   display: flex;
   background-color: #fff;
   padding: 10px;
+  height: 100px;
 `;
 
 export const Input = styled.input`
@@ -81,11 +87,12 @@ export const Input = styled.input`
   border-radius: 4px;
   padding: 8px;
   margin-right: 10px;
+  font-size: 25px;
 `;
 
 export const Nickname = styled.div`
-  font-size: 0.8em;
   color: #888;
+  font-size: 25px;
 `;
 
 
@@ -95,6 +102,7 @@ export const Button = styled.button`
   border: none;
   border-radius: 4px;
   padding: 8px 15px;
+  font-size: 25px;
   cursor: pointer;
   &:hover {
     background-color: #0056b3;
