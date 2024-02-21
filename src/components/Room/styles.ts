@@ -60,8 +60,8 @@ export const RoomTitleContainer = styled.div`
 
 export const RoomTitle = styled.h3`
   position: absolute;
-  top: 0;
-  font-size: 32px;
+  top: 7px;
+  font-size: 25px;
   color: white;
   margin-bottom: 10px;
 `;

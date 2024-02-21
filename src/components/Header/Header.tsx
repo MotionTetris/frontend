@@ -69,19 +69,19 @@ const Header: React.FC = () => {
             to="/gamelobby"
             image="src/assets/Home.png"
           >
-            게임 로비
+            로비
           </HeaderStyledLink>
           <HeaderStyledLink
             to="/gamemain"
             image="src/assets/Lobby.png"
           >
-            게임 시작
+            시작
           </HeaderStyledLink>
           <HeaderStyledLink
             to="/gamedashboard"
             image="src/assets/DashBoard.png"
           >
-            랭킹
+            정보 변경
           </HeaderStyledLink>
         </HeaderStyledLinkContainer>
       </HeaderContainer>

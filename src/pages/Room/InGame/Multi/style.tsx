@@ -1,6 +1,6 @@
 import styled, { css, keyframes } from 'styled-components';
 import { BOMB_URL, FOG_URL, FLIP_URL, FLIP_NOT_URL, ROTATE_NOT_URL, ROTATE_LEFT_URL, ROTATE_RIGHT_URL } from "../../../../config"
-
+import CardImage from "../../../../../public/assets/Card.png"
 
 export const ButtonContainer = styled.div`
   position: absolute;
@@ -152,14 +152,6 @@ interface CombineLineProps {
   Combine: boolean;
 }
 
-const glow = keyframes`
-  0% {
-    box-shadow: inset 0 0 10px #ffffff, inset 0 0 20px #ffffff, inset 0 0 30px #ffffff;
-  }
-  100% {
-    box-shadow: inset 0 0 10px #00ff00, inset 0 0 20px #00ff00, inset 0 0 30px #00ff00;
-  }
-`;
 
 export const SceneCanvas = styled.canvas<CombineLineProps>`
   position: absolute;
@@ -267,7 +259,7 @@ const fadeIn = keyframes`
 
 const popin = keyframes`
   0% { transform: scale(0); opacity: 0; }
-  50% { transform: scale(1.5); opacity: 0.7; } // scale의 크기를 더 크게 조정
+  50% { transform: scale(1.5); opacity: 0.7; }
   100% { transform: scale(1); opacity: 1; }
 `;
 
@@ -495,16 +487,32 @@ export const CardContainer = styled.div`
   padding: 20px;
   z-index: 50;
 `;
+const glow = keyframes`
+  0% {
+    box-shadow: 0 0 5px #3A4CA8, 0 0 10px #657ED4, 0 0 15px #657ED4, 0 0 20px #3A4CA8;
+  }
+  
+  50% {
+    box-shadow: 0 0 10px #3A4CA8, 0 0 15px #657ED4, 0 0 20px #657ED4, 0 0 30px #3A4CA8;
+  }
+
+  100% {
+    box-shadow: 0 0 5px #3A4CA8, 0 0 10px #657ED4, 0 0 15px #657ED4, 0 0 20px #3A4CA8;
+  }
+`;
+
 
 export const Card = styled.div`
   width: 400px;
   height: 600px;
   margin: 0 10px;
-  background: white;
-  border: 1px solid white;
-  box-shadow: 12px 17px 51px rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(6px);
-  border-radius: 17px;
+  background: url(${CardImage}) center / cover no-repeat;
+  background-size: 100% 100%;
+  box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+  backdrop-filter: blur( 4.5px );
+  -webkit-backdrop-filter: blur( 4.5px );
+  border-radius: 20px;
+  border: 1px solid rgba( 255, 255, 255, 0.18 );
   text-align: center;
   cursor: pointer;
   transition: all 0.5s;
@@ -519,7 +527,7 @@ export const Card = styled.div`
   &:focus {
     border: 1px solid black;
     transform: scale(1.25);
-    box-shadow: 0 0 10px black;
+    animation: ${glow} 0.25s infinite; // 반짝이는 효과 설정
     z-index: 60;
   }
   &:not(:focus) {

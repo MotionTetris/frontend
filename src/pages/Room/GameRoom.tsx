@@ -170,10 +170,8 @@ const GameRoom: React.FC = () => {
           disabled={players.length !== 1 && !isGameALLReady}
           onClick={() => {
             if (players.length === 1) {
-              if (window.confirm('싱글 게임으로 시작하시겠습니까?')) {
                 playStartSound();
                 navigate(`/gameplay?roomId=${roomInfo?.roomInfo.roomId}&max=${roomInfo?.roomInfo.maxCount}`);
-              }
             } else {
               roomSocket?.emit(RoomSocketEvent.EMIT_GAME_START);
               playStartSound();
