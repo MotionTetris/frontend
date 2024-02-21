@@ -63,7 +63,7 @@ export function createUserEventCallback(game: TetrisGame, arrows: PIXI.Sprite[],
             }
             const alpha = (nose.x - centerX) / 300;
             const forceMagnitude = Math.abs(nose.x - centerX) / (centerX);
-            performPushEffect(arrows[0], arrows[1], alpha, 60, 630);
+            performPushEffect(arrows[0], arrows[1], alpha, 90, 660);
             const event = game.onMoveLeft(forceMagnitude);
             socket?.emit('eventOn', event);
         },
@@ -75,7 +75,7 @@ export function createUserEventCallback(game: TetrisGame, arrows: PIXI.Sprite[],
             }
             const alpha = (nose.x - centerX) / 300;
             const forceMagnitude = Math.abs(nose.x - centerX) / (centerX);
-            performPushEffect(arrows[1], arrows[0], alpha, 630, 60);
+            performPushEffect(arrows[1], arrows[0], alpha, 660, 90);
             const event = game.onMoveRight(forceMagnitude);
             socket?.emit('eventOn', event);
         }

@@ -69,8 +69,8 @@ export async function loadPoseNet(video: RefObject<HTMLVideoElement>, canvas: Re
     app.stage.addChild(container);
     
     const arrows = [];
-    arrows.push(createRectangle(app.stage, "src/assets/arrowLeft.png",  50, 150, 60, 280));
-    arrows.push(createRectangle(app.stage, "src/assets/arrowRight.png" , 50, 150, 630, 280));
+    arrows.push(createRectangle(app.stage, "src/assets/arrowLeft.png",  50, 150, 90, 280));
+    arrows.push(createRectangle(app.stage, "src/assets/arrowRight.png" , 50, 150, 660, 280));
 
     video.current.width = videoWidth;
     video.current.height = videoHeight;
