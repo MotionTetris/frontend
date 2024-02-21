@@ -135,7 +135,7 @@ const TetrisSingle: React.FC = () => {
       game.spawnBlock("T", "red");
       fallingBlockGlow(game.fallingTetromino!, 0xFF0000);
 
-      let poseNetResult: { poseNet: PoseNet; renderingContext: CanvasRenderingContext2D; } | undefined = undefined;
+      let poseNetResult: { poseNet: PoseNet, app: PIXI.Application, container: PIXI.Container, arrows: PIXI.Sprite[] } | undefined = undefined;
       let prevResult: KeyPointResult = {
         leftAngle: 0,
         rightAngle: 0,
@@ -143,7 +143,7 @@ const TetrisSingle: React.FC = () => {
         leftWristX: 0
       }
 
-      const eventCallback = createUserEventCallback(game);
+      let eventCallback: any = undefined;
       const poseNetLoop = async () => {
         if (!videoRef.current) {
           return;
@@ -151,8 +151,9 @@ const TetrisSingle: React.FC = () => {
     
         if (!poseNetResult) {
           poseNetResult = await loadPoseNet(videoRef, canvasRef, 776, 618);
+          eventCallback = createUserEventCallback(game, poseNetResult?.arrows);
         }
-        prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.renderingContext, prevResult, eventCallback);
+        prevResult = await processPose(poseNetResult.poseNet, videoRef.current, poseNetResult.app, poseNetResult.container, prevResult, eventCallback);
       }
 
       let id: any;
