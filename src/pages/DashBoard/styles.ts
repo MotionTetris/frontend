@@ -73,7 +73,7 @@ export const Button = styled.button`
   outline: none;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
-
+  font-family: "JalnanGothic", sans-serif;
   &:hover {
     background-color: #45a049;
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
@@ -100,6 +100,7 @@ export const ByeButton = styled.button`
   outline: none;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+  font-family: "JalnanGothic", sans-serif;
 
   &:hover {
     background-color: #ff0e00 ;

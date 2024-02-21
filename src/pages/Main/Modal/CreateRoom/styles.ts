@@ -30,9 +30,6 @@ export const CreateRoomContainer = styled.div`
   max-width: 600px;
 `;
 export const RoomLabel = styled.label`
-     font-family: 'JalnanGothic';
-  font-weight: normal;
-  font-style: normal;
   font-size: 46px;
 `;
 
@@ -89,6 +86,8 @@ export const CreateRoomYesButton = styled.button`
   transition: box-shadow 0.3s;
   width: 80px;
   height: 30px;
+  font-size: 24px;
+  font-family: 'MaplestoryOTFBold';
   &:hover {
     box-shadow: 0 0 10px rgba(0, 0, 255, 0.2);
   }
@@ -103,8 +102,10 @@ export const CreateRoomNoButton = styled.button`
   color: blue;
   border: none;
   transition: box-shadow 0.3s;
-  width: 80px;
+  width: 120px;
   height: 30px;
+  font-size: 24px;
+  font-family: 'MaplestoryOTFBold';
   &:hover {
     box-shadow: 0 0 10px rgba(0, 0, 255, 0.2);
   }
@@ -147,7 +148,6 @@ export const CreateRoomMain = styled.span`
   top: 8vh;
   left: 22%;
   transform: translate(-50%, -50%);
-  font-family: 'JalnanGothic';
   font-weight: normal;
   font-style: normal;
   font-size: 60px;
@@ -159,7 +159,7 @@ export const OutlinedInputWrapper = styled.div`
   margin-bottom: 10px;
   width: 90%;
   position: absolute;
-  top: 22vh;
+  top: 18vh;
 
   &:hover,
     &:focus {
@@ -171,16 +171,16 @@ export const OutlinedInputWrapper = styled.div`
     width: 100%;
     border: 1px solid #000;
     border-radius: 10px;
-    font-size: 1.3em;
+    font-size: 2em;
   }
   
   & label {
     position: absolute;
     left: 10px;
-    top: -10px;
+    top: -30px;
     background: #fff;
     padding: 0 5px;
-    font-size: 1em;
+    font-size: 2em;
     pointer-events: none;
     transition: 0.2s;
     color: #000;
@@ -205,7 +205,7 @@ export const OutlinedSelectWrapper = styled.div`
     appearance: none;
     position: relative;
     background-color: white;
-    font-size: 1.3em;
+    font-size: 2em;
   }
 
   &:hover,
@@ -216,11 +216,11 @@ export const OutlinedSelectWrapper = styled.div`
   & label {
     position: absolute;
     left: 10px;
-    top: 0px;
+    top: -10px;
     z-index: 10;
     background: #fff;
     padding: 0 5px;
-    font-size: 1em;
+    font-size: 2em;
     pointer-events: none;
     transition: 0.2s;
     color: #000;

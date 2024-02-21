@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { useRoomSocket, RoomSocketEvent } from "@context/roomSocket";
 import { CreateRoomCard, LobbyGameRoomCard } from "@type/Refactoring"
 import { createRoomAPI } from "@api/room";
-import {ROOM_BG1_URL,ROOM_BG2_URL,ROOM_BG3_URL,ROOM_BG4_URL,ROOM_BG5_URL} from "@src/config"
+import { ROOM_BG1_URL, ROOM_BG2_URL, ROOM_BG3_URL, ROOM_BG4_URL, ROOM_BG5_URL } from "@src/config"
 interface CreateCreateRoomProps {
   onClose: () => void;
 }
@@ -34,7 +34,7 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-  
+
     // 입력값의 길이가 10자를 넘어가면 경고 메시지를 설정합니다.
     if (value.length > 10) {
       setWarningMessage("방 제목은 10자 이하로 구성되야합니다");
@@ -49,9 +49,9 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
     currentCount: 1,
     maxCount: selectedOption,
     backgroundUrl: [ROOM_BG1_URL, ROOM_BG2_URL, ROOM_BG3_URL, ROOM_BG4_URL, ROOM_BG5_URL][Math.floor(Math.random() * 5)],
-    roomStatus:"WAIT",
-    isLock:"UNLOCK",
-    password:""
+    roomStatus: "WAIT",
+    isLock: "UNLOCK",
+    password: ""
   };
 
 
@@ -61,13 +61,13 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
     setSelectedOption(Number(e.target.value));
   };
 
-  const handleCreateRoom = async() => {
+  const handleCreateRoom = async () => {
     const roomInfo = await createRoomAPI(rodomData)
     setCreateRooms([...(createRooms || []), roomInfo]);
-    const {message:{roomId}} = roomInfo;
-    roomSocket?.emit(RoomSocketEvent.EMIT_CREATE_ROOM,{roomId});
+    const { message: { roomId } } = roomInfo;
+    roomSocket?.emit(RoomSocketEvent.EMIT_CREATE_ROOM, { roomId });
     onClose();
-    navigate(`/rooms/${roomId}`, { state: { roomInfo: roomInfo.message, isCreator: true } });  
+    navigate(`/rooms/${roomId}`, { state: { roomInfo: roomInfo.message, isCreator: true } });
   };
 
   return (
@@ -87,11 +87,11 @@ const CreateRoom: React.FC<CreateCreateRoomProps> = ({ onClose }) => {
             <option value="1">1</option>
             <option value="2">2</option>
           </RoomSelect>
-         </OutlinedSelectWrapper>
+        </OutlinedSelectWrapper>
 
         <CreateRoomActions>
           <CreateRoomNoButton onClick={onClose}>아니오</CreateRoomNoButton>
-          <CreateRoomYesButton  onClick={handleCreateRoom}>예</CreateRoomYesButton>
+          <CreateRoomYesButton onClick={handleCreateRoom}>예</CreateRoomYesButton>
         </CreateRoomActions>
       </CreateRoomContainer>
     </CreateRoomBackground>
