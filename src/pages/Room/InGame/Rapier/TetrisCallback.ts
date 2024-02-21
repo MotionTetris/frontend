@@ -12,7 +12,7 @@ import { Explosion } from "./Effect/Explosion";
 import { playItemSpawnSound } from "./Object/ItemFactory";
 import { eraseThreshold } from "./TetrisContants";
 
-export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
+export function createUserEventCallback(game: TetrisGame, arrows: PIXI.Sprite[], socket?: Socket) {
     let nextColorIndex = 0;
     const eventCallback: KeyPointCallback = {
         onRotateLeft: function (_keypoints: Map<string, KeyPoint>): void {
@@ -63,7 +63,7 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
             }
             const alpha = (nose.x - centerX) / 300;
             const forceMagnitude = Math.abs(nose.x - centerX) / (centerX);
-            performPushEffect(game.graphics.rectangles[0], game.graphics.rectangles[1], alpha, 60, 390);
+            performPushEffect(arrows[0], arrows[1], alpha, 60, 630);
             const event = game.onMoveLeft(forceMagnitude);
             socket?.emit('eventOn', event);
         },
@@ -75,7 +75,7 @@ export function createUserEventCallback(game: TetrisGame, socket?: Socket) {
             }
             const alpha = (nose.x - centerX) / 300;
             const forceMagnitude = Math.abs(nose.x - centerX) / (centerX);
-            performPushEffect(game.graphics.rectangles[1], game.graphics.rectangles[0], alpha, 390, 60);
+            performPushEffect(arrows[1], arrows[0], alpha, 630, 60);
             const event = game.onMoveRight(forceMagnitude);
             socket?.emit('eventOn', event);
         }
