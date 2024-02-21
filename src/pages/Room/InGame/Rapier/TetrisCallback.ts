@@ -4,7 +4,7 @@ import { KeyPointCallback, KeyPoint } from "./PoseNet";
 import { TetrisGame } from "./TetrisGame";
 import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playBombExplodeSound } from "./Sound/Sound";
 import * as PIXI from "pixi.js";
-import { BlockSpawnEvent, ItemSpawnEvent, StepEvent } from "./TetrisEvent";
+import { BlockCollisionEvent, BlockSpawnEvent, ItemSpawnEvent, StepEvent } from "./TetrisEvent";
 import { BlockColor, BlockType, Palette } from "./Object/Tetromino";
 import { clearBlock, drawBlock } from "../NextBlockViewer/NextBlock";
 import { createBombBoundary } from "./Line";
@@ -103,7 +103,7 @@ export function createItemSpawnEvent(socket?: Socket) {
 }
 
 export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graphics[], setMessage: (message: string) => void, setPlayerScore: (score: (prevScore: number) => number) => void, setIsCombine: (isCombine: boolean) => void, needSpawn: boolean, isMyGame: boolean, socket?: Socket) {
-    return ({ game, bodyA, bodyB }: any) => {
+    return ({ game, bodyA, bodyB }: BlockCollisionEvent) => {
         playLandingSound();
         const typeA = bodyA.parent()?.userData.type;
         const typeB = bodyB.parent()?.userData.type;
@@ -133,13 +133,12 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
             const translation = find.parent()?.translation();
             const boundary = createBombBoundary(translation.x, translation.y, 400, 400);
             game.removeLines([boundary]);
-            console.log(boundary);
+            setPlayerScore((prevScore) => prevScore + 30000);
             game.findById(find.parent()?.handle)?.remove();
             const explode = new Explosion(translation.x, translation.y, 4);
             explode.addTo(game.graphics.effectScene);
             explode.animate(0);
             playBombExplodeSound();
-            console.log(translation);
         }
 
         const checkResult = game.checkLine(eraseThreshold);
