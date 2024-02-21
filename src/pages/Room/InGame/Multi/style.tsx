@@ -404,6 +404,8 @@ left: 0%; // 위치를 변경
 background-color: #000064;
 color: white;
 cursor: pointer;
+font-family: 'MaplestoryOTFBold';
+font-size: 20px;
 pointer-events: auto;
 &:hover {
   background-color: #000288;

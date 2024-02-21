@@ -37,6 +37,8 @@ export const CloseButton = styled.button`
   position: absolute;
   top: 10px;
   right: 10px;
+  font-family: 'MaplestoryOTFBold';
+  font-size: 24px;
 `;
 
 export const NavigationButton = styled.button`
@@ -46,8 +48,12 @@ export const NavigationButton = styled.button`
 
 export const LeftButton = styled(NavigationButton)`
   left: 10px;
+  font-family: 'MaplestoryOTFBold';
+  font-size: 24px;
 `;
 
 export const RightButton = styled(NavigationButton)`
+  font-family: 'MaplestoryOTFBold';
   right: 10px;
+  font-size: 24px;
 `;

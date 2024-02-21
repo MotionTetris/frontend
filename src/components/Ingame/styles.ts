@@ -103,6 +103,7 @@ export const Button = styled.button`
   border-radius: 4px;
   padding: 8px 15px;
   font-size: 25px;
+  font-family: 'MaplestoryOTFBold';
   cursor: pointer;
   &:hover {
     background-color: #0056b3;

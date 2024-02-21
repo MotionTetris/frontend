@@ -21,20 +21,26 @@ export const RoomInfoContainer = styled.div`
   max-width: 600px;
 `;
 
-export const RoomInfoTitle = styled.h2``;
+export const RoomInfoTitle = styled.h2`
+  font-size: 32px;
+`;
 
-export const RoomInfoContent = styled.p``;
+export const RoomInfoContent = styled.p`
+  font-size: 32px;
+`;
 
 export const RoomInfoActions = styled.div`
   display: flex;
   justify-content: flex-end;
+  font-family: 'MaplestoryOTFBold';
   margin-top: 20px;
 `;
 
 export const RoomInfoButton = styled.button`
   padding: 10px 20px;
-
+  font-family: 'MaplestoryOTFBold';
   margin-left: 10px;
+  font-size: 24px;
 `;
 
 // 새로운 컴포넌트를 위한 스타일 추가

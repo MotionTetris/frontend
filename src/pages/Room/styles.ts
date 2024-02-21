@@ -232,6 +232,7 @@ export const StartButton = styled.button`
   color: white; // 텍스트 색상 설정
   font-size: 3em; // 텍스트 크기 설정
   font-weight: bold;
+  font-family: 'MaplestoryOTFBold';
   cursor: pointer; // 마우스 오버시 커서 변경
   border: none; // 테두리 제거
   border-radius: 5px; // 버튼 모서리 둥글게
