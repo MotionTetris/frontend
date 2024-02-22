@@ -218,37 +218,38 @@ export const MotionDot = styled.canvas`
   height: 100%;
 `;
 
-/* Start 버튼은 Role이 'Creator'에게만 보인다' */
 export const StartButton = styled.button`
   position: absolute;
   bottom: 7.5vh;
   right: 6vw;
   width: 12%;
   height: 12%;
-  background-color: #ff4d4d; // 찐한 빨간색 대신 조금 더 부드러운 색상 사용
+  background-color: #ff7979;
+  color: #fff;
+  border: none;
+  border-radius: 40px;
+  padding: 10px 20px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  box-shadow: 2px 2px 5px #ff7979;
+  transition: all 0.2s ease-in-out;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white; // 텍스트 색상 설정
-  font-size: 3em; // 텍스트 크기 설정
+  font-size: 40px;
   font-weight: bold;
   font-family: 'MaplestoryOTFBold';
-  cursor: pointer; // 마우스 오버시 커서 변경
-  border: none; // 테두리 제거
-  border-radius: 5px; // 버튼 모서리 둥글게
-  transition:
-    background-color 0.3s,
-    box-shadow 0.3s; // 배경색 및 그림자 변화에 애니메이션 효과
-
   &:hover {
-    background-color: #ff6666; // 호버 시 색상을 더 부드럽게 변경
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.1); // 호버 시 빨간색 glow 효과
+    background-color: #2f3640;
+    color: #ff7979;
+    box-shadow: 2px 2px 20px #2f3640;
+    transform: translateY(-2px);
   }
   &:disabled {
-    background-color: #cccccc; // 회색으로 변경
-    color: #666666; // 텍스트 색상을 어둡게 변경
-    cursor: not-allowed; // 마우스 오버시 커서 변경
-    box-shadow: none; // 그림자 제거
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    box-shadow: none;
   }
 `;
 
@@ -257,13 +258,13 @@ export const ReadyButton = styled.span<{ isReady: boolean }>`
   bottom: 20vh;
   right: 6vw;
   width: 8%;
-  height: 5%;
+  height: 8%;
   background-color: ${props => props.isReady ? '#4d4dff' : '#ff4d4d'};
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1em;
+  font-size: 30px;
   cursor: pointer;
   border: none;
   border-radius: 5px;

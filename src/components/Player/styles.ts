@@ -14,7 +14,7 @@ export const PlayerContainer = styled.div`
 
 export const PlayerNickName = styled.span`
   position: absolute;
-  top: 1.5vh;
+  top: 1.2vh;
   left: 5vw;
   padding: 0.5em 1em;
   border: 2px solid gray;
@@ -23,7 +23,7 @@ export const PlayerNickName = styled.span`
   transition: box-shadow 0.3s;
   display: flex;
   align-items: center;
-  transform: scale(1.2);
+  transform: scale(0.9);
   font-size: 30px;
   &:hover {
     box-shadow: 0 0 3px black;
@@ -49,12 +49,12 @@ export const VideoContainer = styled.video`
 
 export const Badge = styled.span`
   position: absolute;
-  bottom: 0.7vw;
+  bottom: 0.9vw;
   right: 3vw;
   background-color: red;
   color: white;
   padding: 10px 10px;
   margin-left: 5px;
   border-radius: 5px;
-  font-size: 45px;
+  font-size: 30px;
 `;

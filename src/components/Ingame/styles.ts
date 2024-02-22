@@ -78,16 +78,18 @@ export const MessageInput = styled.div`
   display: flex;
   background-color: #fff;
   padding: 10px;
-  height: 100px;
+  height: 40px;
 `;
 
 export const Input = styled.input`
   flex-grow: 1;
   border: 1px solid #ddd;
+  width: 10px;
   border-radius: 4px;
   padding: 8px;
   margin-right: 10px;
   font-size: 25px;
+  font-family: 'MaplestoryOTFBold';
 `;
 
 export const Nickname = styled.div`
@@ -101,7 +103,7 @@ export const Button = styled.button`
   color: white;
   border: none;
   border-radius: 4px;
-  padding: 8px 15px;
+  padding: 5px 10px;
   font-size: 25px;
   font-family: 'MaplestoryOTFBold';
   cursor: pointer;
