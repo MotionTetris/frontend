@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
 import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, CountDown, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, OtherScore, ItemImage, DarkBackground, Concentration, GoGameMainButton } from "./style.tsx"
-import { createScoreBasedGrid, fallingBlockGlow, removeGlow, explodeRock, starWarp } from "../Rapier/Effect.ts";
+import { fallingBlockGlow, removeGlow, starWarp } from "../Rapier/Effect.ts";
 import * as io from 'socket.io-client';
 import * as PIXI from "pixi.js";
 import "@tensorflow/tfjs";
@@ -192,7 +192,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
 
     sceneRef.current.width = 510;
     sceneRef.current.height = 800;
-    const preLandingEvent = ({ game, bodyA, bodyB }: any) => {
+    const preLandingEvent = ({ game }: any) => {
       game.fallingTetromino?.rigidBody.resetForces(true);
       removeGlow(game.fallingTetromino);
     }
@@ -225,7 +225,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     game.on("landing", createLandingEvent(eraseThreshold, myLineGrids, setMessage, setPlayerScore, setIsCombine, true, true, socket.current));
     game.on("prelanding", preLandingEvent);
     game.on("step", createStepEvent(myLineGrids));
-    game.on("blockSpawn", createBlockSpawnEvent(socket.current, app, 48, 150, 40));
+    game.on("blockSpawn", createBlockSpawnEvent(socket.current, app, 48, 150, 40)!);
     game.on("itemSpawn", createItemSpawnEvent(socket.current));
     gameRef.current = game;
     game.setWorld(initWorld(RAPIER, TetrisOption));
@@ -320,7 +320,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       fallingBlockGlow(game.fallingTetromino!, 0xFF0000);
     }
 
-    socket.current?.on('go', (data: string) => {
+    socket.current?.on('go', () => {
       run();
       socket.current?.on('eventOn', (event: any) => {
         otherGameRef.current?.receiveMultiplayEvent(event);

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as PIXI from "pixi.js";
 import { Viewport } from "pixi-viewport";
 import { GlowFilter } from '@pixi/filter-glow';

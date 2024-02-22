@@ -8,7 +8,6 @@ import {
   BannerSlideNumber,
 } from "./styles";
 import { useNavigate } from "react-router-dom";
-import { useRoomSocket } from "@src/context/roomSocket";
 import { createRoomAPI } from "@src/api/room";
 import { getUserNickname } from "@src/data-store/token";
 import { ROOM_BG1_URL, ROOM_BG2_URL, ROOM_BG3_URL, ROOM_BG4_URL, ROOM_BG5_URL } from "@src/config";

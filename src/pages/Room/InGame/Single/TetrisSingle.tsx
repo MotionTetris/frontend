@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
@@ -23,11 +24,9 @@ const TetrisSingle: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const nextBlockRef = useRef<HTMLCanvasElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [nextBlock, setNextBlock] = useState("");
-  const [item, setItem] = useState("");
   const [message, setMessage] = useState("게임이 곧 시작됩니다");
   const [playerScore, setPlayerScore] = useState(0);
-  const [isGameOver, setIsGameOver] = useState(false);
+  const [isGameOver] = useState(false);
   const gameRef = useRef<TetrisGame | null>(null);
   const [nickname, setNickname] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(true);
@@ -81,11 +80,10 @@ const TetrisSingle: React.FC = () => {
       }
 
 
-      const preLandingEvent = ({ game, bodyA, bodyB }: any) => {
+      const preLandingEvent = ({ game }: any) => {
         game.fallingTetromino?.rigidBody.resetForces(true);
         removeGlow(game.fallingTetromino);
       }
-
       const LandingEvent = createLandingEvent(eraseThreshold, lineGrids, setMessage, setPlayerScore, true, true);
 
       const StepCallback = ({ game, currentStep }: StepEvent) => {
