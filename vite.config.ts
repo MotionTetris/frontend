@@ -33,7 +33,7 @@ export default defineConfig({
         }
       },
       "/room-api": {
-        target: "http://54.180.148.103:3000/",
+        target: "https://captainwook.site/",
         changeOrigin: true,
         rewrite: (path) => {
           const newPath = path.replace('/room-api', '/room');
