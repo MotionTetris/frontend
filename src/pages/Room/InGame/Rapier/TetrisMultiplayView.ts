@@ -122,6 +122,7 @@ export class TetrisMultiplayView extends TetrisGame {
                 break;
             case PlayerEventType.BLOCK_ACC:
                 this.gravityScale = 2;
+                this.fallingTetromino?.rigidBody.setGravityScale(2, false);
                 break;
             default:
                 console.debug(`undefined evnet at ${this.stepId}, desired keyframe: ${event.stepId}`);

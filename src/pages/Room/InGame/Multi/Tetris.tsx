@@ -231,9 +231,10 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     game.setWorld(initWorld(RAPIER, TetrisOption));
 
     socket.current?.on('timer', (timeLeft: string) => {
-      if (timeLeft == "00:30") {
+      if (timeLeft == "01:00") {
         const event = MultiplayEvent.fromGame(game, user, PlayerEventType.BLOCK_ACC);
         game.gravityScale = 2;
+        game.fallingTetromino?.rigidBody.setGravityScale(2, false);
         socket.current?.emit('eventOn', event);
       }
     });
