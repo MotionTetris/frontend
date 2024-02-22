@@ -161,7 +161,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
 
     //남은시간
     socket.current.on('timer', (timeLeft: string) => {
-      if (timeLeft == "00:30") {
+      if (timeLeft == "01:00") {
         changeIngameSoundSpeed(1.25);
         if (warpControllerRef.current) {
           warpControllerRef.current.setWarpSpeed(1);

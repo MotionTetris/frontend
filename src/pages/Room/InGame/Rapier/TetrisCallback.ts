@@ -1,5 +1,5 @@
 import { Socket } from "socket.io-client";
-import { changeBlockGlow, createScoreBasedGrid, explodeRock, fallingBlockGlow, handleComboEffect, lightEffectToLine, performPushEffect } from "./Effect";
+import { changeBlockGlow, createScoreBasedGrid, explodeRock, fallingBlockGlow, handleComboEffect, lightEffectToLine, performPushEffect, startShake } from "./Effect";
 import { KeyPointCallback, KeyPoint } from "./PoseNet";
 import { TetrisGame } from "./TetrisGame";
 import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playBombExplodeSound } from "./Sound/Sound";
@@ -124,6 +124,13 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
             typeA !== 'right_wall' && typeB !== 'right_wall') {
             const ver = (typeA === 'rock') ? 0 : 1;
             explodeRock(game, bodyA, bodyB, ver);
+            startShake({ viewport: game.graphics.viewport, strength: 50, duration: 400 + 50 });
+            if (isMyGame) {
+                setIsCombine(true);
+                setTimeout(() => {
+                    setIsCombine(false);
+                }, 2500)
+            }
         }
 
         if ((typeA === 'bomb' || typeB === 'bomb') &&
@@ -139,6 +146,13 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
             explode.addTo(game.graphics.effectScene);
             explode.animate(0);
             playBombExplodeSound();
+            startShake({ viewport: game.graphics.viewport, strength: 100, duration: 400 + 50 })
+            if (isMyGame) {
+                setIsCombine(true);
+                setTimeout(() => {
+                    setIsCombine(false);
+                }, 2500)
+            }
         }
 
         const checkResult = game.checkLine(eraseThreshold);
