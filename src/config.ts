@@ -1,4 +1,4 @@
-export const ROOM_SOCKET_URL = "wss://captainwook.site";
+export const ROOM_SOCKET_URL = "https://captainwook.site";
 export const GAME_SOCKET_URL = "ws://15.164.166.146:3001";
 export const ROOM_BG1_URL = "https://i.postimg.cc/y6f2C0sm/Tetris-back1.png"
 export const ROOM_BG2_URL = "https://i.postimg.cc/CLc8NLCL/Tetris-back2.png"
