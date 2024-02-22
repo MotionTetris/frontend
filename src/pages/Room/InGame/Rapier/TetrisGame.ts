@@ -101,7 +101,7 @@ export class TetrisGame {
                 this.graphics.addCollider(coll, coll.parent()?.userData.color, coll.parent()?.userData.alpha);
                 return;
             }
-            this.graphics.addCollider(coll, "blue");
+            this.graphics.addCollider(coll, 'orange');
         });
 
         world.forEachRigidBody((body) => {

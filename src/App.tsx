@@ -1,6 +1,5 @@
-import React, {useEffect, useState} from "react";
-import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from "react-router-dom";
-
+import React from "react";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import GameMain from "./pages/Main/GameMain";
 import GameLobby from "./pages/Lobby/GameLobby";
 import GameDashBoard from "./pages/DashBoard/GameDashBoard";
@@ -29,7 +28,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
       return children;
     }
 
-    if (getExpiresAt() < now) {
+    let expires = getExpiresAt();
+    if (expires && expires < now) {
       removeToken();
       alert("로그인이 만료되었습니다.");
       return children;

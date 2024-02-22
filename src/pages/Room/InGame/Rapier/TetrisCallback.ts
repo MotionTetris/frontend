@@ -5,7 +5,7 @@ import { TetrisGame } from "./TetrisGame";
 import { playBlockRotateSound, playDefeatSound, playExplodeSound, playLandingSound, playBombExplodeSound } from "./Sound/Sound";
 import * as PIXI from "pixi.js";
 import { BlockCollisionEvent, BlockSpawnEvent, ItemSpawnEvent, StepEvent } from "./TetrisEvent";
-import { BlockColor, BlockType, Palette } from "./Object/Tetromino";
+import { Palette } from "./Object/Tetromino";
 import { clearBlock, drawBlock } from "../NextBlockViewer/NextBlock";
 import { createBombBoundary } from "./Line";
 import { Explosion } from "./Effect/Explosion";
@@ -84,6 +84,9 @@ export function createUserEventCallback(game: TetrisGame, arrows: PIXI.Sprite[],
 }
 
 export function createBlockSpawnEvent(socket?: Socket, app?: PIXI.Application, blockSize?: number, x?: number, y?: number) {
+    if (!blockSize || !x || !y) {
+        return;
+    }
     const blocks = drawBlock(blockSize);
     return ({ game, blockType, blockColor, nextBlockType, nextBlockColor }: BlockSpawnEvent) => {
         const event = game.onBlockSpawned(blockType, blockColor, nextBlockType, nextBlockColor);
@@ -141,6 +144,7 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
             const boundary = createBombBoundary(translation.x, translation.y, 400, 400);
             game.removeLines([boundary]);
             setPlayerScore((prevScore) => prevScore + 30000);
+            // @ts-ignore
             game.findById(find.parent()?.handle)?.remove();
             const explode = new Explosion(translation.x, translation.y, 4);
             explode.addTo(game.graphics.effectScene);
@@ -187,8 +191,11 @@ export function createLandingEvent(eraseThreshold: number, lineGrids: PIXI.Graph
 
 
         }
-        const blockToSpawn: BlockType = game.nextBlock;
-        const blockColor: BlockColor = game.nextBlockColor;
+        const blockToSpawn = game.nextBlock;
+        const blockColor = game.nextBlockColor;
+        if (!blockToSpawn || !blockColor) {
+            return;
+        }
         if (needSpawn) {
             if (game.nextItem) {
                 playItemSpawnSound(game.nextItem)();
