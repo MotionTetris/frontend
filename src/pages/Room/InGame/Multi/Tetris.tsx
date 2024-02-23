@@ -377,7 +377,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       <GameOverModal visible={isGameOver}>
         <GameResult score={playerScore} otherScore={otherScore} />
       </GameOverModal>
-      <GoLobbyButton visible={isGameOver} id="go-home" onClick={() => { window.location.href = '/gamemain'; }}>
+      <GoLobbyButton visible={isGameOver} id="go-home" onClick={() => { window.location.href = '/gamelobby'; }}>
         로비로 이동하기
       </GoLobbyButton>
       <Timer timeLeft={timeLeft} />
