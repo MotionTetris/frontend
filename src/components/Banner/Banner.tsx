@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { createRoomAPI } from "@src/api/room";
 import { getUserNickname } from "@src/data-store/token";
 import { ROOM_BG1_URL, ROOM_BG2_URL, ROOM_BG3_URL, ROOM_BG4_URL, ROOM_BG5_URL } from "@src/config";
+import { RoomSocketEvent, useRoomSocket } from "@src/context/roomSocket";
 
 const bannerImages = [
   "/assets/Banner1.png",
@@ -19,6 +20,7 @@ const bannerImages = [
 const Banner: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
+  const roomSocket = useRoomSocket();
   const nickname = getUserNickname();
   const navigateTo = async () => {
     const roomInfo = await createRoomAPI({
@@ -30,7 +32,9 @@ const Banner: React.FC = () => {
       isLock: "UNLOCK",
       password: ""
     });
-    navigate("/rooms/${roomId}", { state: { roomInfo: roomInfo.message, isCreator: true } });
+    const { message: { roomId } } = roomInfo;
+    roomSocket?.emit(RoomSocketEvent.EMIT_CREATE_ROOM, { roomId });
+    navigate(`/rooms/${roomId}`, { state: { roomInfo: roomInfo.message, isCreator: true } });
   };
 
   useEffect(() => {
