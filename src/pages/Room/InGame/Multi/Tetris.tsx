@@ -383,7 +383,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       <Timer timeLeft={timeLeft} />
       {!isSinglePlay && (
         <MultiplayContainer>
-          <OtherMessageDiv> 아이템을 선택중입니다! {otherMessage} </OtherMessageDiv>
+          <OtherMessageDiv> {otherMessage} </OtherMessageDiv>
           <OtherScore> 남의 스코어: {otherScore} </OtherScore>
           <SceneCanvas Combine={false} id="otherGame" ref={otherSceneRef} />
           {Array.from(otherNicknames).map((nickname, index) => (
