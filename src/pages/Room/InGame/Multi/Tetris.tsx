@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TetrisGame } from "../Rapier/TetrisGame.ts";
 import { initWorld } from "../Rapier/World.ts";
-import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, CountDown, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, OtherScore, ItemImage, DarkBackground, Concentration, GoGameMainButton } from "./style.tsx"
+import { Container, SceneCanvas, VideoContainer, Video, VideoCanvas, CountDown, MessageDiv, SceneContainer, UserNickName, Score, GameOverModal, GameResult, GoLobbyButton, TetrisNextBlockContainer, MultiplayContainer, NextBlockImage, NextBlockText, TextContainer, OtherNickName, CardContainer, Card, OtherScore, ItemImage, DarkBackground, Concentration, GoGameMainButton, OtherMessageDiv } from "./style.tsx"
 import { fallingBlockGlow, removeGlow, starWarp } from "../Rapier/Effect.ts";
 import * as io from 'socket.io-client';
 import * as PIXI from "pixi.js";
@@ -47,6 +47,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
   const max = queryParams.get('max');
   const isSinglePlay = max === '1';
   const [message, setMessage] = useState("");
+  const [otherMessage, setOtherMessage] = useState("");
   const [count, setCount] = useState("곧 게임이 시작합니다.");
   const [playerScore, setPlayerScore] = useState(0);
   const [otherScore, setOtherScore] = useState(0);
@@ -130,6 +131,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
         }
         //폭탄은 eventOn 으로 주고
         // 그외는 'item'으로 준다. 
+        socket.current!.emit('itemEnd');
         if (selectedItem == "BOMB") {
           if (gameRef.current) {
             gameRef.current.nextItem = 'bomb';
@@ -150,6 +152,14 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
     socket.current.on('selectedItem', (selectedItem: string) => {
       applyItem(gameRef.current!, selectedItem);
     });
+
+    socket.current.on('otherItem', (otherItem: boolean) => {
+      setOtherMessage("아이템을 선택중입니다!")
+    });
+
+    socket.current.on('itemEnd',()=>{
+      setOtherMessage("");
+    })
 
     //모달 띄우기
     socket.current.on('gameEnd', (isEnded: boolean) => {
@@ -373,6 +383,7 @@ const Tetris: React.FC<TetrisProps> = ({ }) => {
       <Timer timeLeft={timeLeft} />
       {!isSinglePlay && (
         <MultiplayContainer>
+          <OtherMessageDiv> 아이템을 선택중입니다! {otherMessage} </OtherMessageDiv>
           <OtherScore> 남의 스코어: {otherScore} </OtherScore>
           <SceneCanvas Combine={false} id="otherGame" ref={otherSceneRef} />
           {Array.from(otherNicknames).map((nickname, index) => (

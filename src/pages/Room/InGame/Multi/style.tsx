@@ -568,3 +568,33 @@ export const Concentration = styled.canvas`
   height: 100%;
   z-index: -1;
 `;
+
+export const OtherMessageDiv = styled.div`
+  position: absolute;
+  top: 30%;
+  left: 38%;
+  color: #3A4CA8;
+  padding: 0px;
+  font-family: "DNFBitBitv2", sans-serif;
+  font-style: light;
+  font-weight: 600;
+  font-size: 40px;
+  z-index: 5;
+  transform: translate(-50%, -50%);
+  background: transparent;
+  text-shadow: 
+    2px 2px 0px #FFF,
+    -2px -2px 0px #FFF,
+    -2px 2px 0px #FFF,
+    2px -2px 0px #FFF,
+    20px 0px 5px rgba(0, 0, 0, 0.5);
+  animation: light 1s linear infinite;
+  text-align: center;
+  white-space: nowrap;
+  
+  @keyframes light {
+    0% { color: #3A4CA8; }
+    50% { color: #657ED4; }
+    100% { color: #3A4CA8; }
+  }
+`;
