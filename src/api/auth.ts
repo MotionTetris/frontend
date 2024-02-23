@@ -20,3 +20,8 @@ export const loginAPI = async (nickname: string, password: string) => {
   });
   return response.data;
 };
+
+export const guestLogin = async () => {
+  const response = await axios.post("/api/user/guest/");
+  return response.data;
+}

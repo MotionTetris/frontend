@@ -18,7 +18,7 @@ import {
 import SignupModal from "@pages/Homepage/Modal/Signup/SignupModal";
 import { useDispatch } from "react-redux";
 import { setUser } from "@redux/hompage/homepageSlice";
-import { loginAPI } from "@api/auth";
+import { guestLogin, loginAPI } from "@api/auth";
 import { FaUserAlt } from "react-icons/fa";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
@@ -60,9 +60,18 @@ const LoginModal: React.FC = () => {
     }
   };
 
-  const handleGuestLogin = () => {
+  const handleGuestLogin = async () => {
     console.log("Guest login");
-    // 게스트 로그인 로직
+    try {
+      const response = await guestLogin();
+      dispatch(setUser({nickname: response.nickname, email: response.email}));
+      setToken(response.access_token);
+      playLoginSound();
+      navigate("/gamelobby");
+    } catch (error) {
+      console.log(error);
+      alert("게스트 로그인에 실패하였습니다.");
+    }
   };
 
   const handleSignup = () => {
