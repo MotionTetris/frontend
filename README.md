@@ -31,33 +31,10 @@
 ## 🛠️ 기술 스택
 <img width="847" alt="motiontetris_logo" src="https://github.com/MotionTetris/frontend/assets/75386336/7c9308cd-3875-4226-ae16-232797c1d348">
 
-## 🎮 게임 기능
+## 🎮 소개 영상
+https://youtu.be/FIagiAZJaDg
 
-### 로그인
-![로그인_1](https://github.com/MotionTetris/frontend/assets/75386336/cf416616-b382-441c-b9c8-98338f10fa08)
-### 회원가입
-![회원가입_1](https://github.com/MotionTetris/frontend/assets/75386336/7f7a1cc3-b9a0-4126-a971-14a3e9b6a7be)
-
-### 싱글 플레이
-
-### 블록 회전
-
-### 블록 이동
-
-### 콤보 
-
-### 멀티 플레이 
-
-### 방 만들기
-![게임룸_1](https://github.com/MotionTetris/frontend/assets/75386336/9a6379ba-9575-46eb-928d-c3631d5f6d2f)
-
-### 아이템 사용
-
-### 게임 결과
-
-## 💣 트러블 슈팅
 
 ## 🧾 포스터
 <img width="847" alt="motiontetris_logo" src="https://github.com/MotionTetris/frontend/assets/75386336/72b92eae-8e19-4868-8a5a-ae1406f12e05">
 
-## 👬 멤버
