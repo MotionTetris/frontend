@@ -32,7 +32,7 @@
 <img width="847" alt="motiontetris_logo" src="https://github.com/MotionTetris/frontend/assets/75386336/7c9308cd-3875-4226-ae16-232797c1d348">
 
 ## 🎮 소개 영상
-https://youtu.be/FIagiAZJaDg
+[![Youtube Video](http://img.youtube.com/vi/FIagiAZJaDg/0.jpg)](http://www.youtube.com/watch?v=FIagiAZJaDg)
 
 
 ## 🧾 포스터
